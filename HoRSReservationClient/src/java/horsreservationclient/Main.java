@@ -57,6 +57,7 @@ public class Main {
             System.out.print("> Contact Number: ");
             long number = Long.parseLong(sc.nextLine());
             
+            
             if (guestSessionBeanRemote.verifyRegisterDetails(firstName, lastName, email, number)) {
                 Guest newGuest = new Guest(firstName, lastName, number, email, new ArrayList<>());
                 guestSessionBeanRemote.createNewGuest(newGuest);
