@@ -15,8 +15,7 @@ import javax.ejb.Remote;
 @Remote
 public interface GuestSessionBeanRemote {
     public boolean verifyLoginDetails(String email);
-    public boolean verifyRegisterDetails(String firstName, String lastName, String email, long contactNum);
-    
+    public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email);    
     public Long createNewGuest(Guest guest);
 
     public boolean checkGuestExists(String email);

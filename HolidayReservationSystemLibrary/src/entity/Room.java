@@ -30,13 +30,15 @@ public class Room implements Serializable {
     private RoomType roomType;
 
     public Room() {
+        this.roomType = null;
     }
 
-    public Room(Integer roomLevel, Integer roomNum, Boolean isAvailable, RoomType roomType) {
+    public Room(Integer roomLevel, Integer roomNum, Boolean isAvailable) {
+        this();
         this.roomLevel = roomLevel;
         this.roomNum = roomNum;
         this.isAvailable = isAvailable;
-        this.roomType = roomType;
+        
     }
 
     public Long getRoomId() {

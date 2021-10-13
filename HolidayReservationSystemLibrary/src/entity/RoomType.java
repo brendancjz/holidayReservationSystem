@@ -26,7 +26,7 @@ public class RoomType implements Serializable {
     private Long roomTypeId;
     private String roomTypeName;
     private String roomTypeDesc;
-    private Integer size;
+    private Integer roomSize;
     private Integer numOfBeds;
     private Integer capacity;
     private String amenities;
@@ -36,17 +36,17 @@ public class RoomType implements Serializable {
     private ArrayList<Room> rooms;
 
     public RoomType() {
+        this.rates = new ArrayList<>();
+        this.rooms = new ArrayList<>();
     }
 
-    public RoomType(String roomTypeName, String roomTypeDesc, Integer size, Integer numOfBeds, Integer capacity, String amenities, ArrayList<RoomRate> rates, ArrayList<Room> rooms) {
+    public RoomType(String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities) {
         this.roomTypeName = roomTypeName;
         this.roomTypeDesc = roomTypeDesc;
-        this.size = size;
+        this.roomSize = roomSize;
         this.numOfBeds = numOfBeds;
         this.capacity = capacity;
         this.amenities = amenities;
-        this.rates = rates;
-        this.rooms = rooms;
     }
 
     public Long getRoomTypeId() {
@@ -73,12 +73,12 @@ public class RoomType implements Serializable {
         this.roomTypeDesc = roomTypeDesc;
     }
 
-    public Integer getSize() {
-        return size;
+    public Integer getRoomSize() {
+        return roomSize;
     }
 
-    public void setSize(Integer size) {
-        this.size = size;
+    public void setSize(Integer roomSize) {
+        this.roomSize = roomSize;
     }
 
     public Integer getNumOfBeds() {

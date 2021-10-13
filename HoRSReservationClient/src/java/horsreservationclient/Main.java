@@ -150,7 +150,7 @@ public class Main {
             }
             Long number = Long.parseLong(numberInput);
             
-            if (guestSessionBeanRemote.verifyRegisterDetails(firstName, lastName, email, number)) {
+            if (guestSessionBeanRemote.verifyRegisterDetails(firstName, lastName, number, email)) {
                 Guest newGuest = new Guest(firstName, lastName, number, email);
                 guestSessionBeanRemote.createNewGuest(newGuest);
                 System.out.println("Welcome, you're in!");

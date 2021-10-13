@@ -28,7 +28,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     }
     
     @Override
-    public boolean verifyRegisterDetails(String firstName, String lastName, String email, long contactNum) {
+    public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email) {
         return true;
     }
     
