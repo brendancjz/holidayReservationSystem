@@ -15,9 +15,10 @@ import javax.ejb.Local;
 @Local
 public interface GuestSessionBeanLocal {
     
-    public boolean checkGuestExists(String email, long contactNum);
-    public boolean verifyLoginDetails(String email, long contactNum);
+    public boolean checkGuestExists(String email);
+    public boolean verifyLoginDetails(String email);
     public boolean verifyRegisterDetails(String firstName, String lastName, String email, long contactNum);
     public Long createNewGuest(Guest guest);
+    public Guest getGuestByEmail(String email);
     
 }

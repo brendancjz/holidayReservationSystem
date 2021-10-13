@@ -23,7 +23,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     private EntityManager em;
 
     @Override
-    public boolean verifyLoginDetails(String email, long contactNum) {
+    public boolean verifyLoginDetails(String email) {
         return true;
     }
     
@@ -33,17 +33,23 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     }
     
     @Override
-    public boolean checkGuestExists(String email, long contactNum) {
-        Query query = em.createQuery("SELECT g FROM Guest g");
-        
+    public boolean checkGuestExists(String email) {
         boolean guestExists = false;
-        List<Guest> guestList = query.getResultList();
-        for (Guest guest : guestList) {
-            if (guest.getContactNumber() == contactNum && guest.getEmail().equals(email)) {
-                guestExists = true;
-            }
-        }
         
+        try {
+            Query query = em.createQuery("SELECT g FROM Guest g");
+        
+            
+            List<Guest> guestList = query.getResultList();
+            for (Guest guest : guestList) {
+                if (guest.getEmail().equals(email)) {
+                    guestExists = true;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("** checkGuestExists throwing error " + e.getMessage());
+        }
+   
         return guestExists;
     }
     
@@ -54,6 +60,19 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         
         return guest.getGuestId();
     }
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
+    
+    @Override
+    public Guest getGuestByEmail(String email) {
+        Guest guest = null;
+        try {
+            Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email=?1");
+            query.setParameter(1, email);
+            
+            guest = (Guest) query.getSingleResult();
+        } catch (Exception e) {
+            System.out.println("** getGuestByEmail throwing error " + e.getMessage());
+        }
+        
+        return guest;
+    }
 }

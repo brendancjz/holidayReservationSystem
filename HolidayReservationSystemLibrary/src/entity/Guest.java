@@ -34,14 +34,16 @@ public class Guest implements Serializable {
     private ArrayList<Reservation> reservations;
 
     public Guest() {
+        this.reservations = new ArrayList<Reservation>();
     }
 
-    public Guest(String firstName, String lastName, Long contactNumber, String email, ArrayList<Reservation> reservations) {
+    public Guest(String firstName, String lastName, Long contactNumber, String email) {
+        this();
         this.firstName = firstName;
         this.lastName = lastName;
         this.contactNumber = contactNumber;
         this.email = email;
-        this.reservations = reservations;
+        
     }
 
     public Long getGuestId() {

@@ -29,7 +29,6 @@ public class DataInitSessionBean {
     @PostConstruct
     public void postConstruct() {
         try {
-            guestSessionBean.createNewGuest(new Guest("theo", "doric", 12341234L, "theo@gmail.com", new ArrayList<>()));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
