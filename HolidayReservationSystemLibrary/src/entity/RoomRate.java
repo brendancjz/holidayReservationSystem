@@ -39,6 +39,15 @@ public class RoomRate implements Serializable {
         this.roomType = null;
     }
 
+    public RoomRate(String roomRateName, String roomRateType, Double ratePerNight) {
+        this();
+        this.roomRateName = roomRateName;
+        this.roomRateType = roomRateType;
+        this.ratePerNight = ratePerNight;
+        this.startDate = null;
+        this.endDate = null;
+    }
+    
     public RoomRate(String roomRateName, String roomRateType, Double ratePerNight, Date startDate, Date endDate) {
         this();
         this.roomRateName = roomRateName;
