@@ -71,14 +71,10 @@ public class DataInitSessionBean {
                     RoomType roomType = em.find(RoomType.class, roomTypeIds[i]);
                     System.out.println("RoomType Id: " + roomType.getRoomTypeId()); 
                     for (int j = 0; j < roomRatesIds[i].length; j++) {
-                        
                         RoomRate roomRate = em.find(RoomRate.class, roomRatesIds[i][j]);
                         roomRate.setRoomType(roomType);
-                        System.out.println("Managed to setRoomType"); 
                         ArrayList<RoomRate> rates = roomType.getRates();
-                        System.out.println("rates is null?? " + rates.isEmpty());
                         rates.add(roomRate);
-                        System.out.println("Managed to add Room Rate");
                         System.out.println("Linking RoomType: " + roomType.getRoomTypeName() + " with RoomRate: " + roomRate.getRoomRateName());
                     }
                 }
@@ -88,6 +84,7 @@ public class DataInitSessionBean {
                 
                 //Link Room Types to Room
                 //Link Room to Room Types
+                System.out.println("Linking RoomType and Room");
                 for (int i = 0; i < roomTypeIds.length; i++) {
                     RoomType roomType = em.find(RoomType.class,roomTypeIds[i]);
                     for (int j = 0; j < roomIds[i].length; j++) {
