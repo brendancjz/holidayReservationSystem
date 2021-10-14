@@ -17,4 +17,5 @@ import javax.ejb.Local;
 public interface RoomRateSessionBeanLocal {
     public Long createNewRoomRate(RoomRate roomRate);
     public List<RoomRate> retrieveAllRoomRates();
+    public List<RoomRate> getRoomRatesByRoomTypeIdAndDates(Long roomTypeId, String checkIn, String checkOut);
 }

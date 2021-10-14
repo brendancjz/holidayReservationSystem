@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -42,5 +43,18 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         }
         
         return rooms;
+    }
+    
+    @Override
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) {
+        List<RoomRate> rates = null;
+        try {
+            RoomType roomType = em.find(RoomType.class, id);
+            rates = roomType.getRates();
+        } catch (Exception e) {
+            System.out.println("** getRoomRatesByRoomTypeId throwing error " + e.getMessage());
+        }
+        
+        return rates;
     }
 }

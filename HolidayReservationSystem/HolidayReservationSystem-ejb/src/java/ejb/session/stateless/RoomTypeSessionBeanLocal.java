@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
@@ -18,4 +19,5 @@ public interface RoomTypeSessionBeanLocal {
     public List<RoomType> retrieveAllRoomTypes();
     
     public Long createNewRoomType(RoomType roomType);
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);
 }

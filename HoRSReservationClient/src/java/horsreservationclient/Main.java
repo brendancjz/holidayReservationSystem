@@ -6,8 +6,13 @@
 package horsreservationclient;
 
 import ejb.session.stateless.GuestSessionBeanRemote;
+import ejb.session.stateless.RoomRateSessionBeanRemote;
+import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Guest;
-import java.util.ArrayList;
+import entity.RoomRate;
+import entity.RoomType;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import javax.ejb.EJB;
 
@@ -16,6 +21,12 @@ import javax.ejb.EJB;
  * @author brend
  */
 public class Main {
+
+    @EJB
+    private static RoomRateSessionBeanRemote roomRateSessionBean;
+
+    @EJB
+    private static RoomTypeSessionBeanRemote roomTypeSessionBean;
 
     @EJB
     private static GuestSessionBeanRemote guestSessionBeanRemote;
@@ -58,9 +69,11 @@ public class Main {
             
             if (guestSessionBeanRemote.verifyLoginDetails(email) && 
                     guestSessionBeanRemote.checkGuestExists(email)) {
-                System.out.println("Welcome, you're in!\n");
                 
-                doDashboardFeatures(sc, guestSessionBeanRemote.getGuestByEmail(email).getGuestId());
+                Guest currGuest = guestSessionBeanRemote.getGuestByEmail(email);
+                System.out.println("Welcome " + currGuest.getFirstName() + ", you're in!\n");
+                
+                doDashboardFeatures(sc, currGuest.getGuestId());
             } else {
                 System.out.println("No account match or wrong login details. Try again.\n");
                 doLogin(sc);
@@ -76,6 +89,7 @@ public class Main {
         System.out.println("> 5. Logout");
         System.out.print("> ");
         int input = sc.nextInt();
+        sc.nextLine();
         
         switch (input) {
             case 1:
@@ -119,6 +133,57 @@ public class Main {
     
     public static void doSearchHotelRoom(Scanner sc, Long guestId) {
         System.out.println("==== Search Hotel Room Interface ====");
+        System.out.println("Please input your check-in and check-out dates. Follow the format 'YYYY-MM-DD'.");
+        System.out.print("> Check-In Date: ");
+        String checkIn = sc.nextLine();
+        System.out.print("> Check-Out Date: ");
+        String checkOut = sc.nextLine();
+        System.out.println();
+        
+        //Output all the room types, give guest option to select the room he wants to search
+        System.out.println("Which Hotel Room would you like to view?");
+        List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
+        int count = 1;
+        for (RoomType type : types ) {
+            System.out.println("> " + count++ + ". " + type.getRoomTypeDesc() + "\n     ** Amenities: " + type.getAmenities());
+        }
+        System.out.print("> ");
+        int input = sc.nextInt();
+        sc.nextLine();
+        System.out.println();
+        
+        RoomType selectedRoomType = types.get(input - 1);
+        System.out.println("You have selected " + selectedRoomType.getRoomTypeDesc());
+       
+        //TODO FIXED THIS =========================
+        //Search promo rate then peak rate then normal rate, which is from the back of the list
+        List<RoomRate> rates = roomRateSessionBean.getRoomRatesByRoomTypeIdAndDates(selectedRoomType.getRoomTypeId(), checkIn, checkOut);
+        
+        for (RoomRate rate : rates ) {
+            System.out.println("Room Rate " + rate.getRoomRateName());
+        }
+        
+        /*
+        Double selectedRate = null;
+        for (int i = rates.size() - 1; i >= 0; i--) {
+            RoomRate rate = rates.get(i);
+            
+            Date startDate = rate.getStartDate();
+            Date endDate = rate.getEndDate();
+            if (startDate == null && endDate == null && rate.getRoomRateName().equals("NormalRate")) {
+                selectedRate = rate.getRatePerNight();
+            } else {
+                System.out.println("Start Date: " + startDate);
+                System.out.println("Start Date Instant: " + startDate.toInstant().toString());
+            }
+            
+            
+        }
+        */
+        
+        //Check room availability based on the existing reservations and rooms 
+        
+        //Out the room types that are available and their rates
     }
     
     public static void doRegistration(Scanner sc) {
