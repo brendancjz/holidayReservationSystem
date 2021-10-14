@@ -44,25 +44,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         return rooms;
     }
 
-    @Override
-    public List<RoomRate> getRoomRatesByRoomTypeIdAndDates(Long roomTypeId, String checkIn, String checkOut) {
-        List<RoomRate> rates = null;
-        try {
-            Query query = em.createQuery("SELECT r FROM RoomRate r WHERE r.roomType=?1 "
-                    + "AND r.startDate<=?2 AND r.endDate>=?3 OR (r.startDate IS NULL AND r.endDate IS NULL)");
-            query.setParameter(1, roomTypeId);
-            query.setParameter(2, checkIn);
-            query.setParameter(3, checkOut);
-            
-            rates = query.getResultList();
-            
-        } catch (Exception e) {
-            System.out.println("** getRoomRatesByRoomTypeIdAndDates throwing error " + e.getMessage());
-        }
-        
-        return rates;
-        
-    }
+    
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
 }

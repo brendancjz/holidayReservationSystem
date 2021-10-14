@@ -11,7 +11,12 @@ import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Guest;
 import entity.RoomRate;
 import entity.RoomType;
-import java.util.Date;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
 import javax.ejb.EJB;
@@ -132,58 +137,98 @@ public class Main {
     }
     
     public static void doSearchHotelRoom(Scanner sc, Long guestId) {
-        System.out.println("==== Search Hotel Room Interface ====");
-        System.out.println("Please input your check-in and check-out dates. Follow the format 'YYYY-MM-DD'.");
-        System.out.print("> Check-In Date: ");
-        String checkIn = sc.nextLine();
-        System.out.print("> Check-Out Date: ");
-        String checkOut = sc.nextLine();
-        System.out.println();
-        
-        //Output all the room types, give guest option to select the room he wants to search
-        System.out.println("Which Hotel Room would you like to view?");
-        List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
-        int count = 1;
-        for (RoomType type : types ) {
-            System.out.println("> " + count++ + ". " + type.getRoomTypeDesc() + "\n     ** Amenities: " + type.getAmenities());
-        }
-        System.out.print("> ");
-        int input = sc.nextInt();
-        sc.nextLine();
-        System.out.println();
-        
-        RoomType selectedRoomType = types.get(input - 1);
-        System.out.println("You have selected " + selectedRoomType.getRoomTypeDesc());
-       
-        //TODO FIXED THIS =========================
-        //Search promo rate then peak rate then normal rate, which is from the back of the list
-        List<RoomRate> rates = roomRateSessionBean.getRoomRatesByRoomTypeIdAndDates(selectedRoomType.getRoomTypeId(), checkIn, checkOut);
-        
-        for (RoomRate rate : rates ) {
-            System.out.println("Room Rate " + rate.getRoomRateName());
-        }
-        
-        /*
-        Double selectedRate = null;
-        for (int i = rates.size() - 1; i >= 0; i--) {
-            RoomRate rate = rates.get(i);
+        try {
+            System.out.println("==== Search Hotel Room Interface ====");
+            System.out.println("Please input your check-in and check-out dates. Follow the format 'DD MM YYYY'.");
+            System.out.print("> Check-In Date: ");
+            String checkIn = sc.nextLine();
+            System.out.print("> Check-Out Date: ");
+            String checkOut = sc.nextLine();
+            System.out.println();
+
+            //Output all the room types, give guest option to select the room he wants to search
+            System.out.println("Which Hotel Room would you like to view?");
+            List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
+            int count = 1;
+            for (RoomType type : types ) {
+                System.out.println("> " + count++ + ". " + type.getRoomTypeDesc() + "\n     ** Amenities: " + type.getAmenities());
+            }
+            System.out.print("> ");
+            int input = sc.nextInt();
+            sc.nextLine();
+            System.out.println();
+
+            RoomType selectedRoomType = types.get(input - 1);
+
+            DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
+            LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
+            LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
+            long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+            System.out.println("You have selected " + selectedRoomType.getRoomTypeDesc() + " for " + daysBetween + " day(s).");
             
-            Date startDate = rate.getStartDate();
-            Date endDate = rate.getEndDate();
-            if (startDate == null && endDate == null && rate.getRoomRateName().equals("NormalRate")) {
-                selectedRate = rate.getRatePerNight();
-            } else {
-                System.out.println("Start Date: " + startDate);
-                System.out.println("Start Date Instant: " + startDate.toInstant().toString());
+            //Search promo rate then peak rate then normal rate, which is from the back of the list
+            List<RoomRate> rates = roomTypeSessionBean.getRoomRatesByRoomTypeId(selectedRoomType.getRoomTypeId());
+
+            double totalReservation = 0;
+            for (int i = 0; i < daysBetween; i++) {
+                //get the rate Per night for each night
+                boolean foundRate = false;
+                for (int j = rates.size() - 1; j >= 0; j--) {
+                    RoomRate rate = rates.get(j);
+                    System.out.println("Rate is " + rate.getRoomRateName());
+                    System.out.println("Current date is " + checkInDate.toString());
+                    
+                    if ((rate.getStartDate() != null)) {
+                        System.out.println("Rate is " + rate.getRoomRateName());
+                        System.out.println("Rate startDate is " + rate.getStartDate().toString());
+                        System.out.println("Rate endDate is " + rate.getEndDate().toString());
+                        System.out.println("is checkInDate after startDate? " + checkInDate.isAfter(rate.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+                        System.out.println("is checkInDate before endDate? " + checkInDate.isBefore(rate.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+                    }
+                    
+                    
+                    if (((rate.getStartDate() == null) || 
+                            (checkInDate.isAfter(rate.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) &&
+                            checkInDate.isBefore(rate.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()))) && 
+                            !foundRate ) {
+                        
+                        totalReservation += rate.getRatePerNight();
+                        System.out.println("Total Reservation Fee " + totalReservation);
+                        checkInDate.plusDays(1L);
+                        foundRate = true;
+                    }
+                }
+            }
+            System.out.println("Total reservation fee is " + totalReservation);
+            /*
+            RoomRate selectedRate = null;
+            for (int i = rates.size() - 1; i >= 0; i--) {
+                RoomRate rate = rates.get(i);
+
+                Date startDate = rate.getStartDate();
+                Date endDate = rate.getEndDate();
+                if (startDate == null && endDate == null && rate.getRoomRateName().equals("NormalRate")) {
+                    selectedRate = rate;
+                    break;
+                } else if (startDate.compareTo(checkInDate) <= 0 && endDate.compareTo(checkOutDate) >= 0) {
+                    selectedRate = rate;
+                    break;
+                }
+
             }
             
-            
+
+            System.out.println("Your Room Rate is " + 
+                    selectedRate.getRoomRateName() + " and total reservation fee is " + selectedRate.getRatePerNight());
+            */
+            //Check room availability based on the existing reservations and rooms 
+
+            //Out the room types that are available and their rates
+        } catch (Exception e) {
+            System.out.println("** doSearchHotelRoom throwing error " + e.getMessage());
+            doSearchHotelRoom(sc, guestId);
         }
-        */
         
-        //Check room availability based on the existing reservations and rooms 
-        
-        //Out the room types that are available and their rates
     }
     
     public static void doRegistration(Scanner sc) {

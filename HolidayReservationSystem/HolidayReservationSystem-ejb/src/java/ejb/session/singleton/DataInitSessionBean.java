@@ -117,10 +117,10 @@ public class DataInitSessionBean {
         Long normalRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateGS","NormalRate",Double.valueOf(180)));
 
         //Validity Period for Peak Rate
-        LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
+        LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
         Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        LocalDateTime endLocalDateTime = LocalDateTime.of(2021,10, 21, 0, 0, 0);
-        Date endDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        LocalDateTime endLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
+        Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         Long peakRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateDR","PeakRate",Double.valueOf(120), startDate, endDate));
         Long peakRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRatePR","PeakRate",Double.valueOf(140), startDate, endDate));
@@ -132,7 +132,7 @@ public class DataInitSessionBean {
         startLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
         startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
         endLocalDateTime = LocalDateTime.of(2021,10, 21, 0, 0, 0);
-        endDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         Long promoRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateDR","PromotionRate",Double.valueOf(80), startDate, endDate));
         Long promoRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRatePR","PromotionRate",Double.valueOf(100), startDate, endDate));
