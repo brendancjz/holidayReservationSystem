@@ -174,51 +174,21 @@ public class Main {
                 boolean foundRate = false;
                 for (int j = rates.size() - 1; j >= 0; j--) {
                     RoomRate rate = rates.get(j);
-                    
-                    
-                    if ((rate.getStartDate() != null)) {
-                        System.out.println("Rate is " + rate.getRoomRateName());
-                        System.out.println("is date within range? " + isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate()));
-                    }
-                    
-                    
+
                     if (((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && 
                             !foundRate ) {
                         
                         totalReservation += rate.getRatePerNight();
+                        System.out.println("Rate is " + rate.getRoomRateName());
                         System.out.println("Total Reservation Fee " + totalReservation);
                         System.out.println("Current date is " + checkInDate.format(dtFormat));
                         checkInDate = checkInDate.plusDays(1);
-                        System.out.println("==== " + checkInDate.format(dtFormat));
+                        System.out.println("==== New Date " + checkInDate.format(dtFormat));
                         foundRate = true;
                     }
                 }
             }
             System.out.println("Total reservation fee is " + totalReservation);
-            /*
-            RoomRate selectedRate = null;
-            for (int i = rates.size() - 1; i >= 0; i--) {
-                RoomRate rate = rates.get(i);
-
-                Date startDate = rate.getStartDate();
-                Date endDate = rate.getEndDate();
-                if (startDate == null && endDate == null && rate.getRoomRateName().equals("NormalRate")) {
-                    selectedRate = rate;
-                    break;
-                } else if (startDate.compareTo(checkInDate) <= 0 && endDate.compareTo(checkOutDate) >= 0) {
-                    selectedRate = rate;
-                    break;
-                }
-
-            }
-            
-
-            System.out.println("Your Room Rate is " + 
-                    selectedRate.getRoomRateName() + " and total reservation fee is " + selectedRate.getRatePerNight());
-            */
-            //Check room availability based on the existing reservations and rooms 
-
-            //Out the room types that are available and their rates
         } catch (Exception e) {
             System.out.println("** doSearchHotelRoom throwing error " + e.getMessage());
             doSearchHotelRoom(sc, guestId);
@@ -265,8 +235,10 @@ public class Main {
             
             if (guestSessionBeanRemote.verifyRegisterDetails(firstName, lastName, number, email)) {
                 Guest newGuest = new Guest(firstName, lastName, number, email);
-                guestSessionBeanRemote.createNewGuest(newGuest);
-                System.out.println("Welcome, you're in!");
+                Long guestId = guestSessionBeanRemote.createNewGuest(newGuest);
+                System.out.println("Welcome, you're in!\n");
+                
+                doDashboardFeatures(sc, guestId);
             } else {
                 System.out.println("You have inputted wrong details. Please try again.\n");
                 
