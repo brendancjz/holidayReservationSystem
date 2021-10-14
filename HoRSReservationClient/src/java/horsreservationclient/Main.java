@@ -11,12 +11,11 @@ import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Guest;
 import entity.RoomRate;
 import entity.RoomType;
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import javax.ejb.EJB;
@@ -175,26 +174,22 @@ public class Main {
                 boolean foundRate = false;
                 for (int j = rates.size() - 1; j >= 0; j--) {
                     RoomRate rate = rates.get(j);
-                    System.out.println("Rate is " + rate.getRoomRateName());
-                    System.out.println("Current date is " + checkInDate.toString());
+                    
                     
                     if ((rate.getStartDate() != null)) {
                         System.out.println("Rate is " + rate.getRoomRateName());
-                        System.out.println("Rate startDate is " + rate.getStartDate().toString());
-                        System.out.println("Rate endDate is " + rate.getEndDate().toString());
-                        System.out.println("is checkInDate after startDate? " + checkInDate.isAfter(rate.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
-                        System.out.println("is checkInDate before endDate? " + checkInDate.isBefore(rate.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+                        System.out.println("is date within range? " + isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate()));
                     }
                     
                     
-                    if (((rate.getStartDate() == null) || 
-                            (checkInDate.isAfter(rate.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) &&
-                            checkInDate.isBefore(rate.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()))) && 
+                    if (((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && 
                             !foundRate ) {
                         
                         totalReservation += rate.getRatePerNight();
                         System.out.println("Total Reservation Fee " + totalReservation);
-                        checkInDate.plusDays(1L);
+                        System.out.println("Current date is " + checkInDate.format(dtFormat));
+                        checkInDate = checkInDate.plusDays(1);
+                        System.out.println("==== " + checkInDate.format(dtFormat));
                         foundRate = true;
                     }
                 }
@@ -229,6 +224,14 @@ public class Main {
             doSearchHotelRoom(sc, guestId);
         }
         
+    }
+    
+    private static boolean isCurrentDateWithinRange(LocalDate currDate, Date startDate, Date endDate) {
+        LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        boolean lowerBound = currDate.isAfter(start) || currDate.isEqual(start);
+        boolean upperBound = currDate.isBefore(end) || currDate.isEqual(end);
+        return lowerBound && upperBound;
     }
     
     public static void doRegistration(Scanner sc) {
