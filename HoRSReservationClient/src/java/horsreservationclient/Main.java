@@ -7,10 +7,8 @@ package horsreservationclient;
 
 import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
-import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Guest;
-import entity.Reservation;
 import entity.RoomRate;
 import entity.RoomType;
 import util.exception.FindRoomTypeException;
@@ -33,9 +31,6 @@ public class Main {
 
     @EJB
     private static ReservationSessionBeanRemote reservationSessionBean;
-
-    @EJB
-    private static RoomRateSessionBeanRemote roomRateSessionBean;
 
     @EJB
     private static RoomTypeSessionBeanRemote roomTypeSessionBean;
