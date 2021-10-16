@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.RoomRateQueryException;
 
 /**
  *
@@ -31,17 +32,14 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public List<RoomRate> retrieveAllRoomRates() {
-        List<RoomRate> rooms = null;
-        try {
-            Query query = em.createQuery("SELECT r FROM RoomRate r");
-            
-            rooms = query.getResultList();
-        } catch (Exception e) {
-            System.out.println("** retrieveAllRoomRates throwing error " + e.getMessage());
-        }
+    public List<RoomRate> retrieveAllRoomRates() throws RoomRateQueryException {
+        Query query = em.createQuery("SELECT r FROM RoomRate r");
+
+        List<RoomRate>  rates = query.getResultList();
         
-        return rooms;
+        if (rates.isEmpty()) throw new RoomRateQueryException("List of RoomRates is empty");
+        
+        return rates;
     }
 
     

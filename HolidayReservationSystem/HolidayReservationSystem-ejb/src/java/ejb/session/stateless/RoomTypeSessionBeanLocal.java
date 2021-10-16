@@ -7,8 +7,10 @@ package ejb.session.stateless;
 
 import entity.RoomRate;
 import entity.RoomType;
+import util.exception.FindRoomTypeException;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.RoomTypeQueryException;
 
 /**
  *
@@ -16,8 +18,8 @@ import javax.ejb.Local;
  */
 @Local
 public interface RoomTypeSessionBeanLocal {
-    public List<RoomType> retrieveAllRoomTypes();
+    public List<RoomType> retrieveAllRoomTypes() throws RoomTypeQueryException;
     
     public Long createNewRoomType(RoomType roomType);
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws FindRoomTypeException;
 }

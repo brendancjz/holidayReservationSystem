@@ -6,10 +6,12 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.GuestSessionBeanLocal;
+import ejb.session.stateless.ReservationSessionBeanLocal;
 import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.Guest;
+import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -24,6 +27,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -33,6 +37,8 @@ import javax.persistence.PersistenceContext;
 @LocalBean
 @Startup
 public class DataInitSessionBean {
+
+    
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
     
@@ -47,6 +53,9 @@ public class DataInitSessionBean {
 
     @EJB
     private GuestSessionBeanLocal guestSessionBean;
+    
+    @EJB
+    private ReservationSessionBeanLocal reservationSessionBean;
 
     @PostConstruct
     public void postConstruct() {
@@ -55,12 +64,11 @@ public class DataInitSessionBean {
             if (em.find(Guest.class, 1L) == null) {
                 guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 8482L, "theo@gmail.com"));
             }
-            
-            if (roomSessionBean.retrieveAllRooms().isEmpty() && 
-                    roomTypeSessionBean.retrieveAllRoomTypes().isEmpty() && roomRateSessionBean.retrieveAllRoomRates().isEmpty()) {
+
+            if (em.find(Room.class, 1L) == null && em.find(RoomType.class, 1L) == null && em.find(RoomRate.class, 1L) == null) {
                 //Create some Room Types
                 Long[] roomTypeIds = createRoomTypes();
-                
+               
                 //Create Room Rates first 
                 Long[][] roomRatesIds = createRoomRates();
                 
@@ -95,6 +103,17 @@ public class DataInitSessionBean {
                     }
                 }
             }
+            
+            if (em.find(Reservation.class, 1L) == null) {
+                LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
+                Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                LocalDateTime endLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
+                Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                
+                Long reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1));
+                reservationSessionBean.associateExistingReservationWithGuestAndRoomType(reservationId, 1L, 1L);
+            }
+
         } catch (Exception e) {
             System.out.println("** postConstruct throwing error " + e.getMessage());
         }

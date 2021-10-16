@@ -6,11 +6,14 @@
 package horsreservationclient;
 
 import ejb.session.stateless.GuestSessionBeanRemote;
+import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Guest;
+import entity.Reservation;
 import entity.RoomRate;
 import entity.RoomType;
+import util.exception.FindRoomTypeException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,12 +22,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import javax.ejb.EJB;
+import util.exception.ReservationQueryException;
+import util.exception.RoomTypeQueryException;
 
 /**
  *
  * @author brend
  */
 public class Main {
+
+    @EJB
+    private static ReservationSessionBeanRemote reservationSessionBean;
 
     @EJB
     private static RoomRateSessionBeanRemote roomRateSessionBean;
@@ -144,66 +152,52 @@ public class Main {
             System.out.print("> Check-Out Date: ");
             String checkOut = sc.nextLine();
             System.out.println();
-
-            //Output all the room types, give guest option to select the room he wants to search
-            System.out.println("Which Hotel Room would you like to view?");
-            List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
-            int count = 1;
-            for (RoomType type : types ) {
-                System.out.println("> " + count++ + ". " + type.getRoomTypeDesc() + "\n     ** Amenities: " + type.getAmenities());
-            }
-            System.out.print("> ");
-            int input = sc.nextInt();
-            sc.nextLine();
-            System.out.println();
-
-            RoomType selectedRoomType = types.get(input - 1);
-
+             
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
             long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-            System.out.println("You have selected " + selectedRoomType.getRoomTypeDesc() + " for " + daysBetween + " day(s).");
             
-            //Search promo rate then peak rate then normal rate, which is from the back of the list
-            List<RoomRate> rates = roomTypeSessionBean.getRoomRatesByRoomTypeId(selectedRoomType.getRoomTypeId());
-
-            double totalReservation = 0;
-            for (int i = 0; i < daysBetween; i++) {
-                //get the rate Per night for each night
-                boolean foundRate = false;
-                for (int j = rates.size() - 1; j >= 0; j--) {
-                    RoomRate rate = rates.get(j);
-
-                    if (((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && 
-                            !foundRate ) {
-                        
-                        totalReservation += rate.getRatePerNight();
-                        System.out.println("Rate is " + rate.getRoomRateName());
-                        System.out.println("Total Reservation Fee " + totalReservation);
-                        System.out.println("Current date is " + checkInDate.format(dtFormat));
-                        checkInDate = checkInDate.plusDays(1);
-                        System.out.println("==== New Date " + checkInDate.format(dtFormat));
-                        foundRate = true;
-                    }
+            //Output all the room types, give guest option to select the room he wants to search
+            System.out.println("Here are all available Room Types for your " + daysBetween + " night(s) stay"
+                    + ". Which Hotel Room would you like to reserve?");
+            List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
+            int count = 1;
+            for (RoomType type : types ) {
+                //Check if room type is available first. If available then display
+                boolean isRoomTypeAvail = true;
+                try {
+                    isRoomTypeAvail = reservationSessionBean.isRoomTypeAvailableForReservation(type.getRoomTypeId(), checkInDate, checkOutDate);
+                } catch (ReservationQueryException e) {
+                    //isRoomTypeAvail = false;
                 }
+                if (isRoomTypeAvail) {
+                    //Derive the total reservation fee
+                    double totalReservation = getTotalReservationFee(checkInDate, checkOutDate, type);
+                
+                    System.out.println("> " + count++ + ". " + type.getRoomTypeDesc() + 
+                        "\n     ** Amenities: " + type.getAmenities() +
+                        "\n     ** Total reservation fee is " + totalReservation);
+                }
+                
             }
-            System.out.println("Total reservation fee is " + totalReservation);
+            System.out.print("> ");
+            int input = sc.nextInt();
+            sc.nextLine();
+            System.out.println(); 
+
+            RoomType selectedRoomType = types.get(input - 1);
+ 
+        } catch (FindRoomTypeException | RoomTypeQueryException e) {
+            System.out.println("Error occured.");
+            System.out.println(e.getMessage());
         } catch (Exception e) {
-            System.out.println("** doSearchHotelRoom throwing error " + e.getMessage());
+            System.out.println("You have made a wrong input. Try again.\n");
             doSearchHotelRoom(sc, guestId);
         }
         
     }
-    
-    private static boolean isCurrentDateWithinRange(LocalDate currDate, Date startDate, Date endDate) {
-        LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        boolean lowerBound = currDate.isAfter(start) || currDate.isEqual(start);
-        boolean upperBound = currDate.isBefore(end) || currDate.isEqual(end);
-        return lowerBound && upperBound;
-    }
-    
+
     public static void doRegistration(Scanner sc) {
         System.out.println("==== Register Interface ====");
             System.out.println("Enter guest details. To cancel registration at anytime, press 'q'.");
@@ -252,4 +246,31 @@ public class Main {
         doMainApp(sc);
     }
     
+    private static double getTotalReservationFee(LocalDate checkInDate, LocalDate checkOutDate, RoomType selectedRoomType) throws FindRoomTypeException {
+        double totalReservation = 0;
+        long numOfDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        List<RoomRate> rates = roomTypeSessionBean.getRoomRatesByRoomTypeId(selectedRoomType.getRoomTypeId());
+            
+        for (int i = 0; i < numOfDays; i++) {
+                //get the rate Per night for each night
+                boolean foundRate = false;
+                for (int j = rates.size() - 1; j >= 0; j--) {
+                    RoomRate rate = rates.get(j);
+                    if (((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && !foundRate ) {
+                        totalReservation += rate.getRatePerNight();
+                        checkInDate = checkInDate.plusDays(1);
+                        foundRate = true;
+                    }
+                }
+            }
+        return totalReservation;
+    }
+    
+    private static boolean isCurrentDateWithinRange(LocalDate currDate, Date startDate, Date endDate) {
+        LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        boolean lowerBound = currDate.isAfter(start) || currDate.isEqual(start);
+        boolean upperBound = currDate.isBefore(end) || currDate.isEqual(end);
+        return lowerBound && upperBound;
+    }
 }

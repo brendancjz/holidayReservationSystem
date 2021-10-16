@@ -3,10 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/RoomTypeSessionBeanLocal.java</file>
+            <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/RoomTypeSessionBean.java</file>
             <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/GuestSessionBeanLocal.java</file>
             <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/singleton/DataInitSessionBean.java</file>
-            <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/GuestSessionBean.java</file>
+            <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/ReservationSessionBean.java</file>
             <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/RoomSessionBean.java</file>
+            <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/GuestSessionBean.java</file>
             <file>file:/C:/Users/brend/holidayReservationSystem/HolidayReservationSystem/HolidayReservationSystem-ejb/src/java/ejb/session/stateless/RoomRateSessionBean.java</file>
         </group>
     </open-files>

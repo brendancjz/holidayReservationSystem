@@ -7,11 +7,14 @@ package ejb.session.stateless;
 
 import entity.RoomRate;
 import entity.RoomType;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.FindRoomTypeException;
+import util.exception.RoomTypeQueryException;
 
 /**
  *
@@ -32,28 +35,25 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public List<RoomType> retrieveAllRoomTypes() {
-        List<RoomType> rooms = null;
-        try {
-            Query query = em.createQuery("SELECT r FROM RoomType r");
-            
-            rooms = query.getResultList();
-        } catch (Exception e) {
-            System.out.println("** retrieveAllRoomTypes throwing error " + e.getMessage());
-        }
+    public List<RoomType> retrieveAllRoomTypes() throws RoomTypeQueryException{
+        Query query = em.createQuery("SELECT r FROM RoomType r");
+
+        List<RoomType> types = query.getResultList();
+
+        if (types.isEmpty()) throw new RoomTypeQueryException("list of RoomTypes is empty.");
         
-        return rooms;
+        
+        return types;
     }
     
     @Override
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) {
-        List<RoomRate> rates = null;
-        try {
-            RoomType roomType = em.find(RoomType.class, id);
-            rates = roomType.getRates();
-        } catch (Exception e) {
-            System.out.println("** getRoomRatesByRoomTypeId throwing error " + e.getMessage());
-        }
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws FindRoomTypeException {
+
+        RoomType roomType = em.find(RoomType.class, id);
+        List<RoomRate> rates = roomType.getRates();
+
+        if (rates.isEmpty()) throw new FindRoomTypeException("List of rates is empty");
+        
         
         return rates;
     }

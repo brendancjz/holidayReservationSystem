@@ -27,36 +27,44 @@ public class Reservation implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date startDateTime;
+    private Date startDate;
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date endDateTime;
+    private Date endDate;
+    private Integer numOfRooms;
     @ManyToOne
     private Guest guest;
     @OneToOne
     private RoomType roomType;
 
     public Reservation() {
+        this.guest = null;
+        this.roomType = null;
     }
 
-    public Reservation(Date startDateTime, Date endDateTime, Guest guest, RoomType roomType) {
-        this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;
-        this.guest = guest;
-        this.roomType = roomType;
+    public Reservation(Date startDate, Date endDate, Integer numOfRooms) {
+        this();
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.numOfRooms = numOfRooms;
+        
     }
 
     public Long getReservationId() {
         return reservationId;
     }
 
-    public Date getStartDateTime() {
-        return startDateTime;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public Date getEndDateTime() {
-        return endDateTime;
+    public Date getEndDate() {
+        return endDate;
     }
 
+    public Integer numOfRooms() {
+        return numOfRooms;
+    }
+    
     public Guest getGuest() {
         return guest;
     }
@@ -69,14 +77,18 @@ public class Reservation implements Serializable {
         this.reservationId = reservationId;
     }
 
-    public void setStartDateTime(Date startDateTime) {
-        this.startDateTime = startDateTime;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public void setEndDateTime(Date endDateTime) {
-        this.endDateTime = endDateTime;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
+    public void setNumOfRooms(Integer numOfRooms) {
+        this.numOfRooms = numOfRooms;
+    }
+    
     public void setGuest(Guest guest) {
         this.guest = guest;
     }
