@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.FindRoomTypeException;
+import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
 /**
@@ -24,6 +25,8 @@ public interface RoomManagementSessionBeanRemote {
 
     public List<RoomRate> getRoomRates(Long roomTypeId) throws FindRoomTypeException;
 
-    public void createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
+    public RoomRate createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
+
+    public RoomRate getRoomRate(String rateName) throws RoomRateQueryException;
     
 }

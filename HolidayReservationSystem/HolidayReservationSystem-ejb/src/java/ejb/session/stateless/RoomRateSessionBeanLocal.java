@@ -18,4 +18,6 @@ import util.exception.RoomRateQueryException;
 public interface RoomRateSessionBeanLocal {
     public Long createNewRoomRate(RoomRate roomRate);
     public List<RoomRate> retrieveAllRoomRates()  throws RoomRateQueryException;
+
+    public RoomRate getRoomRateByRoomRateName(String rateName) throws RoomRateQueryException;
 }

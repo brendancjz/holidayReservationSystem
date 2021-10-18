@@ -45,4 +45,14 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
+
+    @Override
+    public RoomRate getRoomRateByRoomRateName(String rateName) throws RoomRateQueryException {
+        Query query = em.createQuery("SELECT r FROM RoomRate r WHERE r.roomRateName=:name");
+        query.setParameter("name", rateName);
+        List<RoomRate> rates = query.getResultList();
+        if (rates.isEmpty()) throw new RoomRateQueryException("No such Rate Name in Database.");
+        
+        return rates.get(0);
+    }
 }

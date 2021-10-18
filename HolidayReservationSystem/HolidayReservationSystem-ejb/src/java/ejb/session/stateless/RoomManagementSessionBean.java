@@ -9,6 +9,7 @@ import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -16,6 +17,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.exception.FindRoomTypeException;
+import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
 /**
@@ -47,9 +49,10 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public void createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount) {
+    public RoomRate createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount) {
         Long roomRateId;
-        String roomRateName = rateEnum + em.find(RoomType.class, roomTypeId).getRoomTypeName();
+        RoomType roomType = em.find(RoomType.class, roomTypeId);
+        String roomRateName = rateEnum + roomType.getRoomTypeName();
         if (startDate == null && endDate == null) {
             roomRateId = roomRateSessionBean.createNewRoomRate(new RoomRate(roomRateName,rateEnum,rateAmount));
         } else {
@@ -58,7 +61,20 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             roomRateId = roomRateSessionBean.createNewRoomRate(new RoomRate(roomRateName,rateEnum,rateAmount, start, end));
         }
         
-        //Link room type to roomrate
+        
+        //Link Room Type to Room Rate
+        //Link Room Rate to Room Type
+        RoomRate roomRate = em.find(RoomRate.class, roomRateId);
+        roomRate.setRoomType(roomType);
+        ArrayList<RoomRate> rates = roomType.getRates();
+        rates.add(roomRate);
+        
+        return roomRate;
+    }
+
+    @Override
+    public RoomRate getRoomRate(String rateName) throws RoomRateQueryException {
+        return roomRateSessionBean.getRoomRateByRoomRateName(rateName);
     }
 
    

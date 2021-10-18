@@ -8,16 +8,22 @@ package horsmanagementclient;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
 import entity.Employee;
+import entity.RoomRate;
 import entity.RoomType;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
 import util.exception.FindEmployeeException;
+import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
 /**
@@ -97,18 +103,18 @@ public class Main {
         System.out.println("==== " + emRole + " Dashboard Interface ====");
         
         if (emRole.equals(EmployeeEnum.SYSTEMADMIN.toString())) {
-            doSystemAdminDashboardFeatures(sc, emId);
+            doSystemAdminDashboardFeatures(sc, emId, emRole);
         } else if (emRole.equals(EmployeeEnum.OPSMANAGER.toString())) {
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc, emId, emRole);
         } else if (emRole.equals(EmployeeEnum.SALESMANAGER.toString())) {
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc, emId, emRole);
         } else if (emRole.equals(EmployeeEnum.GRELMANAGER.toString())) {
-            doGRelManagerDashboardFeatures(sc, emId);
+            doGRelManagerDashboardFeatures(sc, emId, emRole);
         }
 
     }
 
-    private static void doSystemAdminDashboardFeatures(Scanner sc, Long emId) {
+    private static void doSystemAdminDashboardFeatures(Scanner sc, Long emId, String emRole) {
         System.out.println("> 1. Create New Employee");
         System.out.println("> 2. View All Employees");
         System.out.println("> 3. Create New Partner");
@@ -121,11 +127,11 @@ public class Main {
         switch (input) {
             case 1:
                 System.out.println("You have selected 'Create New Employee'\n");
-                doCreateNewEmployee(sc, emId);
+                doCreateNewEmployee(sc, emId, emRole);
                 break;
             case 2:
                 System.out.println("You have selected 'View All Employees'\n");
-                doViewAllEmployees(sc, emId);
+                doViewAllEmployees(sc, emId, emRole);
                 break;
             case 3:
                 System.out.println("You have selected 'Create New Partner'\n");
@@ -141,12 +147,12 @@ public class Main {
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
-                doDashboardFeatures(sc, emId, EmployeeEnum.SYSTEMADMIN.toString());
+                doDashboardFeatures(sc, emId, emRole);
                 break;
         }
     }
 
-    private static void doSalesManagerDashboardFeatures(Scanner sc, Long emId) {
+    private static void doSalesManagerDashboardFeatures(Scanner sc, Long emId, String emRole) {
         System.out.println("> 1. Create New Room Rate");
         System.out.println("> 2. View Room Rate Details");
         System.out.println("> 3. Update Room Rate");
@@ -160,11 +166,11 @@ public class Main {
         switch (input) {
             case 1:
                 System.out.println("You have selected 'Create New Room Rate'\n");
-                doCreateNewRoomRate(sc, emId);
+                doCreateNewRoomRate(sc, emId, emRole);
                 break;
             case 2:
                 System.out.println("You have selected 'View Room Rate Details'\n");
-                doViewAllEmployees(sc, emId);
+                doViewRoomRateDetails(sc, emId, emRole);
                 break;
             case 3:
                 System.out.println("You have selected 'Update Room Rate'\n");
@@ -183,20 +189,20 @@ public class Main {
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
-                doDashboardFeatures(sc, emId, EmployeeEnum.SALESMANAGER.toString());
+                doDashboardFeatures(sc, emId, emRole);
                 break;
         }
     }
 
-    private static void doGRelManagerDashboardFeatures(Scanner sc, Long emId) {
+    private static void doGRelManagerDashboardFeatures(Scanner sc, Long emId, String emRole) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void doOpsManagerDashboardFeatures(Scanner sc, Long emId) {
+    private static void doOpsManagerDashboardFeatures(Scanner sc, Long emId, String emRole) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void doCreateNewEmployee(Scanner sc, Long emId) {
+    private static void doCreateNewEmployee(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Create New Employee Interface ====");
             System.out.println("Please input the following details.");
@@ -230,7 +236,7 @@ public class Main {
                     break;
                 default:
                     System.out.println("Invalid role input.");
-                    doCreateNewEmployee(sc, emId);
+                    doCreateNewEmployee(sc, emId, emRole);
                     return; //code ends
             }
             
@@ -245,14 +251,14 @@ public class Main {
             System.out.println("   > Employee Role: " + newEmployee.getEmployeeRole());
             System.out.println("   > Password: " + newEmployee.getPassword() + "\n");
             
-            doDashboardFeatures(sc, emId, EmployeeEnum.SYSTEMADMIN.toString());
+            doDashboardFeatures(sc, emId, emRole);
             
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private static void doViewAllEmployees(Scanner sc, Long emId) {
+    private static void doViewAllEmployees(Scanner sc, Long emId, String emRole) {
         System.out.println("==== View Al Employees Interface ====");
         try {
             List<Employee> list = employeeSessionBean.retrieveAllEmployees();
@@ -266,14 +272,14 @@ public class Main {
             }
             System.out.println("Total Employees: " + count + "\n");
 
-            doDashboardFeatures(sc, emId, EmployeeEnum.SYSTEMADMIN.toString());
+            doDashboardFeatures(sc, emId, emRole);
         } catch (EmployeeQueryException e) {
             System.out.println("Error: " + e.getMessage());
         }
         
     }
 
-    private static void doCreateNewRoomRate(Scanner sc, Long emId) {
+    private static void doCreateNewRoomRate(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Create New Room Rate Interface ====");
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
@@ -305,22 +311,63 @@ public class Main {
                 System.out.println("Input validity period of selected room rate:");
                 System.out.print("> Start Date [DD MM YYYY]: ");
                 String start = sc.nextLine();
-                startDate = LocalDateTime.parse(start, dtFormat);
+                startDate = LocalDate.parse(start, dtFormat).atStartOfDay();
                 System.out.print("> End Date [DD MM YYYY]: ");
                 String end = sc.nextLine();
-                endDate = LocalDateTime.parse(end, dtFormat);
+                endDate = LocalDate.parse(end, dtFormat).atStartOfDay();
+                
+                System.out.println("** You have selected the period of " + ChronoUnit.DAYS.between(startDate, endDate) +
+                        " day(s): " + start + " -> " + end + "\n");
             }
+            
             
             System.out.print("> Rate Per Night: ");
             double rateAmount = sc.nextDouble(); sc.nextLine();
+            System.out.println("** You have selected: $" + rateAmount + "\n");
+            
+            RoomRate rate = roomManagementSessionBean.createNewRoomRate(types.get(typeInput - 1).getRoomTypeId(), rateEnums[rateInput - 1], startDate, endDate, rateAmount);
+            System.out.println("You have successfully created a new Room Rate.");
+            System.out.println("> Name: " + rate.getRoomRateName());
+            System.out.println("> Type: " + rate.getRoomRateType());
+            System.out.println("> Amount: " + rate.getRatePerNight());
+            if (rate.getStartDate() != null) System.out.println("> Validity Period: " + rate.getStartDate().toString() + 
+                    " -> " + rate.getEndDate().toString());
             System.out.println();
             
-            roomManagementSessionBean.createNewRoomRate(types.get(typeInput - 1).getRoomTypeId(), rateEnums[rateInput - 1], startDate, endDate, rateAmount);
-            
-            
+            doDashboardFeatures(sc, emId, emRole);
         } catch (RoomTypeQueryException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Invalid input. Try again.\n");
+            doCreateNewRoomRate(sc, emId, emRole);
         }
+    }
+
+    private static void doViewRoomRateDetails(Scanner sc, Long emId, String emRole) {
+        try {
+            System.out.println("==== View Room Rate Details Interface ====");
+            System.out.print("> Room Rate Name: ");
+            String rateName = sc.nextLine();
+            RoomRate rate = roomManagementSessionBean.getRoomRate(rateName);
+            
+            System.out.println("Selected Room Rate details:");
+            System.out.println("> Name: " + rate.getRoomRateName());
+            System.out.println("> Type: " + rate.getRoomRateType());
+            System.out.println("> Amount: " + rate.getRatePerNight());
+            if (rate.getStartDate() != null) {
+                System.out.println("> Validity Period: " + rate.getStartDate().toString() + 
+                    " -> " + rate.getEndDate().toString());
+            } else {
+                System.out.println("> Validity Period: NULL");
+            }
+            System.out.println();
+            
+            doDashboardFeatures(sc, emId, emRole);
+        } catch (RoomRateQueryException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+        
+        
     }
     
 }
