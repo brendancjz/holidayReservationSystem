@@ -32,12 +32,16 @@ public class RoomRate implements Serializable {
     private Date startDate;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date endDate;
+    private Boolean isDisabled;
     @ManyToOne
     private RoomType roomType;
 
     public RoomRate() {
         this.roomType = null;
+        this.isDisabled = false;
     }
+
+    
 
     public RoomRate(String roomRateName, String roomRateType, Double ratePerNight) {
         this();
@@ -56,7 +60,15 @@ public class RoomRate implements Serializable {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+    
+    public Boolean getIsDisabled() {
+        return isDisabled;
+    }
 
+    public void setIsDisabled(Boolean isDisabled) {
+        this.isDisabled = isDisabled;
+    }
+    
     public Long getRoomRateId() {
         return roomRateId;
     }

@@ -35,10 +35,15 @@ public class Reservation implements Serializable {
     private Guest guest;
     @OneToOne
     private RoomType roomType;
+    @OneToOne
+    private RoomRate roomRate;
+
+    
 
     public Reservation() {
         this.guest = null;
         this.roomType = null;
+        this.roomRate = null;
     }
 
     public Reservation(Date startDate, Date endDate, Integer numOfRooms) {
@@ -48,7 +53,15 @@ public class Reservation implements Serializable {
         this.numOfRooms = numOfRooms;
         
     }
+    
+    public RoomRate getRoomRate() {
+        return roomRate;
+    }
 
+    public void setRoomRate(RoomRate roomRate) {
+        this.roomRate = roomRate;
+    }
+    
     public Long getReservationId() {
         return reservationId;
     }

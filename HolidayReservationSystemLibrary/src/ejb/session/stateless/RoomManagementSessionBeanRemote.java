@@ -13,6 +13,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
+import util.exception.ReservationQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -33,5 +34,9 @@ public interface RoomManagementSessionBeanRemote {
     public RoomRate getRoomRate(Long rateId) throws FindRoomRateException;
 
     public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate) throws FindRoomRateException;
+
+    public void deleteRoomRate(Long roomRateId) throws FindRoomRateException, ReservationQueryException;
+
+    
     
 }

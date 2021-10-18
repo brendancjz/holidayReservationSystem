@@ -65,6 +65,9 @@ public class DataInitSessionBean {
         try {
             if (em.find(Employee.class, 1L) == null) {
                 employeeSessionBean.createNewEmployee(new Employee("Bren", "Dan", EmployeeEnum.SYSTEMADMIN.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Dan", "Bren", EmployeeEnum.OPSMANAGER.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Chia", "Seeds", EmployeeEnum.SALESMANAGER.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Jun", "Zhe", EmployeeEnum.GRELMANAGER.toString(), "password"));
             }
            
             if (em.find(Guest.class, 1L) == null) {
@@ -117,7 +120,7 @@ public class DataInitSessionBean {
                 Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
                 
                 Long reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1));
-                reservationSessionBean.associateExistingReservationWithGuestAndRoomType(reservationId, 1L, 1L);
+                reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, 1L, 1L, 1L);
             }
 
         } catch (Exception e) {

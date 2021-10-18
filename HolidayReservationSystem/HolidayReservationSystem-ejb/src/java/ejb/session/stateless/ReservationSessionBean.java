@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Guest;
 import entity.Reservation;
+import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
 import java.util.List;
@@ -57,13 +58,15 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
-    public void associateExistingReservationWithGuestAndRoomType(Long reservationId, Long guestId, Long typeId) {
+    public void associateExistingReservationWithGuestAndRoomTypeAndRoomRate(Long reservationId, Long guestId, Long typeId, Long rateId) {
         Reservation reservation = em.find(Reservation.class, reservationId);
         Guest guest = em.find(Guest.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
+        RoomRate roomRate = em.find(RoomRate.class, rateId);
         
         reservation.setGuest(guest);
         reservation.setRoomType(roomType);
+        reservation.setRoomRate(roomRate);
         
         guest.getReservations().size();
         guest.getReservations().add(reservation);

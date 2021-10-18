@@ -18,12 +18,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
 import util.exception.FindEmployeeException;
 import util.exception.FindRoomRateException;
+import util.exception.ReservationQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -465,7 +468,30 @@ public class Main {
     }
 
     private static void doDeleteRoomRate(Scanner sc, Long emId, String emRole, Long roomRateId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("=== Delete Room Rate Interface ====");
+        System.out.println("Confirm Deletion?");
+        System.out.println("> 1. Yes");
+        System.out.println("> 2. No");
+        System.out.print("> ");
+        try {
+            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+            switch (input) {
+                case 1:
+                    roomManagementSessionBean.deleteRoomRate(roomRateId);
+                    System.out.println("You have successfully deleted/disabled the Room Rate.\n");
+                    break;
+
+                case 2:
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+                default:
+                    System.out.println("Invalid input. Try again.\n");
+                    doDeleteRoomRate(sc, emId, emRole, roomRateId);
+                    break;
+            }
+        } catch (FindRoomRateException | ReservationQueryException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+        }
     }
     
 }

@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Reservation;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
+import util.exception.ReservationQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -27,6 +29,9 @@ import util.exception.RoomTypeQueryException;
  */
 @Stateless
 public class RoomManagementSessionBean implements RoomManagementSessionBeanRemote, RoomManagementSessionBeanLocal {
+
+    @EJB
+    private ReservationSessionBeanLocal reservationSessionBean;
 
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBean;
@@ -91,6 +96,23 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         rate.setRatePerNight(amount);
         rate.setStartDate(startDate);
         rate.setEndDate(endDate);
+    }
+
+    @Override
+    public void deleteRoomRate(Long roomRateId) throws FindRoomRateException, ReservationQueryException {
+        RoomRate rate = roomRateSessionBean.getRoomRateByRoomRateId(roomRateId);
+        List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
+        
+        for (Reservation reservation : reservations) {
+            if (reservation.getRoomRate().getRoomRateId().equals(rate.getRoomRateId())) {
+                rate.setIsDisabled(Boolean.TRUE);
+                return;
+            }
+        } 
+        
+        rate.getRoomType().getRates().remove(rate);
+        
+        em.remove(rate);
     }
 
    
