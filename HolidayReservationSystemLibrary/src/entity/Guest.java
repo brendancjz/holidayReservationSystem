@@ -12,6 +12,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
@@ -25,10 +28,17 @@ public class Guest implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long guestId;
-    @Size
+    @NotNull
+    @Size(min=3, max=15)
     private String firstName;
+    @NotNull
+    @Size(min=3, max=15)
     private String lastName;
+    @NotNull
+    @Digits(integer=8, fraction=0)
     private Long contactNumber;
+    @NotNull
+    @Email
     private String email;
     @OneToMany(mappedBy = "guest")
     private ArrayList<Reservation> reservations;

@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -22,9 +24,16 @@ public class Employee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
+    @NotNull
+    @Size(min=3, max=15)
     private String firstName;
+    @NotNull
+    @Size(min=3, max=15)
     private String lastName;
+    @NotNull
     private String employeeRole;
+    @NotNull
+    @Size(min=3, max=15)
     private String password;
 
     public Employee() {

@@ -12,6 +12,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -24,11 +27,23 @@ public class RoomType implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomTypeId;
+    @NotNull
+    @Size(min=5, max=15)
     private String roomTypeName;
+    @NotNull
+    @Size(min=15, max=255)
     private String roomTypeDesc;
+    @NotNull
+    @Digits(integer=4, fraction=0)
     private Integer roomSize;
+    @NotNull
+    @Digits(integer=2, fraction=0)
     private Integer numOfBeds;
+    @NotNull
+    @Digits(integer=2, fraction=0)
     private Integer capacity;
+    @NotNull
+    @Size(min=15, max=255)
     private String amenities;
     @OneToMany(mappedBy= "roomType")
     private ArrayList<RoomRate> rates;

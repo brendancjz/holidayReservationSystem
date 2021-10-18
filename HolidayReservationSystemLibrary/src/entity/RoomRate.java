@@ -13,6 +13,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -25,13 +28,20 @@ public class RoomRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
+    @NotNull
+    @Size(min=5, max=15)
     private String roomRateName;
+    @NotNull
+    @Size(min=5, max=15)
     private String roomRateType;
+    @NotNull
+    @Digits(integer=4, fraction=2)
     private Double ratePerNight;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date startDate;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date endDate;
+    @NotNull
     private Boolean isDisabled;
     @ManyToOne
     private RoomType roomType;
