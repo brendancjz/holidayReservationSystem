@@ -8,8 +8,10 @@ package ejb.session.stateless;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
@@ -28,5 +30,8 @@ public interface RoomManagementSessionBeanRemote {
     public RoomRate createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
 
     public RoomRate getRoomRate(String rateName) throws RoomRateQueryException;
+    public RoomRate getRoomRate(Long rateId) throws FindRoomRateException;
+
+    public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate) throws FindRoomRateException;
     
 }

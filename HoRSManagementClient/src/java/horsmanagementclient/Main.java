@@ -12,17 +12,18 @@ import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
 import util.exception.FindEmployeeException;
+import util.exception.FindRoomRateException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -64,6 +65,8 @@ public class Main {
         } else if (input == 2) {
             doExit();
             
+        } else {
+            doMainApp(sc);
         }
     }
 
@@ -155,10 +158,8 @@ public class Main {
     private static void doSalesManagerDashboardFeatures(Scanner sc, Long emId, String emRole) {
         System.out.println("> 1. Create New Room Rate");
         System.out.println("> 2. View Room Rate Details");
-        System.out.println("> 3. Update Room Rate");
-        System.out.println("> 4. Delete Room Rate");
-        System.out.println("> 5. View All Room Rates");
-        System.out.println("> 6. Logout");
+        System.out.println("> 3. View All Room Rates");
+        System.out.println("> 4. Logout");
         System.out.print("> ");
         int input = sc.nextInt();
         sc.nextLine();
@@ -173,17 +174,9 @@ public class Main {
                 doViewRoomRateDetails(sc, emId, emRole);
                 break;
             case 3:
-                System.out.println("You have selected 'Update Room Rate'\n");
-                //doViewMyReservationDetails(sc, guestId);
-                break;
-            case 4:
-                System.out.println("You have selected 'Delete Room Rate'\n");
-                //doViewAllMyReservations(sc, guestId);
-                break;
-            case 5:
                 System.out.println("You have selected 'View All Room Rates'\n");
                 break;
-            case 6:
+            case 4:
                 System.out.println("You have logged out.\n");
                 doMainApp(sc);
                 break;
@@ -362,12 +355,117 @@ public class Main {
             }
             System.out.println();
             
-            doDashboardFeatures(sc, emId, emRole);
+            System.out.println("   Select an action:");
+            System.out.println("   > 1. Update Room Rate");
+            System.out.println("   > 2. Delete Room Rate");
+            System.out.println("   > 3. Back to Dashboard");
+            System.out.print("   > ");
+            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+            
+            switch (input) {
+                case 1:
+                    doUpdateRoomRate(sc, emId, emRole, rate.getRoomRateId());
+                    break;
+                case 2:
+                    doDeleteRoomRate(sc, emId, emRole, rate.getRoomRateId());
+                    break;
+                case 3:
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+                default:
+                    System.out.println("Invalid input.");
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+            }
         } catch (RoomRateQueryException ex) {
             System.out.println("Error: " + ex.getMessage());
         }
         
         
+    }
+
+    private static void doUpdateRoomRate(Scanner sc, Long emId, String emRole, Long rateId) {
+        System.out.println("==== Update Room Rate Interface ====");
+        
+        try {
+            RoomRate rate = roomManagementSessionBean.getRoomRate(rateId);
+            boolean done = false;
+            String name = rate.getRoomRateName();
+            Double amount = rate.getRatePerNight();
+            Date startDate = rate.getStartDate();
+            Date endDate = rate.getEndDate();
+                        
+            while (!done) {
+                System.out.println("Select which detail of the rate you want to change:");
+                System.out.println("> 1. Name");
+                System.out.println("> 2. Amount");
+                System.out.println("> 3. Validity Period");
+                System.out.print("> ");
+                int input = sc.nextInt(); sc.nextLine(); System.out.println();
+                
+                switch (input) {
+                    case 1:
+                        System.out.print("> Input new Name: ");
+                        name = sc.nextLine();
+                        break;
+                    case 2:
+                        System.out.print("> Input new Amount: ");
+                        amount = sc.nextDouble();
+                        sc.nextLine();
+                        System.out.println();
+                        break;
+                    case 3:
+                        if (rate.getRoomRateType().equals(RoomRateEnum.PeakRate.toString()) ||
+                                rate.getRoomRateType().equals(RoomRateEnum.PromotionRate.toString())) {
+                            
+                            
+                            DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
+                            
+                            System.out.print("> Input new Start Date [DD MM YYYY]: ");
+                            String start = sc.nextLine();
+                            startDate = Date.from(LocalDate.parse(start, dtFormat).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+                            System.out.print("> Input new End Date [DD MM YYYY]: ");
+                            String end = sc.nextLine(); System.out.println();
+                            endDate = Date.from(LocalDate.parse(end, dtFormat).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+                        } else {
+                            System.out.println("Sorry. your Rate Type do not require a validity period.\n");
+                        }   break;
+                    default:
+                        break;
+                }
+                
+                System.out.println("Finalise changes?");
+                System.out.println("> 1. Yes");
+                System.out.println("> 2. No");
+                System.out.print("> ");
+                int answer = sc.nextInt(); sc.nextLine(); System.out.println();
+                if (answer == 1) done = true;
+            }
+            
+            roomManagementSessionBean.updateRoomRate(rateId, name, amount, startDate, endDate);
+            System.out.println("You have successfully updated the Room Rate.\n");
+            
+            rate = roomManagementSessionBean.getRoomRate(rateId);
+            System.out.println("Updated Room Rate details:");
+            System.out.println("> Name: " + rate.getRoomRateName());
+            System.out.println("> Type: " + rate.getRoomRateType());
+            System.out.println("> Amount: " + rate.getRatePerNight());
+            if (rate.getStartDate() != null) {
+                System.out.println("> Validity Period: " + rate.getStartDate().toString() + 
+                    " -> " + rate.getEndDate().toString());
+            } else {
+                System.out.println("> Validity Period: NULL");
+            }
+            System.out.println();
+            
+            doDashboardFeatures(sc, emId, emRole);
+        } catch (FindRoomRateException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }
+
+    private static void doDeleteRoomRate(Scanner sc, Long emId, String emRole, Long roomRateId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

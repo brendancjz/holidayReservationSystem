@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.RoomRate;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.FindRoomRateException;
 import util.exception.RoomRateQueryException;
 
 /**
@@ -20,4 +21,6 @@ public interface RoomRateSessionBeanLocal {
     public List<RoomRate> retrieveAllRoomRates()  throws RoomRateQueryException;
 
     public RoomRate getRoomRateByRoomRateName(String rateName) throws RoomRateQueryException;
+
+    public RoomRate getRoomRateByRoomRateId(Long rateId) throws FindRoomRateException ;
 }

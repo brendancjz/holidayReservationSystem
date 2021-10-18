@@ -16,6 +16,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
@@ -75,6 +76,21 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     @Override
     public RoomRate getRoomRate(String rateName) throws RoomRateQueryException {
         return roomRateSessionBean.getRoomRateByRoomRateName(rateName);
+    }
+    
+    @Override
+    public RoomRate getRoomRate(Long rateId) throws FindRoomRateException {
+        return roomRateSessionBean.getRoomRateByRoomRateId(rateId);
+    }
+
+    @Override
+    public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate) throws FindRoomRateException {
+        RoomRate rate = this.getRoomRate(rateId);
+        
+        rate.setRoomRateName(name);
+        rate.setRatePerNight(amount);
+        rate.setStartDate(startDate);
+        rate.setEndDate(endDate);
     }
 
    

@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.FindRoomRateException;
 import util.exception.RoomRateQueryException;
 
 /**
@@ -54,5 +55,13 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         if (rates.isEmpty()) throw new RoomRateQueryException("No such Rate Name in Database.");
         
         return rates.get(0);
+    }
+
+    @Override
+    public RoomRate getRoomRateByRoomRateId(Long rateId) throws FindRoomRateException {
+        RoomRate rate = em.find(RoomRate.class, rateId);
+        if (rate == null) throw new FindRoomRateException("Rate is null.");
+        
+        return rate;
     }
 }
