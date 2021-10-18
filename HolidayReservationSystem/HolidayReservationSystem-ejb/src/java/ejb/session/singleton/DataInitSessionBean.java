@@ -5,11 +5,13 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.EmployeeSessionBeanLocal;
 import ejb.session.stateless.GuestSessionBeanLocal;
 import ejb.session.stateless.ReservationSessionBeanLocal;
 import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
+import entity.Employee;
 import entity.Guest;
 import entity.Reservation;
 import entity.Room;
@@ -19,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -27,7 +28,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import util.enumeration.EmployeeEnum;
 
 /**
  *
@@ -37,10 +38,11 @@ import javax.persistence.Query;
 @LocalBean
 @Startup
 public class DataInitSessionBean {
-
-    
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    private EmployeeSessionBeanLocal employeeSessionBean;
     
     @EJB
     private RoomSessionBeanLocal roomSessionBean;
@@ -59,8 +61,12 @@ public class DataInitSessionBean {
 
     @PostConstruct
     public void postConstruct() {
-        System.out.println("======= Inside Post Construct Method");
+        System.out.println("==== Inside Post Construct Method ====");
         try {
+            if (em.find(Employee.class, 1L) == null) {
+                employeeSessionBean.createNewEmployee(new Employee("Bren", "Dan", EmployeeEnum.SYSTEMADMIN.toString(), "password"));
+            }
+           
             if (em.find(Guest.class, 1L) == null) {
                 guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 8482L, "theo@gmail.com"));
             }

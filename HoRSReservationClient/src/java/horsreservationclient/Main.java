@@ -7,7 +7,7 @@ package horsreservationclient;
 
 import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
-import ejb.session.stateless.RoomTypeSessionBeanRemote;
+import ejb.session.stateless.RoomManagementSessionBeanRemote;
 import entity.Guest;
 import entity.RoomRate;
 import entity.RoomType;
@@ -30,10 +30,10 @@ import util.exception.RoomTypeQueryException;
 public class Main {
 
     @EJB
-    private static ReservationSessionBeanRemote reservationSessionBean;
-
+    private static RoomManagementSessionBeanRemote roomManagementSessionBean;
+    
     @EJB
-    private static RoomTypeSessionBeanRemote roomTypeSessionBean;
+    private static ReservationSessionBeanRemote reservationSessionBean;
 
     @EJB
     private static GuestSessionBeanRemote guestSessionBeanRemote;
@@ -156,7 +156,7 @@ public class Main {
             //Output all the room types, give guest option to select the room he wants to search
             System.out.println("Here are all available Room Types for your " + daysBetween + " night(s) stay"
                     + ". Which Hotel Room would you like to reserve?");
-            List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
+            List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             int count = 1;
             for (RoomType type : types ) {
                 //Check if room type is available first. If available then display
@@ -244,7 +244,7 @@ public class Main {
     private static double getTotalReservationFee(LocalDate checkInDate, LocalDate checkOutDate, RoomType selectedRoomType) throws FindRoomTypeException {
         double totalReservation = 0;
         long numOfDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-        List<RoomRate> rates = roomTypeSessionBean.getRoomRatesByRoomTypeId(selectedRoomType.getRoomTypeId());
+        List<RoomRate> rates = roomManagementSessionBean.getRoomRates(selectedRoomType.getRoomTypeId());
             
         for (int i = 0; i < numOfDays; i++) {
                 //get the rate Per night for each night
