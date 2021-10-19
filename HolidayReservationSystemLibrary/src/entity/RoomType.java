@@ -31,7 +31,7 @@ public class RoomType implements Serializable {
     @Size(min=5, max=15)
     private String roomTypeName;
     @NotNull
-    @Size(min=15, max=255)
+    @Size(min=5, max=255)
     private String roomTypeDesc;
     @NotNull
     @Digits(integer=4, fraction=0)
@@ -43,7 +43,7 @@ public class RoomType implements Serializable {
     @Digits(integer=2, fraction=0)
     private Integer capacity;
     @NotNull
-    @Size(min=15, max=255)
+    @Size(min=5, max=255)
     private String amenities;
     @OneToMany(mappedBy= "roomType")
     private ArrayList<RoomRate> rates;

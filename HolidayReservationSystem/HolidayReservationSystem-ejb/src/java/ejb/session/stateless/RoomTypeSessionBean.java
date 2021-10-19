@@ -57,4 +57,14 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         
         return rates;
     }
+
+    @Override
+    public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId) throws FindRoomTypeException{
+        RoomType type;
+        
+        type = em.find(RoomType.class, newRoomTypeId);
+        if (type == null) throw new FindRoomTypeException("RoomType is null");
+        
+        return type;
+    }
 }

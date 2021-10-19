@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
 import util.exception.ReservationQueryException;
@@ -113,6 +114,28 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         rate.getRoomType().getRates().remove(rate);
         
         em.remove(rate);
+    }
+
+    @Override
+    public List<RoomRate> getAllRoomRates() throws RoomRateQueryException {
+        List<RoomRate> rates;
+            
+        Query query = em.createQuery("SELECT r FROM RoomRate r");
+        rates = query.getResultList();
+
+        if (rates.isEmpty()) throw new RoomRateQueryException("List of Rates is empty");
+            
+        return rates;
+    }
+
+    @Override
+    public Long createNewRoomType(RoomType newRoomType) {
+        return roomTypeSessionBean.createNewRoomType(newRoomType);
+    }
+
+    @Override
+    public RoomType getRoomType(Long newRoomTypeId) throws FindRoomTypeException {
+        return roomTypeSessionBean.getRoomTypeByRoomTypeId(newRoomTypeId);
     }
 
    

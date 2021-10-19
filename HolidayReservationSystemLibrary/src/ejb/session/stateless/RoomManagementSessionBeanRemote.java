@@ -37,6 +37,12 @@ public interface RoomManagementSessionBeanRemote {
 
     public void deleteRoomRate(Long roomRateId) throws FindRoomRateException, ReservationQueryException;
 
+    public List<RoomRate> getAllRoomRates() throws RoomRateQueryException;
+
+    public Long createNewRoomType(RoomType newRoomType);
+
+    public RoomType getRoomType(Long newRoomTypeId) throws FindRoomTypeException;
+
     
     
 }
