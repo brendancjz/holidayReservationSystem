@@ -63,6 +63,7 @@ public class RoomType implements Serializable {
         this.numOfBeds = numOfBeds;
         this.capacity = capacity;
         this.amenities = amenities;
+        
     }
     
     public Boolean getIsDisabled() {

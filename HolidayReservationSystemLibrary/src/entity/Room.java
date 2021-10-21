@@ -33,11 +33,14 @@ public class Room implements Serializable {
     private Integer roomNum;
     @NotNull
     private Boolean isAvailable;
+    @NotNull
+    private Boolean isDisabled;
     @ManyToOne
     private RoomType roomType;
 
     public Room() {
         this.roomType = null;
+        this.isDisabled = null;
     }
 
     public Room(Integer roomLevel, Integer roomNum, Boolean isAvailable) {
@@ -46,6 +49,14 @@ public class Room implements Serializable {
         this.roomNum = roomNum;
         this.isAvailable = isAvailable;
         
+    }
+    
+    public Boolean getIsDisabled() {
+        return isDisabled;
+    }
+
+    public void setIsDisabled(Boolean isDisabled) {
+        this.isDisabled = isDisabled;
     }
 
     public Long getRoomId() {

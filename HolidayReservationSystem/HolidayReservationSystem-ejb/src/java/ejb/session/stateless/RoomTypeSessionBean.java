@@ -41,7 +41,9 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         List<RoomType> types = query.getResultList();
 
         if (types.isEmpty()) throw new RoomTypeQueryException("list of RoomTypes is empty.");
-        
+        for (RoomType type : types) {
+            type.getRooms().size();
+        } 
         
         return types;
     }

@@ -225,7 +225,7 @@ public class MainApp {
                 break;
             case 4:
                 System.out.println("You have selected 'Create New Room'\n");
-                //doViewAllMyReservations(sc, guestId);
+                doCreateNewRoom(sc, emId, emRole);
                 break;
             case 5:
                 System.out.println("You have selected 'Update Room'\n");
@@ -338,7 +338,7 @@ public class MainApp {
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             System.out.println("Select Room Type to have the new Room Rate:");
             int idx = 1;
-            for (RoomType type : types ) {
+            for (RoomType type : types ) { 
                 System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
             }
             System.out.print("> ");
@@ -560,7 +560,7 @@ public class MainApp {
             int count = 0;
             
             for (RoomRate rate : list) {
-                System.out.println(":: Employee ID: " + rate.getRoomRateId());
+                System.out.println(":: Room Rate ID: " + rate.getRoomRateId());
                 System.out.println("> Name: " + rate.getRoomRateName());
                 System.out.println("> Type: " + rate.getRoomRateType());
                 System.out.println("> Amount: " + rate.getRatePerNight());
@@ -640,6 +640,7 @@ public class MainApp {
             System.out.println("> Capacity: " + type.getCapacity());
             System.out.println("> Amenities: " + type.getAmenities());
             System.out.println("> Number of Rooms: " + type.getRooms().size());
+            System.out.println("> Is Disabled: " + type.getIsDisabled());
             System.out.println("> Room Rates:");
             List<RoomRate> rates = roomManagementSessionBean.getRoomRates(type.getRoomTypeId());
             
@@ -673,11 +674,36 @@ public class MainApp {
             }
         } catch (RoomTypeQueryException | FindRoomTypeException ex) {
             System.out.println("Error: " + ex.getMessage());
+        } catch (Exception e) {
+            System.out.println("General Exception: " + e.toString());
+            doDashboardFeatures(sc, emId, emRole);
         }
     }
 
     private void doViewAllRoomTypes(Scanner sc, Long emId, String emRole) {
-        
+        try {
+            System.out.println("==== View All Room Types Interface");
+            List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
+            for (RoomType type : types ) {
+                System.out.println(":: Room Type ID: " + type.getRoomTypeId());
+                System.out.println("> Name: " + type.getRoomTypeName());
+                System.out.println("> Description: " + type.getRoomTypeDesc());
+                System.out.println("> Size: " + type.getRoomSize());
+                System.out.println("> Number Of Beds: " + type.getNumOfBeds());
+                System.out.println("> Capacity: " + type.getCapacity());
+                System.out.println("> Amenities: " + type.getAmenities());
+                System.out.println("> Number of Rooms: " + type.getRooms().size());
+                System.out.println("> Is Disabled: " + type.getIsDisabled());
+                System.out.println();
+            }
+            
+        } catch (RoomTypeQueryException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        } catch (Exception e) {
+            System.out.println("Main exception: " + e.toString() + "\n");
+            
+        }
+        doDashboardFeatures(sc, emId, emRole);
     }
 
     private void doUpdateRoomType(Scanner sc, Long emId, String emRole, Long roomTypeId) {
@@ -786,6 +812,15 @@ public class MainApp {
             System.out.println("Error: " + ex.getMessage());
         } catch (Exception e) {
             System.out.println("Unspecified Error " + e.getMessage());
+        }
+    }
+
+    private void doCreateNewRoom(Scanner sc, Long emId, String emRole) {
+        try {
+            System.out.println("==== Create New Room Interface");
+            
+        } catch (Exception e) {
+            System.out.println("Error: " + e.toString());
         }
     }
 }
