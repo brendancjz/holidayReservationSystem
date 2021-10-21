@@ -40,15 +40,14 @@ public class Room implements Serializable {
 
     public Room() {
         this.roomType = null;
-        this.isDisabled = null;
+        this.isDisabled = false;
+        this.isAvailable = true;
     }
 
-    public Room(Integer roomLevel, Integer roomNum, Boolean isAvailable) {
+    public Room(Integer roomLevel, Integer roomNum) {
         this();
         this.roomLevel = roomLevel;
         this.roomNum = roomNum;
-        this.isAvailable = isAvailable;
-        
     }
     
     public Boolean getIsDisabled() {

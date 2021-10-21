@@ -45,7 +45,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         
         return reservations;
     }
-    
+   
+   
     @Override
     public List<Reservation> getReservationsByRoomTypeId(Long typeId) throws ReservationQueryException {
         Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.roomTypeId=:typeId"); //IMPT TO NOTE
@@ -68,7 +69,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         reservation.setRoomType(roomType);
         reservation.setRoomRate(roomRate);
         
-        guest.getReservations().size();
         guest.getReservations().add(reservation);
     }
     

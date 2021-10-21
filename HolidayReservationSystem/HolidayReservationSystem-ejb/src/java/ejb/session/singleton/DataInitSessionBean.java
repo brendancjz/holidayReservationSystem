@@ -194,27 +194,27 @@ public class DataInitSessionBean {
     }
     
     private Long[][] createRooms() {
-        //Integer roomLevel, Integer roomNum, Boolean isAvailable
+        //Integer roomLevel, Integer roomNum
         //Create 3Rooms for each RoomType
-        Long room1DRId = roomSessionBean.createNewRoom(new Room(1,1,true));
-        Long room2DRId = roomSessionBean.createNewRoom(new Room(1,2,true));
-        Long room3DRId = roomSessionBean.createNewRoom(new Room(1,3,true));
+        Long room1DRId = roomSessionBean.createNewRoom(new Room(1,1));
+        Long room2DRId = roomSessionBean.createNewRoom(new Room(1,2));
+        Long room3DRId = roomSessionBean.createNewRoom(new Room(1,3));
         
-        Long room1PRId = roomSessionBean.createNewRoom(new Room(2,1,true));
-        Long room2PRId = roomSessionBean.createNewRoom(new Room(2,2,true));
-        Long room3PRId = roomSessionBean.createNewRoom(new Room(2,3,true));
+        Long room1PRId = roomSessionBean.createNewRoom(new Room(2,1));
+        Long room2PRId = roomSessionBean.createNewRoom(new Room(2,2));
+        Long room3PRId = roomSessionBean.createNewRoom(new Room(2,3));
         
-        Long room1FRId = roomSessionBean.createNewRoom(new Room(3,1,true));
-        Long room2FRId = roomSessionBean.createNewRoom(new Room(3,2,true));
-        Long room3FRId = roomSessionBean.createNewRoom(new Room(3,3,true));
+        Long room1FRId = roomSessionBean.createNewRoom(new Room(3,1));
+        Long room2FRId = roomSessionBean.createNewRoom(new Room(3,2));
+        Long room3FRId = roomSessionBean.createNewRoom(new Room(3,3));
         
-        Long room1JSId = roomSessionBean.createNewRoom(new Room(4,1,true));
-        Long room2JSId = roomSessionBean.createNewRoom(new Room(4,2,true));
-        Long room3JSId = roomSessionBean.createNewRoom(new Room(4,3,true));
+        Long room1JSId = roomSessionBean.createNewRoom(new Room(4,1));
+        Long room2JSId = roomSessionBean.createNewRoom(new Room(4,2));
+        Long room3JSId = roomSessionBean.createNewRoom(new Room(4,3));
         
-        Long room1GSId = roomSessionBean.createNewRoom(new Room(5,1,true));
-        Long room2GSId = roomSessionBean.createNewRoom(new Room(5,2,true));
-        Long room3GSId = roomSessionBean.createNewRoom(new Room(5,3,true));
+        Long room1GSId = roomSessionBean.createNewRoom(new Room(5,1));
+        Long room2GSId = roomSessionBean.createNewRoom(new Room(5,2));
+        Long room3GSId = roomSessionBean.createNewRoom(new Room(5,3));
         
         Long[] DRroomIds = new Long[] {room1DRId, room2DRId, room3DRId};
         Long[] PRroomIds = new Long[] {room1PRId, room2PRId, room3PRId};

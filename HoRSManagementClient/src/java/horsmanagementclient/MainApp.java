@@ -8,6 +8,7 @@ package horsmanagementclient;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
 import entity.Employee;
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
@@ -18,8 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
@@ -818,9 +817,39 @@ public class MainApp {
     private void doCreateNewRoom(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Create New Room Interface");
+            List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
+            System.out.println("Select Room Type to have the new Room Rate:");
+            int idx = 1;
+            for (RoomType type : types ) { 
+                System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
+            }
+            System.out.print("> ");
+            int typeInput = sc.nextInt(); sc.nextLine();
+            System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
             
-        } catch (Exception e) {
+            System.out.println("Creating new Room:");
+            System.out.print("> Room Level: ");
+            int level = sc.nextInt(); sc.nextLine();
+            System.out.print("> Room Number: ");
+            int num = sc.nextInt(); sc.nextLine(); System.out.println();
+            
+            Room newRoom = new Room(level, num);
+            newRoom = roomManagementSessionBean.createNewRoom(newRoom, types.get(typeInput - 1).getRoomTypeId());
+            
+            System.out.println("You have successfully created a new Room.");
+            System.out.println("> Room Level: " + newRoom.getRoomLevel());
+            System.out.println("> Room Number: " + newRoom.getRoomNum());
+            System.out.println("> Room Type: " + newRoom.getRoomType().getRoomTypeName());
+            System.out.println("> Is Available: " + newRoom.getIsAvailable());
+            System.out.println("> Is Disabled: " + newRoom.getIsDisabled());
+            System.out.println();
+            
+            doDashboardFeatures(sc, emId, emRole);
+            
+        } catch (RoomTypeQueryException e) {
             System.out.println("Error: " + e.toString());
+        } catch (Exception e) {
+            System.out.println("General Error: " + e.toString());
         }
     }
 }

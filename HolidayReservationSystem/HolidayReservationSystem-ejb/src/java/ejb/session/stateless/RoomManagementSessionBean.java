@@ -207,5 +207,19 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public Room createNewRoom(Room room, Long typeId) {
+        Long roomId = roomSessionBean.createNewRoom(room);
+        
+        //Link Room Type with Room
+        RoomType roomType = em.find(RoomType.class, typeId);
+        room = em.find(Room.class, roomId);
+        
+        roomType.getRooms().add(room);
+        room.setRoomType(roomType);
+        
+        return room;
+    }
+
    
 }

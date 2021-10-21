@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDateTime;
@@ -48,6 +49,8 @@ public interface RoomManagementSessionBeanRemote {
     public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, String amenities) throws FindRoomTypeException;
 
     public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException ;
+
+    public Room createNewRoom(Room newRoom, Long roomTypeId);
 
     
     
