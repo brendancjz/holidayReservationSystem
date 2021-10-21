@@ -68,18 +68,21 @@ public class DataInitSessionBean {
                 employeeSessionBean.createNewEmployee(new Employee("Dan", "Bren", EmployeeEnum.OPSMANAGER.toString(), "password"));
                 employeeSessionBean.createNewEmployee(new Employee("Chia", "Seeds", EmployeeEnum.SALESMANAGER.toString(), "password"));
                 employeeSessionBean.createNewEmployee(new Employee("Jun", "Zhe", EmployeeEnum.GRELMANAGER.toString(), "password"));
+                System.out.println("created all employees"); 
             }
            
             if (em.find(Guest.class, 1L) == null) {
-                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 8482L, "theo@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826789L, "theo@gmail.com"));
+                System.out.println("created all guests"); 
             }
 
             if (em.find(Room.class, 1L) == null && em.find(RoomType.class, 1L) == null && em.find(RoomRate.class, 1L) == null) {
                 //Create some Room Types
                 Long[] roomTypeIds = createRoomTypes();
-               
+                System.out.println("created all room types");
                 //Create Room Rates first 
                 Long[][] roomRatesIds = createRoomRates();
+                System.out.println("created all room rates");
                 
                 //Link Room Types to Room Rates 
                 //Link Room Rate to Room Types
@@ -98,6 +101,7 @@ public class DataInitSessionBean {
                 
                 //Create some rooms 
                 Long[][] roomIds = createRooms();
+                System.out.println("created all rooms");
                 
                 //Link Room Types to Room
                 //Link Room to Room Types
@@ -112,7 +116,7 @@ public class DataInitSessionBean {
                     }
                 }
             }
-            
+             
             if (em.find(Reservation.class, 1L) == null) {
                 LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
                 Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -121,6 +125,7 @@ public class DataInitSessionBean {
                 
                 Long reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1));
                 reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, 1L, 1L, 1L);
+                System.out.println("created all reservations");
             }
 
         } catch (Exception e) {
@@ -177,7 +182,7 @@ public class DataInitSessionBean {
         return new Long[][]{DRroomRates, PRroomRates, FRroomRates, JSroomRates, GSroomRates};
     }
 
-    private Long[] createRoomTypes() {
+    private Long[] createRoomTypes() { 
         //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
         Long deluxeRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("DeluxeRoom", "Deluxe Room", 400, 2, 4, "Bed, Toilet, TV"));
         Long premierRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("PremierRoom", "Premier Room", 600, 4, 6, "Bed, Toilet, TV, Bathtub"));

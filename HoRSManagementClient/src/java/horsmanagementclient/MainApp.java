@@ -18,6 +18,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
@@ -197,7 +199,7 @@ public class MainApp {
     private void doOpsManagerDashboardFeatures(Scanner sc, Long emId, String emRole) {
         System.out.println("> 1. Create New Room Type");
         System.out.println("> 2. View Room Type Details");
-        System.out.println("> 3. View All Room Rypes");
+        System.out.println("> 3. View All Room Types");
         System.out.println("> 4. Create New Room");
         System.out.println("> 5. Update Room");
         System.out.println("> 6. Delete Room");
@@ -623,10 +625,167 @@ public class MainApp {
     }
 
     private void doViewRoomTypeDeatails(Scanner sc, Long emId, String emRole) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("==== View Room Type Details Interface ====");
+        try {
+            
+            System.out.print("> Room Type Name: ");
+            String typeName = sc.nextLine();System.out.println();
+            RoomType type = roomManagementSessionBean.getRoomType(typeName);
+            
+            System.out.println("Selected Room Type details:");
+            System.out.println("> Name: " + type.getRoomTypeName());
+            System.out.println("> Description: " + type.getRoomTypeDesc());
+            System.out.println("> Size: " + type.getRoomSize());
+            System.out.println("> Number Of Beds: " + type.getNumOfBeds());
+            System.out.println("> Capacity: " + type.getCapacity());
+            System.out.println("> Amenities: " + type.getAmenities());
+            System.out.println("> Number of Rooms: " + type.getRooms().size());
+            System.out.println("> Room Rates:");
+            List<RoomRate> rates = roomManagementSessionBean.getRoomRates(type.getRoomTypeId());
+            
+            for (RoomRate rate : rates) {
+                System.out.println("  > " + rate.getRoomRateName());
+            }
+            System.out.println();
+            
+            
+            System.out.println("   Select an action:");
+            System.out.println("   > 1. Update Room Type");
+            System.out.println("   > 2. Delete Room Type");
+            System.out.println("   > 3. Back to Dashboard");
+            System.out.print("   > ");
+            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+            
+            switch (input) {
+                case 1:
+                    doUpdateRoomType(sc, emId, emRole, type.getRoomTypeId());
+                    break;
+                case 2:
+                    doDeleteRoomType(sc, emId, emRole, type.getRoomTypeId());
+                    break;
+                case 3:
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+                default:
+                    System.out.println("Invalid input.");
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+            }
+        } catch (RoomTypeQueryException | FindRoomTypeException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
     }
 
     private void doViewAllRoomTypes(Scanner sc, Long emId, String emRole) {
         
+    }
+
+    private void doUpdateRoomType(Scanner sc, Long emId, String emRole, Long roomTypeId) {
+        System.out.println("==== Update Room Type Interface ====");
+        
+        try {
+            RoomType type = roomManagementSessionBean.getRoomType(roomTypeId);
+            boolean done = false;
+            String name = type.getRoomTypeName();
+            String desc = type.getRoomTypeDesc();
+            Integer size = type.getRoomSize();
+            Integer beds = type.getNumOfBeds();
+            Integer cap = type.getCapacity();
+            String amenities = type.getAmenities();
+                        
+            while (!done) {
+                System.out.println("Select which detail of the type you want to change:");
+                System.out.println("> 1. Name");
+                System.out.println("> 2. Description");
+                System.out.println("> 3. Room Size");
+                System.out.println("> 4. Number Of Beds");
+                System.out.println("> 5. Room Capacity");
+                System.out.println("> 6. Amenities");
+                System.out.print("> ");
+                int input = sc.nextInt(); sc.nextLine(); System.out.println();
+                
+                switch (input) {
+                    case 1:
+                        System.out.print("> Input new Name: ");
+                        name = sc.nextLine();
+                        break;
+                    case 2:
+                        System.out.print("> Input new Description: ");
+                        desc = sc.nextLine();
+                        break;
+                    case 3:
+                        System.out.print("> Input new Room Size: ");
+                        size = sc.nextInt(); sc.nextLine();
+                        break;
+                    case 4:
+                        System.out.print("> Input new Number Of Beds: ");
+                        beds = sc.nextInt(); sc.nextLine();
+                        break;
+                    case 5:
+                        System.out.print("> Input new Room Capacity: ");
+                        cap = sc.nextInt(); sc.nextLine();
+                        break;
+                    case 6:
+                        System.out.print("> Input new Amenities: ");
+                        amenities = sc.nextLine();
+                        break;
+                    default:
+                        break;
+                }
+                
+                System.out.println("Finalise changes?");
+                System.out.println("> 1. Yes");
+                System.out.println("> 2. No");
+                System.out.print("> ");
+                int answer = sc.nextInt(); sc.nextLine(); System.out.println();
+                if (answer == 1) done = true;
+            }
+            
+            roomManagementSessionBean.updateRoomType(roomTypeId, name, desc, size, beds, cap, amenities);
+            System.out.println("You have successfully updated the Room Type.\n");
+            
+            type = roomManagementSessionBean.getRoomType(roomTypeId);
+            System.out.println("Updated Room Rate details:");
+            System.out.println("> Name: " + type.getRoomTypeName());
+            System.out.println("> Description: " + type.getRoomTypeDesc());
+            System.out.println("> Size: " + type.getRoomSize());
+            System.out.println("> Number Of Beds: " + type.getNumOfBeds());
+            System.out.println("> Capacity: " + type.getCapacity());
+            System.out.println("> Amenities: " + type.getAmenities());
+            System.out.println();
+            
+            doDashboardFeatures(sc, emId, emRole);
+        } catch (FindRoomTypeException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }
+
+    private void doDeleteRoomType(Scanner sc, Long emId, String emRole, Long roomTypeId) {
+        System.out.println("=== Delete Room Type Interface ====");
+        System.out.println("Confirm Deletion?");
+        System.out.println("> 1. Yes");
+        System.out.println("> 2. No");
+        System.out.print("> ");
+        try { 
+            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+            switch (input) {
+                case 1:
+                    roomManagementSessionBean.deleteRoomType(roomTypeId);
+                    System.out.println("You have successfully deleted/disabled the Room Type.\n");
+                    break;
+
+                case 2:
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+                default:
+                    System.out.println("Invalid input. Try again.\n");
+                    doDeleteRoomType(sc, emId, emRole, roomTypeId);
+                    break;
+            }
+        } catch (FindRoomRateException | ReservationQueryException | FindRoomTypeException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unspecified Error " + e.getMessage());
+        }
     }
 }

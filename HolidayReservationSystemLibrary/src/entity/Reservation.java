@@ -33,7 +33,6 @@ public class Reservation implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date endDate;
     @NotNull
-    @Size(min=1)
     private Integer numOfRooms;
     @ManyToOne
     private Guest guest;

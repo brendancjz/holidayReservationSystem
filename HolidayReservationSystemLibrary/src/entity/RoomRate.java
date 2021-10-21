@@ -35,7 +35,6 @@ public class RoomRate implements Serializable {
     @Size(min=5, max=15)
     private String roomRateType;
     @NotNull
-    @Digits(integer=4, fraction=2)
     private Double ratePerNight;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date startDate;

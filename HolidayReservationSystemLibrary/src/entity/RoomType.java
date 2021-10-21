@@ -34,17 +34,16 @@ public class RoomType implements Serializable {
     @Size(min=5, max=255)
     private String roomTypeDesc;
     @NotNull
-    @Digits(integer=4, fraction=0)
     private Integer roomSize;
     @NotNull
-    @Digits(integer=2, fraction=0)
     private Integer numOfBeds;
     @NotNull
-    @Digits(integer=2, fraction=0)
     private Integer capacity;
     @NotNull
     @Size(min=5, max=255)
     private String amenities;
+    @NotNull
+    private Boolean isDisabled;
     @OneToMany(mappedBy= "roomType")
     private ArrayList<RoomRate> rates;
     @OneToMany(mappedBy= "roomType")
@@ -53,8 +52,9 @@ public class RoomType implements Serializable {
     public RoomType() {
         this.rates = new ArrayList<>();
         this.rooms = new ArrayList<>();
+        this.isDisabled = false;
     }
-
+ 
     public RoomType(String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities) {
         this();
         this.roomTypeName = roomTypeName;
@@ -63,6 +63,14 @@ public class RoomType implements Serializable {
         this.numOfBeds = numOfBeds;
         this.capacity = capacity;
         this.amenities = amenities;
+    }
+    
+    public Boolean getIsDisabled() {
+        return isDisabled;
+    }
+
+    public void setIsDisabled(Boolean isDisabled) {
+        this.isDisabled = isDisabled;
     }
 
     public Long getRoomTypeId() {

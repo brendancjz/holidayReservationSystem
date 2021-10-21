@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Reservation;
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDateTime;
@@ -104,13 +105,15 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         RoomRate rate = roomRateSessionBean.getRoomRateByRoomRateId(roomRateId);
         List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
         
-        for (Reservation reservation : reservations) {
-            if (reservation.getRoomRate().getRoomRateId().equals(rate.getRoomRateId())) {
+        for (int i = 0; i < reservations.size(); i++) {
+            if (reservations.get(i).getRoomRate().getRoomRateId().equals(rate.getRoomRateId())) {
                 rate.setIsDisabled(Boolean.TRUE);
+                System.out.println("Room Rate " + rate.getRoomRateName() + " is now disabled.");
                 return;
             }
         } 
         
+        //Delete cause no one using
         rate.getRoomType().getRates().remove(rate);
         
         em.remove(rate);
@@ -134,8 +137,74 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public RoomType getRoomType(Long newRoomTypeId) throws FindRoomTypeException {
-        return roomTypeSessionBean.getRoomTypeByRoomTypeId(newRoomTypeId);
+    public RoomType getRoomType(Long roomTypeId) throws FindRoomTypeException {
+        return roomTypeSessionBean.getRoomTypeByRoomTypeId(roomTypeId);
+    }
+
+    @Override
+    public RoomType getRoomType(String typeName) throws RoomTypeQueryException {
+        RoomType type = roomTypeSessionBean.getRoomTypeByRoomTypeName(typeName);
+        type.getRooms().size();
+        return type;
+    }
+
+    @Override
+    public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, String amenities) throws FindRoomTypeException {
+        RoomType type = this.getRoomType(roomTypeId);
+        type.setRoomTypeName(name);
+        type.setRoomTypeDesc(desc);
+        type.setSize(size);
+        type.setNumOfBeds(beds);
+        type.setCapacity(cap);
+        type.setAmenities(amenities);
+    }
+
+    @Override
+    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException  {
+        RoomType type = this.getRoomType(roomTypeId);
+        List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
+        
+        for (int i = 0; i < reservations.size(); i++) {
+            System.out.println("Inside loop");
+            if (reservations.get(i).getRoomType().getRoomTypeId().equals(type.getRoomTypeId())) {
+                System.out.println("Found a room type");
+                type.setIsDisabled(Boolean.TRUE);
+                break;
+            }
+        }
+        
+        if (!type.getIsDisabled()) {
+
+            List<RoomRate> rates = type.getRates();
+            for (RoomRate rate : rates) {
+                em.remove(rate);
+            }
+            List<Room> rooms = type.getRooms();
+            for (Room room : rooms) {
+                em.remove(room);
+            }
+            em.flush();
+            em.remove(type);
+        } else {
+            List<RoomRate> rates = type.getRates();
+            for (int i = 0; i < rates.size(); i++) {
+                System.out.println("== ROOM RATE " + rates.get(i).getRoomRateName());
+                this.deleteRoomRate(rates.get(i).getRoomRateId());
+            }
+
+    //            //disable/delete all the room rooms tagged to room type
+    //            List<Room> rooms = type.getRooms();
+    //            for (Room room : rooms) {
+    //                this.deleteRoom(room.getRoomId());
+    //            }
+        }
+        
+        
+        
+    }
+
+    private void deleteRoom(Long roomId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
    

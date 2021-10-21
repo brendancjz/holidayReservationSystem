@@ -65,6 +65,22 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         type = em.find(RoomType.class, newRoomTypeId);
         if (type == null) throw new FindRoomTypeException("RoomType is null");
         
+        type.getRooms().size();
+        type.getRates().size();
+        return type;
+    }
+
+    @Override
+    public RoomType getRoomTypeByRoomTypeName(String typeName) throws RoomTypeQueryException {
+        Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.roomTypeName=:name");
+        query.setParameter("name", typeName);
+        
+        List<RoomType> types = query.getResultList();
+        
+        if (types.isEmpty()) throw new RoomTypeQueryException("Invalid Room Type Name");
+        RoomType type = types.get(0);
+        type.getRooms().size();
+        type.getRates().size();
         return type;
     }
 }
