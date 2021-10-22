@@ -19,13 +19,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
 import util.exception.FindEmployeeException;
+import util.exception.FindRoomException;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
 import util.exception.ReservationQueryException;
+import util.exception.RoomQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -228,7 +232,7 @@ public class MainApp {
                 break;
             case 5:
                 System.out.println("You have selected 'Update Room'\n");
-                //doViewAllMyReservations(sc, guestId);
+                doUpdateRoom(sc, emId, emRole);
                 break;
             case 6:
                 System.out.println("You have selected 'Delete Room'\n");
@@ -807,6 +811,8 @@ public class MainApp {
                     doDeleteRoomType(sc, emId, emRole, roomTypeId);
                     break;
             }
+            
+            doDashboardFeatures(sc, emId, emRole);
         } catch (FindRoomRateException | ReservationQueryException | FindRoomTypeException ex) {
             System.out.println("Error: " + ex.getMessage());
         } catch (Exception e) {
@@ -850,6 +856,94 @@ public class MainApp {
             System.out.println("Error: " + e.toString());
         } catch (Exception e) {
             System.out.println("General Error: " + e.toString());
+        }
+    }
+
+    private void doUpdateRoom(Scanner sc, Long emId, String emRole) {
+        try {
+            System.out.println("==== Update Room Interface ====");
+            System.out.print("> Input Room Level: ");
+            int level = sc.nextInt(); sc.nextLine();
+            System.out.print("> Input Room Number: ");
+            int number = sc.nextInt(); sc.nextLine(); System.out.println();
+            
+            Room room = roomManagementSessionBean.getRoom(level, number);
+            boolean isAvail = room.getIsAvailable();
+            level = room.getRoomLevel();
+            number = room.getRoomNum();
+            RoomType type = room.getRoomType();
+
+            System.out.println("You have selected Room ID: " + room.getRoomId());
+            boolean done = false;
+            while (!done) {
+                System.out.println("Select which detail of the type you want to change:");
+                System.out.println("> 1. Room Level");
+                System.out.println("> 2. Room Number");
+                System.out.println("> 3. Room Type");
+                System.out.println("> 4. Availability");
+                System.out.print("> ");
+                int input = sc.nextInt(); sc.nextLine(); System.out.println();
+                
+                switch (input) {
+                    case 1:
+                        System.out.print("> Input new level: ");
+                        level = sc.nextInt(); sc.nextLine();
+                        break;
+                    case 2:
+                        System.out.print("> Input new number: ");
+                        number = sc.nextInt(); sc.nextLine();
+                        break;
+                    case 3:
+                        List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
+                        System.out.println("Select Room Type to change to:");
+                        int idx = 1;
+                        for (RoomType t : types ) { 
+                            System.out.println("> " + idx++ + ". " + t.getRoomTypeName());
+                        }
+                        System.out.print("> ");
+                        int typeInput = sc.nextInt(); sc.nextLine();
+                        
+                        type = types.get(typeInput - 1);
+                        break;
+                    case 4:
+                        System.out.println("> Select True or False: ");
+                        System.out.println("  > 1. True");
+                        System.out.println("  > 2. False");
+                        System.out.print("  > ");
+                        int input2 = sc.nextInt(); sc.nextLine();
+                        
+                        isAvail = (input2 == 1);
+                        break;
+                    default:
+                        break;
+                } 
+                
+                System.out.println("Finalise changes?");
+                System.out.println("> 1. Yes");
+                System.out.println("> 2. No");
+                System.out.print("> ");
+                int answer = sc.nextInt(); sc.nextLine(); System.out.println();
+                if (answer == 1) done = true;
+            }
+            
+            roomManagementSessionBean.updateRoom(room.getRoomId(), level, number, isAvail, type);
+            
+            System.out.println("You have successfully updated the Room.\n");
+            
+            room = roomManagementSessionBean.getRoom(room.getRoomId());
+            System.out.println("Updated Room details:");
+            System.out.println("> Room Level: " + room.getRoomLevel());
+            System.out.println("> Room Number: " + room.getRoomNum());
+            System.out.println("> IsAvailable: " + room.getIsAvailable());
+            System.out.println("> Room Type: " + room.getRoomType().getRoomTypeName());
+            System.out.println();
+            
+            doDashboardFeatures(sc, emId, emRole);
+        } catch (RoomQueryException | RoomTypeQueryException | FindRoomException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                    doUpdateRoom(sc, emId, emRole);
+        } catch (Exception ex) {
+            System.out.println("General Exception: " + ex.toString());
         }
     }
 }

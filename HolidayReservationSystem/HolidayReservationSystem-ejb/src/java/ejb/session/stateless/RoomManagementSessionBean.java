@@ -19,9 +19,11 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.FindRoomException;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
 import util.exception.ReservationQueryException;
+import util.exception.RoomQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -115,8 +117,8 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         
         //Delete cause no one using
         rate.getRoomType().getRates().remove(rate);
-        
         em.remove(rate);
+        System.out.println("Deleted Room Room: " + rate.getRoomRateName());
     }
 
     @Override
@@ -219,7 +221,37 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         room.setRoomType(roomType);
         
         return room;
+    } 
+
+    @Override
+    public Room getRoom(int level, int number) throws RoomQueryException {
+        return roomSessionBean.getRoomByRoomLevelAndRoomNumber(level, number);
     }
+    
+    @Override
+    public Room getRoom(Long roomId) throws FindRoomException {
+        return roomSessionBean.getRoomByRoomId(roomId);
+    }
+
+    @Override
+    public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type) throws FindRoomException {
+        Room room = this.getRoom(roomId);
+        type = em.merge(type);
+        RoomType currType = room.getRoomType();
+        
+        room.setIsAvailable(avail);
+        room.setRoomLevel(level);
+        room.setRoomNum(number);
+        if (currType.getRoomTypeId() != type.getRoomTypeId()) {
+            currType.getRooms().remove(room);
+            room.setRoomType(type);
+            type.getRooms().add(room);
+            System.out.println("linked new room type to room");
+        }
+        System.out.println("successfully updated room");
+    }
+
+    
 
    
 }

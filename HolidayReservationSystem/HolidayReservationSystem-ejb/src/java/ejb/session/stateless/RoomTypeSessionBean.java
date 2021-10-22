@@ -41,8 +41,13 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         List<RoomType> types = query.getResultList();
 
         if (types.isEmpty()) throw new RoomTypeQueryException("list of RoomTypes is empty.");
-        for (RoomType type : types) {
+        for (int i = 0; i < types.size(); i++) {
+            RoomType type = types.get(i);
             type.getRooms().size();
+            if (type.getIsDisabled()) { //Only return the room types that are not disabled
+                types.remove(i);
+                System.out.println("-- removed room type from list.");
+            }
         } 
         
         return types;

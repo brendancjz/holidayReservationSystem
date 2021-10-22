@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Room;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.RoomQueryException;
 
 /**
  *
@@ -18,6 +19,6 @@ public interface RoomSessionBeanRemote {
 
     public Long createNewRoom(Room room);
 
-    public List<Room> retrieveAllRooms();
+    public List<Room> retrieveAllRooms() throws RoomQueryException;
     
 }

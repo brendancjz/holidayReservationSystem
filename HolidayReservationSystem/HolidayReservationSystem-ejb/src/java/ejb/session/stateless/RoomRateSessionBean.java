@@ -39,6 +39,12 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         List<RoomRate>  rates = query.getResultList();
         
         if (rates.isEmpty()) throw new RoomRateQueryException("List of RoomRates is empty");
+        for (int i = 0; i < rates.size(); i++) {
+            RoomRate rate = rates.get(i);
+            if (rate.getIsDisabled()) { // Only return rates that are not disabled
+                rates.remove(i);
+            }
+        }
         
         return rates;
     }

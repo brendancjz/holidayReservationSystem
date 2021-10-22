@@ -12,9 +12,11 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.FindRoomException;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
 import util.exception.ReservationQueryException;
+import util.exception.RoomQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 
@@ -51,6 +53,13 @@ public interface RoomManagementSessionBeanRemote {
     public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException ;
 
     public Room createNewRoom(Room newRoom, Long roomTypeId);
+
+    public Room getRoom(int level, int number) throws RoomQueryException;
+    public Room getRoom(Long roomId) throws FindRoomException ;
+    
+    public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type)  throws FindRoomException ;
+
+
 
     
     
