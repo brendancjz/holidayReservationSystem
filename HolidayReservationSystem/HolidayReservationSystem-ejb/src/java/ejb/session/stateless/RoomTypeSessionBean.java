@@ -44,24 +44,24 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         for (int i = 0; i < types.size(); i++) {
             RoomType type = types.get(i);
             type.getRooms().size();
-            if (type.getIsDisabled()) { //Only return the room types that are not disabled
-                types.remove(i);
-                System.out.println("-- removed room type from list.");
-            }
+            type.getRates().size();
+            
+//            if (type.getIsDisabled()) { //Only return the room types that are not disabled
+//                types.remove(i);
+//                System.out.println("-- removed room type from list.");
+//            }
+            
+            
         } 
         
         return types;
     }
     
     @Override
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws FindRoomTypeException {
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) {
 
         RoomType roomType = em.find(RoomType.class, id);
         List<RoomRate> rates = roomType.getRates();
-
-        if (rates.isEmpty()) throw new FindRoomTypeException("List of rates is empty");
-        
-        
         return rates;
     }
 

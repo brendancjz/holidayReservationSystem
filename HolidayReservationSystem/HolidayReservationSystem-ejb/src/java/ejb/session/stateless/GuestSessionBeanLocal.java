@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Guest;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -20,5 +21,7 @@ public interface GuestSessionBeanLocal {
     public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email);
     public Long createNewGuest(Guest guest);
     public Guest getGuestByEmail(String email);
+
+    public List<Guest> retrieveAllGuests();
     
 }

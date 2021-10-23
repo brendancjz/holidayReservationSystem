@@ -54,7 +54,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
     
     @Override
-    public List<RoomRate> getRoomRates(Long roomTypeId) throws FindRoomTypeException{
+    public List<RoomRate> getRoomRates(Long roomTypeId) {
         return roomTypeSessionBean.getRoomRatesByRoomTypeId(roomTypeId);
     }
 
@@ -188,17 +188,16 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             em.flush();
             em.remove(type);
         } else {
-            List<RoomRate> rates = type.getRates();
-            for (int i = 0; i < rates.size(); i++) {
-                System.out.println("== ROOM RATE " + rates.get(i).getRoomRateName());
-                this.deleteRoomRate(rates.get(i).getRoomRateId());
+            
+            RoomRate[] rates = type.getRates().toArray(new RoomRate[type.getRates().size()]);
+            System.out.println("NUM OF RATES: " + rates.length);
+            int numOfRates = rates.length;
+            for (int i = 0; i < numOfRates; i++) {
+                System.out.println("== ROOM RATE " + rates[i].getRoomRateName());
+                this.deleteRoomRate(rates[i].getRoomRateId());
             }
 
-    //            //disable/delete all the room rooms tagged to room type
-    //            List<Room> rooms = type.getRooms();
-    //            for (Room room : rooms) {
-    //                this.deleteRoom(room.getRoomId());
-    //            }
+    //            DO THE SAME FOR ROOM AS ABOVE
         }
         
         

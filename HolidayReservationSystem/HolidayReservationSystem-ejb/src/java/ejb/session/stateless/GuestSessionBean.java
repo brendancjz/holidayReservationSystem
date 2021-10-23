@@ -75,4 +75,15 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         
         return guest;
     }
+    
+    @Override
+    public List<Guest> retrieveAllGuests() {
+        Query query = em.createQuery("SELECT g FROM Guest g");
+        List<Guest> guests = query.getResultList();
+        for (Guest guest: guests) {
+            guest.getReservations().size();
+        }
+        
+        return guests;
+    }
 }

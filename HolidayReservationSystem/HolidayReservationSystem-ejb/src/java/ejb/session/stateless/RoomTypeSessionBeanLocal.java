@@ -21,7 +21,7 @@ public interface RoomTypeSessionBeanLocal {
     public List<RoomType> retrieveAllRoomTypes() throws RoomTypeQueryException;
     
     public Long createNewRoomType(RoomType roomType);
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws FindRoomTypeException;
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);
 
     public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId) throws FindRoomTypeException;
 

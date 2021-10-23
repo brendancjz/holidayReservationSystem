@@ -29,7 +29,7 @@ public interface RoomManagementSessionBeanRemote {
 
     public List<RoomType> getAllRoomTypes() throws RoomTypeQueryException;
 
-    public List<RoomRate> getRoomRates(Long roomTypeId) throws FindRoomTypeException;
+    public List<RoomRate> getRoomRates(Long roomTypeId);
 
     public RoomRate createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
 

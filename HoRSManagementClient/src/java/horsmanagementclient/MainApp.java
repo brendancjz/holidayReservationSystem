@@ -342,10 +342,13 @@ public class MainApp {
             System.out.println("Select Room Type to have the new Room Rate:");
             int idx = 1;
             for (RoomType type : types ) { 
-                System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
+                if (!type.getIsDisabled()){
+                    System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
+                }
             }
             System.out.print("> ");
             int typeInput = sc.nextInt(); sc.nextLine();
+            
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
             System.out.println("Select Room Rate Type:");
             String[] rateEnums = new String[] {RoomRateEnum.PublishedRate.toString(), 
@@ -565,7 +568,7 @@ public class MainApp {
             for (RoomRate rate : list) {
                 System.out.println(":: Room Rate ID: " + rate.getRoomRateId());
                 System.out.println("> Name: " + rate.getRoomRateName());
-                System.out.println("> Type: " + rate.getRoomRateType());
+                System.out.println("> Room Type: " + rate.getRoomType().getRoomTypeName());
                 System.out.println("> Amount: " + rate.getRatePerNight());
                 System.out.println("> Is Disabled: " + rate.getIsDisabled());
                 if (rate.getStartDate() != null) {
@@ -577,13 +580,13 @@ public class MainApp {
                 System.out.println();
                 
                 count++;
-            }
+            } 
             System.out.println("Total Number of Room Rates: " + count + "\n");
             doDashboardFeatures(sc, emId, emRole);
         } catch (RoomRateQueryException e) {
             System.out.println("Error: " + e.getMessage());
         }
-    }
+    } 
 
     private void doCreateNewRoomType(Scanner sc, Long emId, String emRole) {
         try {
@@ -594,11 +597,11 @@ public class MainApp {
             String typeName = sc.nextLine();
             System.out.print("> Room Type Description [MIN 5 CHAR]: ");
             String typeDesc = sc.nextLine();
-            System.out.print("> Room Size [XXXX]: ");
+            System.out.print("> Room Size: ");
             Integer roomSize = sc.nextInt(); sc.nextLine();
-            System.out.print("> Number Of Beds [XX]: ");
+            System.out.print("> Number Of Beds: ");
             Integer numOfBeds = sc.nextInt(); sc.nextLine();
-            System.out.print("> Room Capacity [XX]: ");
+            System.out.print("> Room Capacity: ");
             Integer cap = sc.nextInt(); sc.nextLine();
             System.out.print("> Room Amenities [MIN 5 CHAR]: ");
             String amenities = sc.nextLine();
@@ -646,11 +649,15 @@ public class MainApp {
             System.out.println("> Is Disabled: " + type.getIsDisabled());
             System.out.println("> Room Rates:");
             List<RoomRate> rates = roomManagementSessionBean.getRoomRates(type.getRoomTypeId());
-            
-            for (RoomRate rate : rates) {
+            if (!rates.isEmpty()) {
+                for (RoomRate rate : rates) {
                 System.out.println("  > " + rate.getRoomRateName());
+                }
+                System.out.println();
+            } else {
+                System.out.println("     NULL");
             }
-            System.out.println();
+            
             
             
             System.out.println("   Select an action:");
@@ -675,7 +682,7 @@ public class MainApp {
                     doDashboardFeatures(sc, emId, emRole);
                     break;
             }
-        } catch (RoomTypeQueryException | FindRoomTypeException ex) {
+        } catch (RoomTypeQueryException ex) {
             System.out.println("Error: " + ex.getMessage());
         } catch (Exception e) {
             System.out.println("General Exception: " + e.toString());
@@ -827,10 +834,13 @@ public class MainApp {
             System.out.println("Select Room Type to have the new Room Rate:");
             int idx = 1;
             for (RoomType type : types ) { 
-                System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
+                if (!type.getIsDisabled()){
+                    System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
+                }
             }
             System.out.print("> ");
             int typeInput = sc.nextInt(); sc.nextLine();
+            
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
             
             System.out.println("Creating new Room:");
@@ -862,9 +872,9 @@ public class MainApp {
     private void doUpdateRoom(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Update Room Interface ====");
-            System.out.print("> Input Room Level: ");
+            System.out.print("> Input existing Room Level: ");
             int level = sc.nextInt(); sc.nextLine();
-            System.out.print("> Input Room Number: ");
+            System.out.print("> Input existing Room Number: ");
             int number = sc.nextInt(); sc.nextLine(); System.out.println();
             
             Room room = roomManagementSessionBean.getRoom(level, number);
@@ -898,8 +908,11 @@ public class MainApp {
                         System.out.println("Select Room Type to change to:");
                         int idx = 1;
                         for (RoomType t : types ) { 
-                            System.out.println("> " + idx++ + ". " + t.getRoomTypeName());
+                            if (!t.getIsDisabled()){
+                                System.out.println("> " + idx++ + ". " + t.getRoomTypeName());
+                            }
                         }
+                        
                         System.out.print("> ");
                         int typeInput = sc.nextInt(); sc.nextLine();
                         

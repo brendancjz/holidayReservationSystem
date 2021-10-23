@@ -24,5 +24,5 @@ public interface RoomTypeSessionBeanRemote {
 
     public Long createNewRoomType(RoomType roomType);
 
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws FindRoomTypeException;    
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);    
 }

@@ -7,28 +7,7 @@ package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
-import entity.Employee;
-import entity.RoomRate;
-import entity.RoomType;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
-import util.enumeration.EmployeeEnum;
-import util.enumeration.RoomRateEnum;
-import util.exception.EmployeeQueryException;
-import util.exception.FindEmployeeException;
-import util.exception.FindRoomRateException;
-import util.exception.ReservationQueryException;
-import util.exception.RoomRateQueryException;
-import util.exception.RoomTypeQueryException;
 
 /**
  *

@@ -45,9 +45,9 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         for (int i = 0; i < rooms.size(); i++) {
             Room room = rooms.get(i);
 
-            if (room.getIsDisabled()) { //Only return the rooms that are not disabled.
-                rooms.remove(i);
-            }
+//            if (room.getIsDisabled()) { //Only return the rooms that are not disabled.
+//                rooms.remove(i);
+//            }
         }
         return rooms;
     }
