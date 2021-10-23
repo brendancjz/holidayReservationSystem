@@ -236,11 +236,11 @@ public class MainApp {
                 break;
             case 6:
                 System.out.println("You have selected 'Delete Room'\n");
-                //doViewAllMyReservations(sc, guestId);
+                doDeleteRoom(sc, emId, emRole);
                 break;
             case 7:
                 System.out.println("You have selected 'View All Rooms'\n");
-                //doViewAllMyReservations(sc, guestId);
+                doViewAllRooms(sc, emId, emRole);
                 break;
             case 8:
                 System.out.println("You have selected 'View Room Allocation Exception Report'\n");
@@ -248,8 +248,6 @@ public class MainApp {
                 break;
             case 9:
                 System.out.println("You have logged out.\n");
-                sc.close();
-                run();
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
@@ -882,6 +880,12 @@ public class MainApp {
             level = room.getRoomLevel();
             number = room.getRoomNum();
             RoomType type = room.getRoomType();
+            
+            if (room.getIsDisabled()) {
+                System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
+                doDashboardFeatures(sc, emId, emRole);
+                return;
+            }
 
             System.out.println("You have selected Room ID: " + room.getRoomId());
             boolean done = false;
@@ -957,6 +961,73 @@ public class MainApp {
                     doUpdateRoom(sc, emId, emRole);
         } catch (Exception ex) {
             System.out.println("General Exception: " + ex.toString());
+        }
+    }
+
+    private void doDeleteRoom(Scanner sc, Long emId, String emRole) {
+        try {
+            System.out.println("==== Delete Room Interface ====");
+            System.out.print("> Input existing Room Level: ");
+            int level = sc.nextInt(); sc.nextLine();
+            System.out.print("> Input existing Room Number: ");
+            int number = sc.nextInt(); sc.nextLine(); System.out.println();
+            
+            Room room = roomManagementSessionBean.getRoom(level, number);
+            if (room.getIsDisabled()) {
+                System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
+                doDashboardFeatures(sc, emId, emRole);
+                return;
+            }
+            
+            System.out.println("You have selected Room ID: " + room.getRoomId());
+            System.out.println("Confirm Deletion?");
+            System.out.println("> 1. Yes");
+            System.out.println("> 2. No");
+            System.out.print("> ");
+            
+            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+            switch (input) {
+                case 1:
+                    roomManagementSessionBean.deleteRoom(room.getRoomId());
+                    System.out.println("You have successfully deleted/disabled the Room Rate.\n");
+                    break;
+
+                case 2:
+                    doDashboardFeatures(sc, emId, emRole);
+                    break;
+                default:
+                    System.out.println("Invalid input. Try again.\n");
+                    doDeleteRoom(sc, emId, emRole);
+                    break;
+            }
+            
+            doDashboardFeatures(sc, emId, emRole);
+        } catch (RoomQueryException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        } catch (FindRoomException | ReservationQueryException ex) {
+            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void doViewAllRooms(Scanner sc, Long emId, String emRole) {
+        try {
+            System.out.println("==== View All Rooms Interface ====");
+            List<Room> rooms = roomManagementSessionBean.retrieveAllRooms();
+            for (Room room : rooms) {
+                if (!room.getIsDisabled()) {
+                    System.out.println("::Room ID: " + room.getRoomId());
+                    System.out.println("  > Level: " + room.getRoomLevel());
+                    System.out.println("  > Number: " + room.getRoomNum());
+                    System.out.println("  > Room Type: " + room.getRoomType().getRoomTypeName());
+                    System.out.println("  > Is Available: " + room.getIsAvailable());
+                    System.out.println();
+                }
+                
+            }
+            
+            doDashboardFeatures(sc, emId, emRole);
+        } catch (RoomQueryException ex) {
+            System.out.println("Error: " + ex.getMessage());
         }
     }
 }

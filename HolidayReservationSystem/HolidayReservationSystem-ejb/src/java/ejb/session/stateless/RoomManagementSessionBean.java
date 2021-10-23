@@ -162,7 +162,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException  {
+    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException, FindRoomException  {
         RoomType type = this.getRoomType(roomTypeId);
         List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
         
@@ -198,16 +198,19 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             }
 
     //            DO THE SAME FOR ROOM AS ABOVE
+            Room[] rooms = type.getRooms().toArray(new Room[type.getRooms().size()]);
+            int numOfRooms = rooms.length;
+            for (int i = 0; i < numOfRooms; i++) {
+                System.out.println("Room in question " + rooms[i].getRoomId());
+                this.deleteRoom(rooms[i].getRoomId());
+            }
         }
         
         
         
     }
 
-    private void deleteRoom(Long roomId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
     @Override
     public Room createNewRoom(Room room, Long typeId) {
         Long roomId = roomSessionBean.createNewRoom(room);
@@ -250,7 +253,24 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         System.out.println("successfully updated room");
     }
 
-    
+    @Override
+    public void deleteRoom(Long roomId) throws FindRoomException, ReservationQueryException {
+         //delete/disable room
+        Room room = roomSessionBean.getRoomByRoomId(roomId);
+        //Get list of allocations
+        //check check allocation if the room is used
+        //if so, disable it //dont remove from room type
+        //if no, delete it.//remove from room type
+        room.getRoomType().getRooms().remove(room);
+        em.remove(room);
+        
+    }
+
+    @Override
+    public List<Room> retrieveAllRooms() throws RoomQueryException {
+        return roomSessionBean.retrieveAllRooms();
+    }
+
 
    
 }

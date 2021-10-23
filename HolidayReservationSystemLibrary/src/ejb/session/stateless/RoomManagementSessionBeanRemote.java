@@ -50,7 +50,7 @@ public interface RoomManagementSessionBeanRemote {
 
     public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, String amenities) throws FindRoomTypeException;
 
-    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException ;
+    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, ReservationQueryException, FindRoomRateException, FindRoomException ;
 
     public Room createNewRoom(Room newRoom, Long roomTypeId);
 
@@ -58,6 +58,10 @@ public interface RoomManagementSessionBeanRemote {
     public Room getRoom(Long roomId) throws FindRoomException ;
     
     public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type)  throws FindRoomException ;
+
+    public void deleteRoom(Long roomId) throws FindRoomException, ReservationQueryException;
+
+    public List<Room> retrieveAllRooms() throws RoomQueryException;
 
 
 
