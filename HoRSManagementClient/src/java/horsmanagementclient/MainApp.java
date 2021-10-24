@@ -248,6 +248,7 @@ public class MainApp {
                 break;
             case 9:
                 System.out.println("You have logged out.\n");
+                run();
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
@@ -289,7 +290,7 @@ public class MainApp {
                     role = EmployeeEnum.GRELMANAGER.toString();
                     break;
                 default:
-                    System.out.println("Invalid role input.");
+                    System.out.println("Invalid role input. Try again.");
                     doCreateNewEmployee(sc, emId, emRole);
                     return; //code ends
             }
@@ -308,7 +309,8 @@ public class MainApp {
             doDashboardFeatures(sc, emId, emRole);
             
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Invalid input. Try again.");
+            doCreateNewEmployee(sc, emId, emRole);
         }
     }
 
@@ -379,7 +381,7 @@ public class MainApp {
             
             
             System.out.print("> Rate Per Night: ");
-            double rateAmount = sc.nextDouble(); sc.nextLine();
+            double rateAmount = sc.nextDouble(); sc.nextLine(); //If i input ..., it will loop infinitely.
             System.out.println("** You have selected: $" + rateAmount + "\n");
             
             RoomRate rate = roomManagementSessionBean.createNewRoomRate(types.get(typeInput - 1).getRoomTypeId(), rateEnums[rateInput - 1], startDate, endDate, rateAmount);
@@ -395,7 +397,7 @@ public class MainApp {
         } catch (RoomTypeQueryException e) {
             System.out.println("Error: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Invalid input. Try again.\n");
+            System.out.println("\nInvalid input. Try again.\n");
             doCreateNewRoomRate(sc, emId, emRole);
         }
     }
@@ -496,6 +498,8 @@ public class MainApp {
                             System.out.println("Sorry. your Rate Type do not require a validity period.\n");
                         }   break;
                     default:
+                        System.out.println("Invalid input.");
+                        doUpdateRoomRate(sc, emId, emRole, rateId);
                         break;
                 }
                 
