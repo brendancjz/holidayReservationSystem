@@ -29,10 +29,10 @@ public class RoomRate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
     @NotNull
-    @Size(min=5, max=15)
+    @Size(min=5, max=50)
     private String roomRateName;
     @NotNull
-    @Size(min=5, max=15)
+    @Size(min=5, max=50)
     private String roomRateType;
     @NotNull
     private Double ratePerNight;
@@ -42,8 +42,7 @@ public class RoomRate implements Serializable {
     private Date endDate;
     @NotNull
     private Boolean isDisabled;
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne
     private RoomType roomType;
 
     public RoomRate() {

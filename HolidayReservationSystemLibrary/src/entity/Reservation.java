@@ -34,8 +34,7 @@ public class Reservation implements Serializable {
     private Date endDate;
     @NotNull
     private Integer numOfRooms;
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne
     private Guest guest;
     @OneToOne
     private RoomType roomType;

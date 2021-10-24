@@ -375,12 +375,12 @@ public class MainApp {
                 String end = sc.nextLine();
                 endDate = LocalDate.parse(end, dtFormat).atStartOfDay();
                 
-                System.out.println("** You have selected the period of " + ChronoUnit.DAYS.between(startDate, endDate) +
+                System.out.println("** You have selected the period of " + (ChronoUnit.DAYS.between(startDate, endDate) + 1) +
                         " day(s): " + start + " -> " + end + "\n");
             }
             
             
-            System.out.print("> Rate Per Night: ");
+            System.out.print("> Rate Per Night: "); //FIX THIS
             double rateAmount = sc.nextDouble(); sc.nextLine(); //If i input ..., it will loop infinitely.
             System.out.println("** You have selected: $" + rateAmount + "\n");
             
@@ -398,6 +398,7 @@ public class MainApp {
             System.out.println("Error: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("\nInvalid input. Try again.\n");
+            System.out.println(e.toString() + "\n");
             doCreateNewRoomRate(sc, emId, emRole);
         }
     }
@@ -555,6 +556,7 @@ public class MainApp {
                     doDeleteRoomRate(sc, emId, emRole, roomRateId);
                     break;
             }
+            doDashboardFeatures(sc, emId, emRole);
         } catch (FindRoomRateException | ReservationQueryException ex) {
                     System.out.println("Error: " + ex.getMessage());
         }
