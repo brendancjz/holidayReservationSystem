@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.enumeration.RoomRateEnum;
 import util.exception.FindRoomException;
 import util.exception.FindRoomRateException;
 import util.exception.FindRoomTypeException;
@@ -31,7 +32,7 @@ public interface RoomManagementSessionBeanRemote {
 
     public List<RoomRate> getRoomRates(Long roomTypeId);
 
-    public RoomRate createNewRoomRate(Long roomTypeId, String rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
+    public RoomRate createNewRoomRate(Long roomTypeId, RoomRateEnum rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
 
     public RoomRate getRoomRate(String rateName) throws RoomRateQueryException;
     public RoomRate getRoomRate(Long rateId) throws FindRoomRateException;

@@ -1,0 +1,35 @@
+* [33m692c039[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m created partners and added cancel entry feature for each use case
+* [33m3b8a736[m fixed the bugs from meeting
+* [33m38a6f39[m update the validation process, logic
+* [33mf14f115[m view all rooms
+* [33m5d289ef[m better debugging and updating delete room type and update room
+* [33m82d8be0[m update room
+* [33m9e5e6e2[m create new room
+* [33m1c8209a[m view all room types
+* [33mcff4a8c[m delete room type
+* [33me44a45f[m room type
+* [33m076ac8e[m changes
+* [33mf0be5d0[m more changes bean validation
+* [33m6539e26[m done with rates
+* [33m1bb96b4[m progressed on rates
+* [33m0192649[m more edits to crud for rates
+* [33mf552af0[m CRUD for employee and rate
+* [33mebff56f[m reservation updates
+* [33mb11ad57[m reservation updates
+* [33ma9c7e72[m need to finalise the search hotel room
+* [33m123d551[m need to finalise the search hotel room
+* [33mb7013f6[m created rooms, roomtype, roomrates
+* [33m0af5121[m created rooms, roomtype, roomrates
+* [33m123f056[m created rooms, roomtype, roomrates
+* [33m2d052cc[m creating room, roomtype, roomrate
+* [33m4f65715[m guest session bean changes. login n dashboard
+* [33m000934c[m guest session bean changes. login n dashboard
+* [33mdaf32c8[m skeleton
+* [33mdce145a[m skeleton
+* [33me7ed6c0[m skeleton
+* [33mc8b738e[m skeleton
+* [33me3c7aef[m skeleton
+* [33m5900b4d[m skeleton
+* [33med7e12c[m test
+* [33me78df22[m test
+* [33m81dfb0a[m first commit

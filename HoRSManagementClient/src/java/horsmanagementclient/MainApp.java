@@ -450,10 +450,10 @@ public class MainApp {
             
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
             System.out.println("Select Room Rate Type:");
-            String[] rateEnums = new String[] {RoomRateEnum.PublishedRate.toString(), 
-                                                    RoomRateEnum.NormalRate.toString(), 
-                                                    RoomRateEnum.PeakRate.toString(), 
-                                                    RoomRateEnum.PromotionRate.toString()};
+            RoomRateEnum[] rateEnums = new RoomRateEnum[] {RoomRateEnum.PublishedRate, 
+                                                    RoomRateEnum.NormalRate, 
+                                                    RoomRateEnum.PeakRate, 
+                                                    RoomRateEnum.PromotionRate};
             for (int i = 0; i < rateEnums.length; i++) {
                 System.out.println("> " + (i+1) + ". " + rateEnums[i]);
             }
@@ -464,7 +464,7 @@ public class MainApp {
                 return;
             }
             int rateInput = Integer.parseInt(rInput);
-            System.out.println("** You have selected: " + rateEnums[rateInput - 1] + "\n");
+            System.out.println("** You have selected: " + rateEnums[rateInput - 1].toString() + "\n");
             
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDateTime startDate = null;

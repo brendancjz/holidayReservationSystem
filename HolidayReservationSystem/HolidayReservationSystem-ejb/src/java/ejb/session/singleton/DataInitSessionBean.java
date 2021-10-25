@@ -34,6 +34,7 @@ import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeEnum;
+import util.enumeration.RoomRateEnum;
 import util.exception.EmployeeQueryException;
 import util.exception.ReservationQueryException;
 import util.exception.RoomQueryException;
@@ -138,8 +139,8 @@ public class DataInitSessionBean {
                         System.out.println("Linking RoomType: " + roomType.getRoomTypeName() + " with Room: " + room.getRoomId());
                     }
                 }
-            }
-             
+            } 
+              
             if (em.find(Reservation.class, 1L) == null) {
                 LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
                 Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -285,17 +286,17 @@ public class DataInitSessionBean {
     private Long[][] createRoomRates() {
         //String roomRateName, String roomRateType, Double ratePerNight, Date startDate, Date endDate
         //String roomRateName, String roomRateType, Double ratePerNight
-        Long publishedRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateDR","PublishedRate",Double.valueOf(120)));
-        Long publishedRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRatePR","PublishedRate",Double.valueOf(140)));
-        Long publishedRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateFR","PublishedRate",Double.valueOf(160)));
-        Long publishedRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateJS","PublishedRate",Double.valueOf(180)));
-        Long publishedRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateGS","PublishedRate",Double.valueOf(200)));
+        Long publishedRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateDR",RoomRateEnum.PublishedRate,Double.valueOf(120)));
+        Long publishedRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRatePR",RoomRateEnum.PublishedRate,Double.valueOf(140)));
+        Long publishedRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateFR",RoomRateEnum.PublishedRate,Double.valueOf(160)));
+        Long publishedRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateJS",RoomRateEnum.PublishedRate,Double.valueOf(180)));
+        Long publishedRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PublishedRateGS",RoomRateEnum.PublishedRate,Double.valueOf(200)));
 
-        Long normalRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateDR","NormalRate",Double.valueOf(100)));
-        Long normalRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRatePR","NormalRate",Double.valueOf(120)));
-        Long normalRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateFR","NormalRate",Double.valueOf(140)));
-        Long normalRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateJS","NormalRate",Double.valueOf(160)));
-        Long normalRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateGS","NormalRate",Double.valueOf(180)));
+        Long normalRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateDR",RoomRateEnum.NormalRate,Double.valueOf(100)));
+        Long normalRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRatePR",RoomRateEnum.NormalRate,Double.valueOf(120)));
+        Long normalRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateFR",RoomRateEnum.NormalRate,Double.valueOf(140)));
+        Long normalRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateJS",RoomRateEnum.NormalRate,Double.valueOf(160)));
+        Long normalRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("NormalRateGS",RoomRateEnum.NormalRate,Double.valueOf(180)));
 
         //Validity Period for Peak Rate
         LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
@@ -303,11 +304,11 @@ public class DataInitSessionBean {
         LocalDateTime endLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
         Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        Long peakRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateDR","PeakRate",Double.valueOf(120), startDate, endDate));
-        Long peakRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRatePR","PeakRate",Double.valueOf(140), startDate, endDate));
-        Long peakRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateFR","PeakRate",Double.valueOf(160), startDate, endDate));
-        Long peakRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateJS","PeakRate",Double.valueOf(180), startDate, endDate));
-        Long peakRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateGS","PeakRate",Double.valueOf(200), startDate, endDate));
+        Long peakRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateDR",RoomRateEnum.PeakRate,Double.valueOf(120), startDate, endDate));
+        Long peakRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRatePR",RoomRateEnum.PeakRate,Double.valueOf(140), startDate, endDate));
+        Long peakRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateFR",RoomRateEnum.PeakRate,Double.valueOf(160), startDate, endDate));
+        Long peakRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateJS",RoomRateEnum.PeakRate,Double.valueOf(180), startDate, endDate));
+        Long peakRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PeakRateGS",RoomRateEnum.PeakRate,Double.valueOf(200), startDate, endDate));
 
         //Validity Period for Promo Rate
         startLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
@@ -315,11 +316,11 @@ public class DataInitSessionBean {
         endLocalDateTime = LocalDateTime.of(2021,10, 21, 0, 0, 0);
         endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        Long promoRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateDR","PromotionRate",Double.valueOf(80), startDate, endDate));
-        Long promoRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRatePR","PromotionRate",Double.valueOf(100), startDate, endDate));
-        Long promoRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateFR","PromotionRate",Double.valueOf(120), startDate, endDate));
-        Long promoRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateJS","PromotionRate",Double.valueOf(140), startDate, endDate));
-        Long promoRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateGS","PromotionRate",Double.valueOf(160), startDate, endDate));
+        Long promoRateDRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateDR",RoomRateEnum.PromotionRate,Double.valueOf(80), startDate, endDate));
+        Long promoRatePRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRatePR",RoomRateEnum.PromotionRate,Double.valueOf(100), startDate, endDate));
+        Long promoRateFRId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateFR",RoomRateEnum.PromotionRate,Double.valueOf(120), startDate, endDate));
+        Long promoRateJSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateJS",RoomRateEnum.PromotionRate,Double.valueOf(140), startDate, endDate));
+        Long promoRateGSId = roomRateSessionBean.createNewRoomRate(new RoomRate("PromotionRateGS",RoomRateEnum.PromotionRate,Double.valueOf(160), startDate, endDate));
 
         Long[] DRroomRates = new Long[] {publishedRateDRId, normalRateDRId, peakRateDRId, promoRateDRId};
         Long[] PRroomRates = new Long[] {publishedRatePRId, normalRatePRId, peakRatePRId, promoRatePRId};

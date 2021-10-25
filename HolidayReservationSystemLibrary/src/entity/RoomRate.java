@@ -8,14 +8,16 @@ package entity;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.enumeration.RoomRateEnum;
 
 /**
  *
@@ -32,8 +34,8 @@ public class RoomRate implements Serializable {
     @Size(min=5, max=50)
     private String roomRateName;
     @NotNull
-    @Size(min=5, max=50)
-    private String roomRateType;
+    @Enumerated(EnumType.STRING)
+    private RoomRateEnum roomRateType;
     @NotNull
     private Double ratePerNight;
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -52,7 +54,7 @@ public class RoomRate implements Serializable {
 
     
 
-    public RoomRate(String roomRateName, String roomRateType, Double ratePerNight) {
+    public RoomRate(String roomRateName, RoomRateEnum roomRateType, Double ratePerNight) {
         this();
         this.roomRateName = roomRateName;
         this.roomRateType = roomRateType;
@@ -61,7 +63,7 @@ public class RoomRate implements Serializable {
         this.endDate = null;
     }
     
-    public RoomRate(String roomRateName, String roomRateType, Double ratePerNight, Date startDate, Date endDate) {
+    public RoomRate(String roomRateName, RoomRateEnum roomRateType, Double ratePerNight, Date startDate, Date endDate) {
         this();
         this.roomRateName = roomRateName;
         this.roomRateType = roomRateType;
@@ -94,11 +96,11 @@ public class RoomRate implements Serializable {
         this.roomRateName = roomRateName;
     }
 
-    public String getRoomRateType() {
+    public RoomRateEnum getRoomRateType() {
         return roomRateType;
     }
 
-    public void setRoomRateType(String roomRateType) {
+    public void setRoomRateType(RoomRateEnum roomRateType) {
         this.roomRateType = roomRateType;
     }
 

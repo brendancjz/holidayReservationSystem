@@ -60,6 +60,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @Override
     public void associateExistingReservationWithGuestAndRoomTypeAndRoomRate(Long reservationId, Long guestId, Long typeId, Long rateId) {
+        System.out.println("==== RESERVATION ASSOCIATION ++++");
         Reservation reservation = em.find(Reservation.class, reservationId);
         Guest guest = em.find(Guest.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
@@ -68,7 +69,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         reservation.setCustomer(guest);
         reservation.setRoomType(roomType);
         reservation.setRoomRate(roomRate);
-        
+        System.out.println("============ RESERVATION NULL " + (reservation == null));
+        System.out.println("============ guest NULL " + (guest == null));
         guest.getReservations().add(reservation);
     }
     
