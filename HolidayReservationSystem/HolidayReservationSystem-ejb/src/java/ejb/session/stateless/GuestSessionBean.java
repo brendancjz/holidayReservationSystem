@@ -58,15 +58,15 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         em.persist(guest);
         em.flush();
         
-        return guest.getGuestId();
+        return guest.getCustomerId();
     }
     
     @Override
     public Guest getGuestByEmail(String email) {
         Guest guest = null;
         try {
-            Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email=?1");
-            query.setParameter(1, email);
+            Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email= :email");
+            query.setParameter("email", email);
             
             guest = (Guest) query.getSingleResult();
         } catch (Exception e) {

@@ -65,7 +65,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         RoomType roomType = em.find(RoomType.class, typeId);
         RoomRate roomRate = em.find(RoomRate.class, rateId);
         
-        reservation.setGuest(guest);
+        reservation.setCustomer(guest);
         reservation.setRoomType(roomType);
         reservation.setRoomRate(roomRate);
         

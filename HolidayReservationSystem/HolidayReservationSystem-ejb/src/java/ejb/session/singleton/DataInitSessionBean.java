@@ -7,12 +7,14 @@ package ejb.session.singleton;
 
 import ejb.session.stateless.EmployeeSessionBeanLocal;
 import ejb.session.stateless.GuestSessionBeanLocal;
+import ejb.session.stateless.PartnerSessionBeanLocal;
 import ejb.session.stateless.ReservationSessionBeanLocal;
 import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.Employee;
 import entity.Guest;
+import entity.Partner;
 import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
@@ -65,6 +67,9 @@ public class DataInitSessionBean {
     private GuestSessionBeanLocal guestSessionBean;
     
     @EJB
+    private PartnerSessionBeanLocal partnerSessionBean;
+    
+    @EJB
     private ReservationSessionBeanLocal reservationSessionBean;
 
     @PostConstruct
@@ -81,7 +86,17 @@ public class DataInitSessionBean {
            
             if (em.find(Guest.class, 1L) == null) {
                 guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826789L, "theo@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Iggy", "Goh", 12345678L, "iggy@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 84821234L, "xy@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Guoo", "Jun", 84822345L, "junjun@gmail.com"));
                 System.out.println("created all guests"); 
+            }
+            
+            if (em.find(Partner.class, 5L) == null) { //hardcoded the 5L cause four guests are created first.
+                partnerSessionBean.createNewPartner(new Partner("Theo", "Doric", 84826789L, "mbs@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("Iggy", "Goh", 12345678L, "hotels@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("Xiang", "Yong", 84821234L, "fourseasons@gmail.com"));
+                System.out.println("created all partners"); 
             }
 
             if (em.find(Room.class, 1L) == null && em.find(RoomType.class, 1L) == null && em.find(RoomRate.class, 1L) == null) {
@@ -153,7 +168,7 @@ public class DataInitSessionBean {
             System.out.println("== Printing out Guests");
             List<Guest> guests = guestSessionBean.retrieveAllGuests();
             for (Guest guest : guests) {
-                System.out.println("Guest ID: " + guest.getGuestId());
+                System.out.println("Guest ID: " + guest.getCustomerId());
                 System.out.println("  > Email: " + guest.getEmail());
                 System.out.println("  > Reservations:");
                 List<Reservation> reservations = guest.getReservations();
@@ -164,7 +179,23 @@ public class DataInitSessionBean {
                     System.out.println("    > Room Rate: " + reservation.getRoomRate().getRoomRateName());
                     System.out.println("    > Room Type: " + reservation.getRoomType().getRoomTypeName());
                 }
-            } 
+            }
+            
+            System.out.println("== Printing out Partners");
+            List<Partner> partners = partnerSessionBean.retrieveAllPartners();
+            for (Partner partner : partners) {
+                System.out.println("Partner ID: " + partner.getCustomerId());
+                System.out.println("  > Email: " + partner.getEmail());
+                System.out.println("  > Reservations:");
+                List<Reservation> reservations = partner.getReservations();
+                for (Reservation reservation : reservations) {
+                    System.out.println("  Reservation ID: " + reservation.getReservationId());
+                    System.out.println("    > Start Date: " + reservation.getStartDate().toString());
+                    System.out.println("    > End Date: " + reservation.getEndDate().toString());
+                    System.out.println("    > Room Rate: " + reservation.getRoomRate().getRoomRateName());
+                    System.out.println("    > Room Type: " + reservation.getRoomType().getRoomTypeName());
+                }
+            }
             
             System.out.println();
             System.out.println("== Printing out Employees");
@@ -180,7 +211,7 @@ public class DataInitSessionBean {
             List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
             for (Reservation reservation : reservations) {
                 System.out.println("Reservation ID: " + reservation.getReservationId());
-                System.out.println("  > Reserved By: " + reservation.getGuest().getFirstName());
+                System.out.println("  > Reserved By: " + reservation.getCustomer().getFirstName());
                 System.out.println("  > Room Rate used: " + reservation.getRoomRate().getRoomRateName());
                 System.out.println("  > Room Type used: " + reservation.getRoomType().getRoomTypeName());
                 System.out.println("  > Start Date: " + reservation.getStartDate().toString());

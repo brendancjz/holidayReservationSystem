@@ -11,7 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -35,7 +34,7 @@ public class Reservation implements Serializable {
     @NotNull
     private Integer numOfRooms;
     @ManyToOne
-    private Guest guest;
+    private Customer customer;
     @OneToOne
     private RoomType roomType;
     @OneToOne
@@ -44,7 +43,7 @@ public class Reservation implements Serializable {
     
 
     public Reservation() {
-        this.guest = null;
+        this.customer = null;
         this.roomType = null;
         this.roomRate = null;
     }
@@ -81,8 +80,8 @@ public class Reservation implements Serializable {
         return numOfRooms;
     }
     
-    public Guest getGuest() {
-        return guest;
+    public Customer getCustomer() {
+        return customer;
     }
 
     public RoomType getRoomType() {
@@ -105,8 +104,8 @@ public class Reservation implements Serializable {
         this.numOfRooms = numOfRooms;
     }
     
-    public void setGuest(Guest guest) {
-        this.guest = guest;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public void setRoomType(RoomType roomType) {

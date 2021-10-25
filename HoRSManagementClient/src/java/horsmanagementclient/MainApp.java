@@ -6,8 +6,11 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.GuestSessionBeanRemote;
+import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
 import entity.Employee;
+import entity.Partner;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
@@ -41,10 +44,15 @@ public class MainApp {
     
     private RoomManagementSessionBeanRemote roomManagementSessionBean;
     private EmployeeSessionBeanRemote employeeSessionBean;
+    private PartnerSessionBeanRemote partnerSessionBean;
+    private GuestSessionBeanRemote guestSessionBean;
     
-    MainApp(RoomManagementSessionBeanRemote roomManagementSessionBean, EmployeeSessionBeanRemote employeeSessionBean) {
+    MainApp(RoomManagementSessionBeanRemote roomManagementSessionBean, EmployeeSessionBeanRemote employeeSessionBean, 
+            PartnerSessionBeanRemote partnerSessionBean, GuestSessionBeanRemote guestSessionBean) {
         this.roomManagementSessionBean = roomManagementSessionBean;
         this.employeeSessionBean = employeeSessionBean;
+        this.partnerSessionBean = partnerSessionBean;
+        this.guestSessionBean = guestSessionBean;
     }
     
     public void run() {
@@ -62,14 +70,11 @@ public class MainApp {
         switch (input) {
             case 1:
                 doLogin(sc);
-                sc.close();
                 break;
             case 2:
                 doExit();
-                sc.close();
                 break;
             default:
-                sc.close();
                 run();
                 break;
         }
@@ -102,7 +107,7 @@ public class MainApp {
             } catch (FindEmployeeException e) {
                 System.out.println("Error: " + e.getMessage());
             } catch (Exception e ) {
-                System.out.println("doLogin throwing error: " + e.getMessage());
+                System.out.println("Login Error: " + e.toString());
             }
             
     }
@@ -143,15 +148,14 @@ public class MainApp {
                 break;
             case 3:
                 System.out.println("You have selected 'Create New Partner'\n");
-                //doViewMyReservationDetails(sc, guestId);
+                doCreateNewPartner(sc, emId, emRole);
                 break;
             case 4:
                 System.out.println("You have selected 'View All Partners'\n");
-                //doViewAllMyReservations(sc, guestId);
+                doViewAllPartners(sc, emId, emRole);
                 break;
             case 5:
                 System.out.println("You have logged out.\n");
-                sc.close();
                 run();
                 break;
             default:
@@ -185,7 +189,6 @@ public class MainApp {
                 break;
             case 4:
                 System.out.println("You have logged out.\n");
-                sc.close();
                 run();
                 break;
             default:
@@ -260,18 +263,35 @@ public class MainApp {
     private void doCreateNewEmployee(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Create New Employee Interface ====");
-            System.out.println("Please input the following details.");
+            System.out.println("Please input the following details. To cancel creation at anytime, enter 'q'.");
             System.out.print("> First Name: ");
             String firstName = sc.nextLine();
+            if (firstName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             System.out.print("> Last Name: ");
             String lastName = sc.nextLine();
+            if (lastName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             System.out.print("> Password: ");
             String password = sc.nextLine();
+            if (password.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             System.out.println("> Employee Role:\n   > 1. System Administrator"
                     + "\n   > 2. Operation Manager\n   > 3. Sales Manager"
                     + "\n   > 4. Guest Relation Manager");
             System.out.print("> ");
-            int inputRole = sc.nextInt(); sc.nextLine();
+            String inputR = sc.next(); sc.nextLine();
+            if (inputR.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int inputRole = Integer.parseInt(inputR);
             System.out.println();
             
             String role;
@@ -334,10 +354,84 @@ public class MainApp {
         }
         
     }
+    
+    private void doCreateNewPartner(Scanner sc, Long emId, String emRole) {
+        try {
+            System.out.println("==== Create New Partner Interface ====");
+            System.out.println("Enter partner details. To cancel creation at anytime, enter 'q'.");
+            System.out.print("> First Name: ");
+            String firstName = sc.nextLine();
+            if (firstName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            System.out.print("> Last Name: ");
+            String lastName = sc.nextLine();
+            if (lastName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            System.out.print("> Email: ");
+            String email = sc.nextLine();
+            if (email.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            System.out.print("> Contact Number: ");
+            String numberInput = sc.nextLine();
+            if (numberInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            Long number = Long.parseLong(numberInput);
+            
+            if (partnerSessionBean.verifyRegisterDetails(firstName, lastName, number, email)) {
+                Partner newPartner = new Partner(firstName, lastName, number, email);
+                Long partnerId = partnerSessionBean.createNewPartner(newPartner);
+                System.out.println("You have successfully created a new partner.\n");
+                
+                newPartner = partnerSessionBean.getPartnerByPartnerId(partnerId);
+                System.out.println(":: Partner ID: " + newPartner.getCustomerId());
+                System.out.println("   > Name: " + newPartner.getFirstName() + " " + newPartner.getLastName());
+                System.out.println("   > Email: " + newPartner.getEmail());
+                System.out.println("   > Contact Number: " + newPartner.getContactNumber());
+                System.out.println();
+                doDashboardFeatures(sc, emId, emRole);
+            } else {
+                System.out.println("You have inputted wrong details. Please try again.\n");
+                
+                doCreateNewPartner(sc, emId, emRole);
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input. Try again.");
+            doCreateNewPartner(sc, emId, emRole);
+        }
+        
+    }
+    private void doCancelledEntry(Scanner sc, Long emId, String emRole) {
+        System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
+        
+        doDashboardFeatures(sc, emId, emRole);
+    }
+    
+    private void doViewAllPartners(Scanner sc, Long emId, String emRole) {
+        System.out.println("==== View All Partners Interface ====");
+        List<Partner> partners = partnerSessionBean.retrieveAllPartners();
+        for (Partner partner : partners) {
+            System.out.println(":: Partner ID: " + partner.getCustomerId());
+            System.out.println("   > Name: " + partner.getFirstName() + " " + partner.getLastName());
+            System.out.println("   > Email: " + partner.getEmail());
+            System.out.println("   > Contact Number: " + partner.getContactNumber());
+            System.out.println();
+        }
+        
+        doDashboardFeatures(sc, emId, emRole);
+    }
 
     private void doCreateNewRoomRate(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Create New Room Rate Interface ====");
+            System.out.println("Enter details to create new room rate. To cancel at anything, enter 'q'.");
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             System.out.println("Select Room Type to have the new Room Rate:");
             int idx = 1;
@@ -347,7 +441,12 @@ public class MainApp {
                 }
             }
             System.out.print("> ");
-            int typeInput = sc.nextInt(); sc.nextLine();
+            String tInput = sc.next(); sc.nextLine();
+            if (tInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int typeInput = Integer.parseInt(tInput);
             
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
             System.out.println("Select Room Rate Type:");
@@ -359,7 +458,12 @@ public class MainApp {
                 System.out.println("> " + (i+1) + ". " + rateEnums[i]);
             }
             System.out.print("> ");
-            int rateInput = sc.nextInt(); sc.nextLine();
+            String rInput = sc.next(); sc.nextLine();
+            if (rInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int rateInput = Integer.parseInt(rInput);
             System.out.println("** You have selected: " + rateEnums[rateInput - 1] + "\n");
             
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
@@ -370,9 +474,17 @@ public class MainApp {
                 System.out.println("Input validity period of selected room rate:");
                 System.out.print("> Start Date [DD MM YYYY]: ");
                 String start = sc.nextLine();
+                if (start.equals("q")) {
+                    doCancelledEntry(sc, emId, emRole);
+                    return;
+                }
                 startDate = LocalDate.parse(start, dtFormat).atStartOfDay();
                 System.out.print("> End Date [DD MM YYYY]: ");
                 String end = sc.nextLine();
+                if (end.equals("q")) {
+                    doCancelledEntry(sc, emId, emRole);
+                    return;
+                }
                 endDate = LocalDate.parse(end, dtFormat).atStartOfDay();
                 
                 System.out.println("** You have selected the period of " + (ChronoUnit.DAYS.between(startDate, endDate) + 1) +
@@ -380,8 +492,13 @@ public class MainApp {
             }
             
             
-            System.out.print("> Rate Per Night: "); //FIX THIS
-            double rateAmount = sc.nextDouble(); sc.nextLine(); //If i input ..., it will loop infinitely.
+            System.out.print("> Rate Per Night: "); 
+            String inputRate = sc.next(); sc.nextLine(); 
+            if (inputRate.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            double rateAmount = Double.parseDouble(inputRate);
             System.out.println("** You have selected: $" + rateAmount + "\n");
             
             RoomRate rate = roomManagementSessionBean.createNewRoomRate(types.get(typeInput - 1).getRoomTypeId(), rateEnums[rateInput - 1], startDate, endDate, rateAmount);
@@ -406,8 +523,13 @@ public class MainApp {
     private void doViewRoomRateDetails(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== View Room Rate Details Interface ====");
+            System.out.println("Viewing room rate. To cancel entry, enter 'q'.");
             System.out.print("> Room Rate Name: ");
             String rateName = sc.nextLine();
+            if (rateName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             RoomRate rate = roomManagementSessionBean.getRoomRate(rateName);
             
             System.out.println("Selected Room Rate details:");
@@ -446,7 +568,8 @@ public class MainApp {
                     break;
             }
         } catch (RoomRateQueryException ex) {
-            System.out.println("Error: " + ex.getMessage());
+            System.out.println("Error: " + ex.getMessage() + "\n");
+            doViewRoomRateDetails(sc, emId, emRole);
         }
         
         
@@ -454,7 +577,7 @@ public class MainApp {
 
     private void doUpdateRoomRate(Scanner sc, Long emId, String emRole, Long rateId) {
         System.out.println("==== Update Room Rate Interface ====");
-        
+        System.out.println("Updating a room rate. To cancel entry, enter 'q'");
         try {
             RoomRate rate = roomManagementSessionBean.getRoomRate(rateId);
             boolean done = false;
@@ -469,8 +592,13 @@ public class MainApp {
                 System.out.println("> 2. Amount");
                 System.out.println("> 3. Validity Period");
                 System.out.print("> ");
-                int input = sc.nextInt(); sc.nextLine(); System.out.println();
-                
+                String inputStr = sc.next(); sc.nextLine();
+                if (inputStr.equals("q")) {
+                    doCancelledEntry(sc, emId, emRole);
+                    return;
+                }
+                int input = Integer.parseInt(inputStr); System.out.println();
+               
                 switch (input) {
                     case 1:
                         System.out.print("> Input new Name: ");
@@ -596,19 +724,46 @@ public class MainApp {
         try {
             System.out.println("==== Create New Room Type Interface ====");
         //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
-        
+            System.out.println("Creating new room type. To cancel anytime, enter 'q'.");
             System.out.print("> Room Type Name [MIN 5 CHAR]: ");
             String typeName = sc.nextLine();
+            if (typeName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             System.out.print("> Room Type Description [MIN 5 CHAR]: ");
             String typeDesc = sc.nextLine();
+            if (typeDesc.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             System.out.print("> Room Size: ");
-            Integer roomSize = sc.nextInt(); sc.nextLine();
+            String roomInput = sc.next(); sc.nextLine();
+            if (roomInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            Integer roomSize = Integer.parseInt(roomInput); 
             System.out.print("> Number Of Beds: ");
-            Integer numOfBeds = sc.nextInt(); sc.nextLine();
+            String bedInput = sc.next(); sc.nextLine();
+            if (bedInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            Integer numOfBeds = Integer.parseInt(bedInput); 
             System.out.print("> Room Capacity: ");
-            Integer cap = sc.nextInt(); sc.nextLine();
+            String capInput = sc.next(); sc.nextLine();
+            if (capInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            Integer cap = Integer.parseInt(capInput);
             System.out.print("> Room Amenities [MIN 5 CHAR]: ");
             String amenities = sc.nextLine();
+            if (amenities.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             System.out.println();
             RoomType newRoomType = new RoomType(typeName, typeDesc, roomSize, numOfBeds, cap, amenities);
             
@@ -636,10 +791,15 @@ public class MainApp {
 
     private void doViewRoomTypeDeatails(Scanner sc, Long emId, String emRole) {
         System.out.println("==== View Room Type Details Interface ====");
+        System.out.println("Viewing room type. To cancel entry anytime, enter 'q'.");
         try {
             
             System.out.print("> Room Type Name: ");
             String typeName = sc.nextLine();System.out.println();
+            if (typeName.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
             RoomType type = roomManagementSessionBean.getRoomType(typeName);
             
             System.out.println("Selected Room Type details:");
@@ -722,7 +882,7 @@ public class MainApp {
 
     private void doUpdateRoomType(Scanner sc, Long emId, String emRole, Long roomTypeId) {
         System.out.println("==== Update Room Type Interface ====");
-        
+        System.out.println("Updating room type. To cancel entry at anytime, enter 'q'.");
         try {
             RoomType type = roomManagementSessionBean.getRoomType(roomTypeId);
             boolean done = false;
@@ -742,7 +902,12 @@ public class MainApp {
                 System.out.println("> 5. Room Capacity");
                 System.out.println("> 6. Amenities");
                 System.out.print("> ");
-                int input = sc.nextInt(); sc.nextLine(); System.out.println();
+                String inputStr = sc.next(); sc.nextLine(); 
+                if (inputStr.equals("q")) {
+                    doCancelledEntry(sc, emId, emRole);
+                    return;
+                }
+                int input = Integer.parseInt(inputStr); System.out.println();
                 
                 switch (input) {
                     case 1:
@@ -843,15 +1008,30 @@ public class MainApp {
                 }
             }
             System.out.print("> ");
-            int typeInput = sc.nextInt(); sc.nextLine();
+            String tInput = sc.next(); sc.nextLine();
+            if (tInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int typeInput = Integer.parseInt(tInput);
             
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
             
             System.out.println("Creating new Room:");
             System.out.print("> Room Level: ");
-            int level = sc.nextInt(); sc.nextLine();
+            String roomInput = sc.next();  sc.nextLine();
+            if (roomInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int level = Integer.parseInt(roomInput);
             System.out.print("> Room Number: ");
-            int num = sc.nextInt(); sc.nextLine(); System.out.println();
+            String numInput = sc.next(); sc.nextLine();
+            if (numInput.equals("q")) {
+                    doCancelledEntry(sc, emId, emRole);
+                    return;
+                }
+            int num = Integer.parseInt(numInput); System.out.println();
             
             Room newRoom = new Room(level, num);
             newRoom = roomManagementSessionBean.createNewRoom(newRoom, types.get(typeInput - 1).getRoomTypeId());
@@ -876,10 +1056,21 @@ public class MainApp {
     private void doUpdateRoom(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== Update Room Interface ====");
+            System.out.println("Updating room. To cancel entry at anytime, enter 'q'.");
             System.out.print("> Input existing Room Level: ");
-            int level = sc.nextInt(); sc.nextLine();
+            String roomInput = sc.next(); sc.nextLine();
+            if (roomInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int level = Integer.parseInt(roomInput); 
             System.out.print("> Input existing Room Number: ");
-            int number = sc.nextInt(); sc.nextLine(); System.out.println();
+            String numInput = sc.next(); sc.nextLine();
+            if (numInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int number = Integer.parseInt(numInput); System.out.println();
             
             Room room = roomManagementSessionBean.getRoom(level, number);
             boolean isAvail = room.getIsAvailable();
@@ -889,7 +1080,7 @@ public class MainApp {
             
             if (room.getIsDisabled()) {
                 System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
-                doDashboardFeatures(sc, emId, emRole);
+                doUpdateRoom(sc, emId, emRole);
                 return;
             }
 
@@ -974,9 +1165,19 @@ public class MainApp {
         try {
             System.out.println("==== Delete Room Interface ====");
             System.out.print("> Input existing Room Level: ");
-            int level = sc.nextInt(); sc.nextLine();
+            String roomInput = sc.next(); sc.nextLine();
+            if (roomInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int level = Integer.parseInt(roomInput);
             System.out.print("> Input existing Room Number: ");
-            int number = sc.nextInt(); sc.nextLine(); System.out.println();
+            String numInput = sc.next(); sc.nextLine();
+            if (numInput.equals("q")) {
+                doCancelledEntry(sc, emId, emRole);
+                return;
+            }
+            int number = Integer.parseInt(numInput); System.out.println();
             
             Room room = roomManagementSessionBean.getRoom(level, number);
             if (room.getIsDisabled()) {

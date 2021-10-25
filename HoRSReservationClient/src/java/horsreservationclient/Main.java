@@ -80,7 +80,7 @@ public class Main {
                 Guest currGuest = guestSessionBeanRemote.getGuestByEmail(email);
                 System.out.println("Welcome " + currGuest.getFirstName() + ", you're in!\n");
                 
-                doDashboardFeatures(sc, currGuest.getGuestId());
+                doDashboardFeatures(sc, currGuest.getCustomerId());
             } else {
                 System.out.println("No account match or wrong login details. Try again.\n");
                 doLogin(sc);

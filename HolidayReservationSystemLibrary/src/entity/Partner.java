@@ -13,16 +13,15 @@ import javax.persistence.Entity;
  * @author brend
  */
 @Entity
-public class Guest extends Customer implements Serializable {
+public class Partner extends Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-
-    public Guest() {
+    public Partner() {
         super();
     }
-
-    public Guest(String firstName, String lastName, Long contactNumber, String email) {
+    
+    public Partner(String firstName, String lastName, Long contactNumber, String email) {
         this();
         this.firstName = firstName;
         this.lastName = lastName;
