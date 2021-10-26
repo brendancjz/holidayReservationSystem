@@ -76,7 +76,7 @@ public class Reservation implements Serializable {
         return endDate;
     }
 
-    public Integer numOfRooms() {
+    public Integer getNumOfRooms() {
         return numOfRooms;
     }
     

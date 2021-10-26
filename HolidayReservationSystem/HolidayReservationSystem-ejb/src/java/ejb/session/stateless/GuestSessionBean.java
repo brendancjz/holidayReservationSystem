@@ -86,4 +86,12 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         
         return guests;
     }
+
+    @Override
+    public Guest getGuestByGuestId(Long guestId) {
+        Guest guest = em.find(Guest.class, guestId);
+        guest.getReservations().size();
+        
+        return guest;
+    }
 }

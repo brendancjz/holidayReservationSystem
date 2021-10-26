@@ -20,5 +20,7 @@ public interface GuestSessionBeanRemote {
 
     public boolean checkGuestExists(String email);
     public Guest getGuestByEmail(String email);
+
+    public Guest getGuestByGuestId(Long guestId);
     
 }

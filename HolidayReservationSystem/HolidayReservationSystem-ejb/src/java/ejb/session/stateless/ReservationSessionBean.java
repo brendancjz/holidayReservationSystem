@@ -10,6 +10,8 @@ import entity.Reservation;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -87,5 +89,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         
         
         return true;
+    }
+
+    @Override
+    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws ReservationQueryException {
+        Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        Query query = em.createQuery("SELECT r FROM Reservation r "
+                + "WHERE r.roomType.roomTypeId = :typeId AND r.startDate = :start AND r.endDate = :end");
+        query.setParameter("typeId", roomTypeId);
+        query.setParameter("start", startDate);
+        query.setParameter("end", endDate);
+        
+        List<Reservation> reservation = query.getResultList();
+        
+        if (reservation.isEmpty()) throw new ReservationQueryException("No such Reservation in record.");
+        
+        return reservation.get(0);
     }
 }
