@@ -14,6 +14,8 @@ import entity.Partner;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -56,28 +58,34 @@ public class MainApp {
     }
     
     public void run() {
-        Scanner sc = new Scanner(System.in);
+        try {
+            Scanner sc = new Scanner(System.in);
         
-        System.out.println("=== Welcome to HoRS Management Client. ===");
-        System.out.println("Select an action:");
-        System.out.println("> 1. Login");
-        System.out.println("> 2. Exit");
-        System.out.print("> ");
-        int input = sc.nextInt();
-        sc.nextLine();
-        System.out.println();
-        
-        switch (input) {
-            case 1:
-                doLogin(sc);
-                break;
-            case 2:
-                doExit();
-                break;
-            default:
-                run();
-                break;
+            System.out.println("=== Welcome to HoRS Management Client. ===");
+            System.out.println("Select an action:");
+            System.out.println("> 1. Login");
+            System.out.println("> 2. Exit");
+            System.out.print("> ");
+            int input = sc.nextInt();
+            sc.nextLine();
+            System.out.println();
+
+            switch (input) {
+                case 1:
+                    doLogin(sc);
+                    break;
+                case 2:
+                    doExit();
+                    break;
+                default:
+                    run();
+                    break;
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input. Try again.\n");
+            run();
         }
+        
     }
 
     private void doExit() {
@@ -85,30 +93,32 @@ public class MainApp {
     }
 
     private void doLogin(Scanner sc) {
-        System.out.println("==== Login Interface ====");
+        try {
+            System.out.println("==== Login Interface ====");
             System.out.println("Enter login details:");
             System.out.print("> Employee ID: ");
             Long emId = sc.nextLong();
             sc.nextLine();
             System.out.print("> Password: ");
             String password = sc.nextLine();
-            try {
-                if (employeeSessionBean.verifyLoginDetails(emId, password) && 
-                        employeeSessionBean.checkEmployeeExists(emId, password)) {
+            
+            if (employeeSessionBean.verifyLoginDetails(emId, password) && 
+                    employeeSessionBean.checkEmployeeExists(emId, password)) {
 
-                    Employee currEm = employeeSessionBean.getEmployeeById(emId);
-                    System.out.println("Welcome " + currEm.getEmployeeRole() + " " + currEm.getFirstName() + "\n");
+                Employee currEm = employeeSessionBean.getEmployeeById(emId);
+                System.out.println("Welcome " + currEm.getEmployeeRole() + " " + currEm.getFirstName() + "\n");
 
-                    doDashboardFeatures(sc, currEm.getEmployeeId(), currEm.getEmployeeRole());
-                } else {
-                    System.out.println("No account match or wrong login details. Try again.\n");
-                    doLogin(sc);
-                }
-            } catch (FindEmployeeException e) {
-                System.out.println("Error: " + e.getMessage());
-            } catch (Exception e ) {
-                System.out.println("Login Error: " + e.toString());
+                doDashboardFeatures(sc, currEm.getEmployeeId(), currEm.getEmployeeRole());
+            } else {
+                System.out.println("No account match or wrong login details. Try again.\n");
+                doLogin(sc);
             }
+        } catch (FindEmployeeException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (Exception e ) {
+            System.out.println("Login Error. Try again.\n");
+            run();
+        }
             
     }
     
@@ -338,16 +348,14 @@ public class MainApp {
         System.out.println("==== View Al Employees Interface ====");
         try {
             List<Employee> list = employeeSessionBean.retrieveAllEmployees();
-            int count = 0;
             
+            System.out.printf("\n%3s%15s%15s%25s", "ID", "First Name", "Last Name", "Employee Role");
             for (Employee em : list) {
-                System.out.println(":: Employee ID: " + em.getEmployeeId());
-                System.out.println("     > Name: " + em.getFirstName() + " " + em.getLastName());
-                System.out.println("     > Role: " + em.getEmployeeRole() + "\n");
-                count++;
+                System.out.printf("\n%3s%15s%15s%25s", em.getEmployeeId(), 
+                        em.getFirstName(), em.getLastName(), em.getEmployeeRole());
             }
-            System.out.println("Total Employees: " + count + "\n");
-
+            System.out.println();
+            System.out.println();
             doDashboardFeatures(sc, emId, emRole);
         } catch (EmployeeQueryException e) {
             System.out.println("Error: " + e.getMessage());
@@ -408,6 +416,7 @@ public class MainApp {
         }
         
     }
+    
     private void doCancelledEntry(Scanner sc, Long emId, String emRole) {
         System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
         
@@ -417,14 +426,13 @@ public class MainApp {
     private void doViewAllPartners(Scanner sc, Long emId, String emRole) {
         System.out.println("==== View All Partners Interface ====");
         List<Partner> partners = partnerSessionBean.retrieveAllPartners();
+        System.out.printf("\n%3s%15s%15s%20s%30s", "ID", "First Name", "Last Name", "Contact Number", "Email");
         for (Partner partner : partners) {
-            System.out.println(":: Partner ID: " + partner.getCustomerId());
-            System.out.println("   > Name: " + partner.getFirstName() + " " + partner.getLastName());
-            System.out.println("   > Email: " + partner.getEmail());
-            System.out.println("   > Contact Number: " + partner.getContactNumber());
-            System.out.println();
+            System.out.printf("\n%3s%15s%15s%20s%30s", partner.getCustomerId(), 
+                        partner.getFirstName(), partner.getLastName(), 
+                        partner.getContactNumber(), partner.getEmail());
         }
-        
+        System.out.println(); System.out.println();
         doDashboardFeatures(sc, emId, emRole);
     }
 
@@ -695,25 +703,28 @@ public class MainApp {
         try {
             List<RoomRate> list = roomManagementSessionBean.getAllRoomRates();
             
-            int count = 0;
+            DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            System.out.printf("\n%3s%35s%15s%15s%10s%15s%30s", "ID", "Rate Name", "Rate Type", "Room Type", "Amount", "Is Disabled", "Validty Period");
             
             for (RoomRate rate : list) {
-                System.out.println(":: Room Rate ID: " + rate.getRoomRateId());
-                System.out.println("> Name: " + rate.getRoomRateName());
-                System.out.println("> Room Type: " + rate.getRoomType().getRoomTypeName());
-                System.out.println("> Amount: " + rate.getRatePerNight());
-                System.out.println("> Is Disabled: " + rate.getIsDisabled());
+                String validityPeriod;
                 if (rate.getStartDate() != null) {
-                    System.out.println("> Validity Period: " + rate.getStartDate().toString() + 
-                        " -> " + rate.getEndDate().toString());
+                    validityPeriod = outputFormat.format(rate.getStartDate()) + 
+                        " -> " + outputFormat.format(rate.getEndDate());
                 } else {
-                    System.out.println("> Validity Period: NULL");
+                    validityPeriod = "NULL";
                 }
-                System.out.println();
                 
-                count++;
+                System.out.printf("\n%3s%35s%15s%15s%10s%15s%30s", rate.getRoomRateId(), 
+                        rate.getRoomRateName(), rate.getRoomRateType(),rate.getRoomType().getRoomTypeName(),
+                        rate.getRatePerNight(),rate.getIsDisabled(), validityPeriod);
+
             } 
-            System.out.println("Total Number of Room Rates: " + count + "\n");
+            
+             
+        
+            System.out.println(); 
+            System.out.println();
             doDashboardFeatures(sc, emId, emRole);
         } catch (RoomRateQueryException e) {
             System.out.println("Error: " + e.getMessage());
@@ -857,19 +868,19 @@ public class MainApp {
     private void doViewAllRoomTypes(Scanner sc, Long emId, String emRole) {
         try {
             System.out.println("==== View All Room Types Interface");
+            System.out.printf("\n%3s%15s%25s%12s%12s%12s%12s%15s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Amenities");
+            
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             for (RoomType type : types ) {
-                System.out.println(":: Room Type ID: " + type.getRoomTypeId());
-                System.out.println("> Name: " + type.getRoomTypeName());
-                System.out.println("> Description: " + type.getRoomTypeDesc());
-                System.out.println("> Size: " + type.getRoomSize());
-                System.out.println("> Number Of Beds: " + type.getNumOfBeds());
-                System.out.println("> Capacity: " + type.getCapacity());
-                System.out.println("> Amenities: " + type.getAmenities());
-                System.out.println("> Number of Rooms: " + type.getRooms().size());
-                System.out.println("> Is Disabled: " + type.getIsDisabled());
-                System.out.println();
+                
+                System.out.printf("\n%3s%15s%25s%12s%12s%12s%12s%15s%50s", type.getRoomTypeId(),type.getRoomTypeName(),type.getRoomTypeDesc(),
+                        type.getRoomSize(), type.getNumOfBeds(), type.getCapacity(), type.getRooms().size(),
+                        type.getIsDisabled(),type.getAmenities());
+
             }
+            
+            System.out.println(); 
+            System.out.println();
             
         } catch (RoomTypeQueryException ex) {
             System.out.println("Error: " + ex.getMessage());
@@ -1157,7 +1168,8 @@ public class MainApp {
                     System.out.println("Error: " + ex.getMessage());
                     doUpdateRoom(sc, emId, emRole);
         } catch (Exception ex) {
-            System.out.println("General Exception: " + ex.toString());
+            System.out.println("Invalid input. Try again.");
+            doDashboardFeatures(sc, emId, emRole);
         }
     }
 
@@ -1220,18 +1232,17 @@ public class MainApp {
         try {
             System.out.println("==== View All Rooms Interface ====");
             List<Room> rooms = roomManagementSessionBean.retrieveAllRooms();
+            System.out.printf("\n%3s%10s%10s%15s%15s", "ID", "Level", "Number", "Room Type", "Is Available");
+            
             for (Room room : rooms) {
                 if (!room.getIsDisabled()) {
-                    System.out.println("::Room ID: " + room.getRoomId());
-                    System.out.println("  > Level: " + room.getRoomLevel());
-                    System.out.println("  > Number: " + room.getRoomNum());
-                    System.out.println("  > Room Type: " + room.getRoomType().getRoomTypeName());
-                    System.out.println("  > Is Available: " + room.getIsAvailable());
-                    System.out.println();
+                    System.out.printf("\n%3s%10s%10s%15s%15s", room.getRoomId(), room.getRoomLevel(),
+                            room.getRoomNum(), room.getRoomType().getRoomTypeName(), room.getIsAvailable());
+                    
                 }
                 
             }
-            
+            System.out.println(); System.out.println();
             doDashboardFeatures(sc, emId, emRole);
         } catch (RoomQueryException ex) {
             System.out.println("Error: " + ex.getMessage());
