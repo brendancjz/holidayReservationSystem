@@ -8,6 +8,9 @@ package ejb.session.stateless;
 import entity.Partner;
 import java.util.List;
 import javax.ejb.Stateless;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -16,23 +19,15 @@ import javax.persistence.Query;
  *
  * @author brend
  */
+@WebService(serviceName = "HolidayReservationSystemWebService")
 @Stateless
 public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSessionBeanLocal {
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
 
+    @WebMethod(operationName = "checkPartnerExists")
     @Override
-    public boolean verifyLoginDetails(String email) {
-        return true;
-    }
-    
-    @Override
-    public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email) {
-        return true;
-    }
-    
-    @Override
-    public boolean checkPartnerExists(String email) {
+    public boolean checkPartnerExists(@WebParam(name = "email") String email) {
         boolean partnerExists = false;
         
         try {
@@ -89,5 +84,15 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     @Override
     public Partner getPartnerByPartnerId(Long partnerId) {
         return em.find(Partner.class, partnerId);
+    }
+
+    @Override
+    public boolean verifyLoginDetails(String email) {
+        return true;
+    }
+
+    @Override
+    public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email) {
+        return true;
     }
 }
