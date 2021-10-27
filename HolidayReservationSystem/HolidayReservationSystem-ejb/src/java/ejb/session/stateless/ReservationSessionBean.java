@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Guest;
 import entity.Reservation;
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
@@ -62,7 +63,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @Override
     public void associateExistingReservationWithGuestAndRoomTypeAndRoomRate(Long reservationId, Long guestId, Long typeId, Long rateId) {
-        System.out.println("==== RESERVATION ASSOCIATION ++++");
+        
         Reservation reservation = em.find(Reservation.class, reservationId);
         Guest guest = em.find(Guest.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
@@ -71,13 +72,40 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         reservation.setCustomer(guest);
         reservation.setRoomType(roomType);
         reservation.setRoomRate(roomRate);
-        System.out.println("============ RESERVATION NULL " + (reservation == null));
-        System.out.println("============ guest NULL " + (guest == null));
+        
         guest.getReservations().add(reservation);
     }
     
-    public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate) throws ReservationQueryException {
-        List<Reservation> reservations = this.getReservationsByRoomTypeId(typeId);
+    @Override
+    public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate) {
+        RoomType type = em.find(RoomType.class, typeId);
+        type.getRooms().size();
+        
+        int count = 0;
+        for (Room room : type.getRooms()) {
+            if (room.getIsAvailable()) {
+                
+                count++;
+            }
+        }
+        int countOfRoomsRequired = 0;
+        
+        try {
+            List<Reservation> reservationsOfRoomType = this.getReservationsByRoomTypeId(typeId);
+            
+            for (Reservation reservation: reservationsOfRoomType) {
+                Date start = reservation.getStartDate();
+                Date end = reservation.getEndDate();
+                if(isCollided(start, end, startDate, endDate)) {
+                    countOfRoomsRequired++;
+                }
+            }
+        } catch (ReservationQueryException e) {
+            
+        }
+        
+        
+        
         //exception will throw is reservation isEmpty. Code below are only for reservations not empty.
         //get all available rooms of room type (check isAvailable)
         
@@ -85,10 +113,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         
         //tightly pack all available rooms w the current reservations
         
-        //count remaining rooms 
-        
-        
-        return true;
+        //count remaining rooms
+        return (count - countOfRoomsRequired) > 0;
+    }
+    
+    private boolean isCollided(Date start, Date end, LocalDate startDate, LocalDate endDate) {
+        LocalDate start1 = start.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate end1 = end.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        boolean lowerBound = (start1.isEqual(startDate) || start1.isAfter(startDate)) && start1.isBefore(endDate);
+        boolean upperBound = (end1.isBefore(endDate) || end1.isEqual(endDate)) && end1.isAfter(startDate);
+        return lowerBound || upperBound;
     }
 
     @Override
@@ -106,5 +140,48 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         if (reservation.isEmpty()) throw new ReservationQueryException("No such Reservation in record.");
         
         return reservation.get(0);
+    }
+
+    @Override
+    public int getNumberOfRoomsAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate) {
+        RoomType type = em.find(RoomType.class, typeId);
+        type.getRooms().size();
+        
+        int count = 0;
+        for (Room room : type.getRooms()) {
+            if (room.getIsAvailable()) {
+                
+                count++;
+            }
+        }
+        int countOfRoomsRequired = 0;
+        try {
+            List<Reservation> reservationsOfRoomType = this.getReservationsByRoomTypeId(typeId);
+            
+            for (Reservation reservation: reservationsOfRoomType) {
+                Date start = reservation.getStartDate();
+                Date end = reservation.getEndDate();
+                if(isCollided(start, end, startDate, endDate)) {
+                    countOfRoomsRequired++;
+                }
+            }
+        } catch (ReservationQueryException e) {
+            
+        }
+        
+        //exception will throw is reservation isEmpty. Code below are only for reservations not empty.
+        //get all available rooms of room type (check isAvailable)
+        
+        //minus the rooms that have been allocated already that clashes with the dates and (done in AllocationSessionBean)
+        
+        //tightly pack all available rooms w the current reservations
+        
+        //count remaining rooms
+        return (count - countOfRoomsRequired);
+    }
+
+    @Override
+    public Reservation getReservationByReservationId(Long reservationId) {
+        return em.find(Reservation.class, reservationId);
     }
 }
