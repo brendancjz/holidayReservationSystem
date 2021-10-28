@@ -36,5 +36,7 @@ public interface ReservationSessionBeanRemote {
     public Reservation getReservationByReservationId(Long reservationId);
 
     public void associateExistingReservationWithGuestAndRoomTypeAndRoomRates(Long reservationId, Long guestId, Long roomTypeId, List<RoomRate> ratesUsed);
+
+    public List<Reservation> getReservationsToAllocate(LocalDate currDate);
     
 }

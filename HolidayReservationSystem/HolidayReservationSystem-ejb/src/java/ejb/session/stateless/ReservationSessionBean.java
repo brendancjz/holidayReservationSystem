@@ -200,4 +200,18 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     public Reservation getReservationByReservationId(Long reservationId) {
         return em.find(Reservation.class, reservationId);
     }
+
+    @Override
+    public List<Reservation> getReservationsToAllocate(LocalDate currDate) {
+        Date currDay = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        
+        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.startDate = :date");
+        query.setParameter("date", currDay);
+        List<Reservation> list = query.getResultList();
+        for (Reservation reservation : list) {
+            reservation.getRoomRates().size();
+            reservation.getRoomType().getRooms().size();
+        }
+        return query.getResultList();
+    }
 }

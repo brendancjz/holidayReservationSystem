@@ -6,10 +6,12 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 /**
@@ -25,15 +27,16 @@ public class Allocation implements Serializable {
     private Long allocationId;
     @OneToOne
     private Reservation reservation;
-    @OneToOne
-    private Room room;
+    @OneToMany
+    private ArrayList<Room> rooms;
 
     public Allocation() {
+        this.rooms = new ArrayList<>();
     }
 
-    public Allocation(Reservation reservation, Room room) {
+    public Allocation(Reservation reservation) {
+        this();
         this.reservation = reservation;
-        this.room = room;
     }
 
     public Long getAllocationId() {
@@ -52,12 +55,12 @@ public class Allocation implements Serializable {
         this.reservation = reservation;
     }
 
-    public Room getRoom() {
-        return room;
+    public ArrayList<Room> getRooms() {
+        return rooms;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setRoom(ArrayList<Room> rooms) {
+        this.rooms = rooms;
     }
 
     

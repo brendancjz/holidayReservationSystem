@@ -57,6 +57,7 @@ public class MainApp {
             System.out.println("Select an action:");
             System.out.println("> 1. Login");
             System.out.println("> 2. Register as Guest");
+            System.out.println("> 3. Exit");
             System.out.print("> ");
             int input = sc.nextInt();
             sc.nextLine();
@@ -68,6 +69,9 @@ public class MainApp {
                      break;
                  case 2:
                      doRegistration(sc);
+                     break;
+                 case 3:
+                     System.out.println("You have exited. Goodbye.");
                      break;
                  default:
                      System.out.println("Invalid input. Try again.\n");
@@ -125,6 +129,7 @@ public class MainApp {
                 break;
             case 4:
                 System.out.println("You have logged out.\n");
+                run();
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
@@ -141,7 +146,7 @@ public class MainApp {
         DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
         System.out.printf("\n%3s%20s%15s%15s%30s", "ID", "Room Type", "No. of Rooms", "Total Fees", "Duration");
         for (Reservation reservation : reservations) {
-            System.out.printf("\n%3s%20s%15s%30s", reservation.getReservationId(),
+            System.out.printf("\n%3s%20s%15s%15s%30s", reservation.getReservationId(),
                     reservation.getRoomType().getRoomTypeName(), reservation.getReservationFee(),
                     reservation.getNumOfRooms(), outputFormat.format(reservation.getStartDate()) + 
                         " -> " + outputFormat.format(reservation.getEndDate()));
@@ -304,7 +309,7 @@ public class MainApp {
                 System.out.println("You have made a reservation:");
                 System.out.println(":: Reservation ID: " + reservation.getReservationId());
                 System.out.println("> Number Of Rooms: " + reservation.getNumOfRooms());
-                System.out.println("> Reservation Fee: " + getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType));
+                System.out.println("> Reservation Fee: " + reservation.getReservationFee());
                 System.out.println("> Start Date: " + outputFormat.format(reservation.getStartDate()));
                 System.out.println("> End Date: " + outputFormat.format(reservation.getEndDate()));
                 System.out.println();
