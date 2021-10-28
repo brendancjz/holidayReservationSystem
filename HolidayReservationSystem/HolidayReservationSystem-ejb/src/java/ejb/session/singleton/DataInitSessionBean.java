@@ -146,21 +146,21 @@ public class DataInitSessionBean {
                 Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
                 LocalDateTime endLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
                 Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                Long reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1));
+                Long reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1, Double.valueOf(480)));
                 reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, 1L, 1L, 1L);
                 
                 startLocalDateTime = LocalDateTime.of(2021,10, 12, 0, 0, 0);
                 startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
                 endLocalDateTime = LocalDateTime.of(2021,10, 16, 0, 0, 0);
                 endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 2));
+                reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1, Double.valueOf(480)));
                 reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, 1L, 2L, 2L);
                 
                 startLocalDateTime = LocalDateTime.of(2021,10, 15, 0, 0, 0);
                 startDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
                 endLocalDateTime = LocalDateTime.of(2021,10, 18, 0, 0, 0);
                 endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 2));
+                reservationId = reservationSessionBean.createNewReservation(new Reservation(startDate, endDate, 1, Double.valueOf(420)));
                 reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, 1L, 4L, 4L);
                 
                 System.out.println("created all reservations");
@@ -177,7 +177,6 @@ public class DataInitSessionBean {
                     System.out.println("  Reservation ID: " + reservation.getReservationId());
                     System.out.println("    > Start Date: " + reservation.getStartDate().toString());
                     System.out.println("    > End Date: " + reservation.getEndDate().toString());
-                    System.out.println("    > Room Rate: " + reservation.getRoomRate().getRoomRateName());
                     System.out.println("    > Room Type: " + reservation.getRoomType().getRoomTypeName());
                 }
             }
@@ -193,7 +192,6 @@ public class DataInitSessionBean {
                     System.out.println("  Reservation ID: " + reservation.getReservationId());
                     System.out.println("    > Start Date: " + reservation.getStartDate().toString());
                     System.out.println("    > End Date: " + reservation.getEndDate().toString());
-                    System.out.println("    > Room Rate: " + reservation.getRoomRate().getRoomRateName());
                     System.out.println("    > Room Type: " + reservation.getRoomType().getRoomTypeName());
                 }
             }
@@ -213,11 +211,13 @@ public class DataInitSessionBean {
             for (Reservation reservation : reservations) {
                 System.out.println("Reservation ID: " + reservation.getReservationId());
                 System.out.println("  > Reserved By: " + reservation.getCustomer().getFirstName());
-                System.out.println("  > Room Rate used: " + reservation.getRoomRate().getRoomRateName());
+                for (RoomRate rate : reservation.getRoomRates()) {
+                    System.out.println("   > Room Rate: " + rate.getRoomRateName());
+                }
                 System.out.println("  > Room Type used: " + reservation.getRoomType().getRoomTypeName());
                 System.out.println("  > Start Date: " + reservation.getStartDate().toString());
                 System.out.println("  > End Date: " + reservation.getEndDate().toString());
-            }
+            } 
             
             System.out.println();
             System.out.println("== Printing out Rooms");

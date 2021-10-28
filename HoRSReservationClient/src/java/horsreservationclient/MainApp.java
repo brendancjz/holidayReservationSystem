@@ -19,9 +19,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.exception.FindRoomTypeException;
 import util.exception.ReservationQueryException;
 import util.exception.RoomTypeQueryException;
@@ -100,10 +103,9 @@ public class MainApp {
     public void doDashboardFeatures(Scanner sc, Long guestId) {
         System.out.println("==== Dashboard Interface ====");
         System.out.println("> 1. Search Hotel Room");
-        System.out.println("> 2. Reserve Hotel Room");
-        System.out.println("> 3. View My Reservation Details");
-        System.out.println("> 4. View All My Reservations");
-        System.out.println("> 5. Logout");
+        System.out.println("> 2. View My Reservation Details");
+        System.out.println("> 3. View All My Reservations");
+        System.out.println("> 4. Logout");
         System.out.print("> ");
         int input = sc.nextInt();
         sc.nextLine();
@@ -114,18 +116,14 @@ public class MainApp {
                 doSearchHotelRoom(sc, guestId);
                 break;
             case 2:
-                System.out.println("You have selected 'Reserve Hotel Room'\n");
-                doReserveHotelRoom(sc, guestId);
-                break;
-            case 3:
                 System.out.println("You have selected 'View My Reservation Details'\n");
                 doViewMyReservationDetails(sc, guestId);
                 break;
-            case 4:
+            case 3:
                 System.out.println("You have selected 'View All My Reservations'\n");
                 doViewAllMyReservations(sc, guestId);
                 break;
-            case 5:
+            case 4:
                 System.out.println("You have logged out.\n");
                 break;
             default:
@@ -141,10 +139,10 @@ public class MainApp {
         List<Reservation> reservations = guest.getReservations();
         
         DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.printf("\n%3s%20s%20s%12s%30s", "ID", "Room Rate", "Room Type", "No. of Rooms", "Duration");
+        System.out.printf("\n%3s%20s%15s%15s%30s", "ID", "Room Type", "No. of Rooms", "Total Fees", "Duration");
         for (Reservation reservation : reservations) {
-            System.out.printf("\n%3s%20s%20s%20s%15s%30s", reservation.getReservationId(),
-                    reservation.getRoomRate().getRoomRateName(), reservation.getRoomType().getRoomTypeName(),
+            System.out.printf("\n%3s%20s%15s%30s", reservation.getReservationId(),
+                    reservation.getRoomType().getRoomTypeName(), reservation.getReservationFee(),
                     reservation.getNumOfRooms(), outputFormat.format(reservation.getStartDate()) + 
                         " -> " + outputFormat.format(reservation.getEndDate()));
         
@@ -181,11 +179,12 @@ public class MainApp {
                         " -> " + outputFormat.format(reservation.getEndDate());
             System.out.println("Selected Reservation details:");
             System.out.println(":: Reservation ID: " + reservation.getReservationId());
-            System.out.println("   > Room Rate: " + reservation.getRoomRate().getRoomRateName());
+            System.out.println("   > Reservation Fee: " + reservation.getReservationFee());
+            
             System.out.println("   > Room Type: " + reservation.getRoomType().getRoomTypeName());
             System.out.println("   > Num of Rooms: " + reservation.getNumOfRooms());
             System.out.println("   > Duration: " + duration);
-            
+            System.out.println();
             doDashboardFeatures(sc, guestId);
         } catch (RoomTypeQueryException | ReservationQueryException ex) {
             System.out.println("Error: " + ex.getMessage());
@@ -193,13 +192,12 @@ public class MainApp {
             doViewMyReservationDetails(sc, guestId);
         } catch (Exception e) {
             System.out.println("Invalid input. Please try again.\n");
+            System.out.println(e.toString());
             doViewMyReservationDetails(sc, guestId);
         }
     }
     
-    public void doReserveHotelRoom(Scanner sc, Long guestId) {
-        System.out.println("==== Reserve Hotel Room Interface ====");
-    }
+    
     
     public void doSearchHotelRoom(Scanner sc, Long guestId) {
         try {
@@ -249,9 +247,33 @@ public class MainApp {
 
             RoomType selectedRoomType = types.get(input - 1);
             System.out.println("** You have selected " + selectedRoomType.getRoomTypeName() + "\n");
+            System.out.println("Do you want to reserve the room?");
+            System.out.println("> 1. Yes");
+            System.out.println("> 2. No");
+            System.out.print("> ");
+            int reserveInput = sc.nextInt(); sc.nextLine(); System.out.println();
+            if (reserveInput == 1) {
+                doReserveHotelRoom(sc, guestId, checkInDate, checkOutDate, selectedRoomType);
+            } else {
+                System.out.println("Going back to dashboard.\n");
+                doDashboardFeatures(sc, guestId);
+            }
+        } catch (FindRoomTypeException | RoomTypeQueryException e) {
+            System.out.println("Error occured.");
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            System.out.println("You have made a wrong input. Try again.\n");
+            doSearchHotelRoom(sc, guestId);
+        }
+        
+    }
+    
+    private void doReserveHotelRoom (Scanner sc, Long guestId, LocalDate checkInDate, LocalDate checkOutDate, RoomType selectedRoomType) {
+        try {
             int numOfRoomsAvail = reservationSessionBean.getNumberOfRoomsAvailableForReservation(selectedRoomType.getRoomTypeId(), checkInDate, checkOutDate);
             int rooms;
-            
+            List<RoomRate> ratesUsed = getRoomRateUsed(checkInDate, checkOutDate, selectedRoomType);
             do {
                 System.out.println("How many rooms would you like to reserve? There are " + numOfRoomsAvail + " room(s) available.");
                 System.out.print(" > ");
@@ -265,37 +287,36 @@ public class MainApp {
             System.out.println("> 2. No");
             System.out.print("> ");
             int confirmationInput = sc.nextInt(); sc.nextLine();
-
+            System.out.println();
+            
             if (confirmationInput == 1) {
                 Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
                 Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-                Reservation reservation = new Reservation(startDate, endDate, rooms);
+                Reservation reservation = new Reservation(startDate, endDate, rooms, getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType) * rooms);
                 Long reservationId = reservationSessionBean.createNewReservation(reservation);
                 
                 //Need to get the current room rate and tag it to the reservation.
                 //reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, guestId, selectedRoomType.getRoomTypeId(), rateId);
                 DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                 reservation = reservationSessionBean.getReservationByReservationId(reservationId);
+                
+                reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRates(reservationId, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
                 System.out.println("You have made a reservation:");
                 System.out.println(":: Reservation ID: " + reservation.getReservationId());
                 System.out.println("> Number Of Rooms: " + reservation.getNumOfRooms());
+                System.out.println("> Reservation Fee: " + getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType));
                 System.out.println("> Start Date: " + outputFormat.format(reservation.getStartDate()));
                 System.out.println("> End Date: " + outputFormat.format(reservation.getEndDate()));
                 System.out.println();
+                
             } else {
                 System.out.println("Going back to dashboard.\n");
-                doDashboardFeatures(sc, guestId);
+                
             }
-            
-        } catch (FindRoomTypeException | RoomTypeQueryException e) {
-            System.out.println("Error occured.");
-            System.out.println(e.getMessage());
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            System.out.println("You have made a wrong input. Try again.\n");
-            doSearchHotelRoom(sc, guestId);
+            doDashboardFeatures(sc, guestId);
+        } catch (FindRoomTypeException ex) {
+            System.out.println("Error: " + ex.getMessage());
         }
-        
     }
 
     public void doRegistration(Scanner sc) {
@@ -366,6 +387,25 @@ public class MainApp {
         return totalReservation;
     }
     
+    private List<RoomRate> getRoomRateUsed(LocalDate checkInDate, LocalDate checkOutDate, RoomType selectedRoomType) throws FindRoomTypeException {
+        long numOfDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        List<RoomRate> rates = roomManagementSessionBean.getRoomRates(selectedRoomType.getRoomTypeId());
+        List<RoomRate> ratesUsed = new ArrayList<>();
+        for (int i = 0; i < numOfDays; i++) {
+            //get the rate Per night for each night
+            boolean foundRate = false;
+            for (int j = rates.size() - 1; j >= 0; j--) {
+                RoomRate rate = rates.get(j);
+                if (((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && !foundRate ) {
+                    if (!ratesUsed.contains(rate)) ratesUsed.add(rate); //Adding unique room rates
+                    checkInDate = checkInDate.plusDays(1);
+                    foundRate = true;
+                }
+            }
+        }
+        return ratesUsed;
+    }
+    
     private boolean isCurrentDateWithinRange(LocalDate currDate, Date startDate, Date endDate) {
         LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -373,5 +413,7 @@ public class MainApp {
         boolean upperBound = currDate.isBefore(end) || currDate.isEqual(end);
         return lowerBound && upperBound;
     }
+
+    
     
 }

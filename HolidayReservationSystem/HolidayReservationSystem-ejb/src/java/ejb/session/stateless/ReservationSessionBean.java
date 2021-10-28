@@ -71,7 +71,23 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         
         reservation.setCustomer(guest);
         reservation.setRoomType(roomType);
-        reservation.setRoomRate(roomRate);
+        reservation.getRoomRates().add(roomRate);
+        
+        guest.getReservations().add(reservation);
+    }
+    
+    @Override
+    public void associateExistingReservationWithGuestAndRoomTypeAndRoomRates(Long reservationId, Long guestId, Long typeId, List<RoomRate> ratesUsed) {
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        Guest guest = em.find(Guest.class, guestId);
+        RoomType roomType = em.find(RoomType.class, typeId);
+        for (RoomRate rate : ratesUsed) {
+            em.merge(rate);
+            reservation.getRoomRates().add(rate);
+        }
+        reservation.setCustomer(guest);
+        reservation.setRoomType(roomType);
+        
         
         guest.getReservations().add(reservation);
     }
@@ -138,7 +154,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         List<Reservation> reservation = query.getResultList();
         
         if (reservation.isEmpty()) throw new ReservationQueryException("No such Reservation in record.");
-        
+        reservation.get(0).getRoomRates().size();
         return reservation.get(0);
     }
 

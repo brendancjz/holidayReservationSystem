@@ -109,7 +109,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
         
         for (int i = 0; i < reservations.size(); i++) {
-            if (reservations.get(i).getRoomRate().getRoomRateId().equals(rate.getRoomRateId())) {
+            if (reservations.get(i).getRoomRates().contains(rate)) {
                 rate.setIsDisabled(Boolean.TRUE);
                 System.out.println("Room Rate " + rate.getRoomRateName() + " is now disabled.");
                 return;

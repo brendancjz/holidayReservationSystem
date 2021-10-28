@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Reservation;
+import entity.RoomRate;
 import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Remote;
@@ -33,5 +34,7 @@ public interface ReservationSessionBeanRemote {
     public int getNumberOfRoomsAvailableForReservation(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate);
 
     public Reservation getReservationByReservationId(Long reservationId);
+
+    public void associateExistingReservationWithGuestAndRoomTypeAndRoomRates(Long reservationId, Long guestId, Long roomTypeId, List<RoomRate> ratesUsed);
     
 }
