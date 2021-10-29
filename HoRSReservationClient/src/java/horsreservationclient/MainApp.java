@@ -213,7 +213,9 @@ public class MainApp {
             System.out.print("> Check-Out Date: ");
             String checkOut = sc.nextLine();
             System.out.println();
-             
+            System.out.println("How many number rooms are you looking to reserve?");
+            System.out.print("> Number of Rooms: ");
+            int numOfRooms = sc.nextInt();
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
@@ -228,7 +230,7 @@ public class MainApp {
             for (int i = 0; i < types.size(); i++) {
                 RoomType type = types.get(i);
                 //Check if room type is available first. If available then display
-                boolean isRoomTypeAvail = reservationSessionBean.isRoomTypeAvailableForReservation(type.getRoomTypeId(), checkInDate, checkOutDate);
+                boolean isRoomTypeAvail = reservationSessionBean.isRoomTypeAvailableForReservation(type.getRoomTypeId(), checkInDate, checkOutDate, numOfRooms);
                 
                 
                 if (isRoomTypeAvail) {
@@ -238,7 +240,6 @@ public class MainApp {
                     System.out.println("> " + count++ + ". " + type.getRoomTypeDesc() + 
                         "\n     ** Amenities: " + type.getAmenities() +
                         "\n     ** Total reservation fee is " + totalReservation);
-                    System.out.println("     ** Number of Rooms Available: " + reservationSessionBean.getNumberOfRoomsAvailableForReservation(type.getRoomTypeId(), checkInDate, checkOutDate));
                 } else {
                     types.remove(type);
                     i--;
@@ -258,12 +259,12 @@ public class MainApp {
             System.out.print("> ");
             int reserveInput = sc.nextInt(); sc.nextLine(); System.out.println();
             if (reserveInput == 1) {
-                doReserveHotelRoom(sc, guestId, checkInDate, checkOutDate, selectedRoomType);
+                doReserveHotelRoom(sc, guestId, checkInDate, checkOutDate, numOfRooms, selectedRoomType);
             } else {
                 System.out.println("Going back to dashboard.\n");
                 doDashboardFeatures(sc, guestId);
             }
-        } catch (FindRoomTypeException | RoomTypeQueryException e) {
+        } catch (FindRoomTypeException | RoomTypeQueryException | ReservationQueryException e) {
             System.out.println("Error occured.");
             System.out.println(e.getMessage());
         } catch (Exception e) {
@@ -274,18 +275,10 @@ public class MainApp {
         
     }
     
-    private void doReserveHotelRoom (Scanner sc, Long guestId, LocalDate checkInDate, LocalDate checkOutDate, RoomType selectedRoomType) {
+    private void doReserveHotelRoom (Scanner sc, Long guestId, LocalDate checkInDate, LocalDate checkOutDate, int numOfRooms, RoomType selectedRoomType) {
         try {
-            int numOfRoomsAvail = reservationSessionBean.getNumberOfRoomsAvailableForReservation(selectedRoomType.getRoomTypeId(), checkInDate, checkOutDate);
-            int rooms;
+            
             List<RoomRate> ratesUsed = getRoomRateUsed(checkInDate, checkOutDate, selectedRoomType);
-            do {
-                System.out.println("How many rooms would you like to reserve? There are " + numOfRoomsAvail + " room(s) available.");
-                System.out.print(" > ");
-                rooms = sc.nextInt(); sc.nextLine();
-                System.out.println();
-                
-            } while (rooms > numOfRoomsAvail || rooms <= 0);
             
             System.out.println("Confirm reservation?");
             System.out.println("> 1. Yes");
@@ -297,11 +290,9 @@ public class MainApp {
             if (confirmationInput == 1) {
                 Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
                 Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-                Reservation reservation = new Reservation(startDate, endDate, rooms, getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType) * rooms);
+                Reservation reservation = new Reservation(startDate, endDate, numOfRooms, getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType) * numOfRooms);
                 Long reservationId = reservationSessionBean.createNewReservation(reservation);
                 
-                //Need to get the current room rate and tag it to the reservation.
-                //reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, guestId, selectedRoomType.getRoomTypeId(), rateId);
                 DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                 reservation = reservationSessionBean.getReservationByReservationId(reservationId);
                 

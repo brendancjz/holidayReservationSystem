@@ -35,6 +35,8 @@ public class Room implements Serializable {
     @NotNull
     private Boolean isAvailable;
     @NotNull
+    private Boolean isVacant;
+    @NotNull
     private Boolean isDisabled;
     @ManyToOne
     private RoomType roomType;
@@ -43,12 +45,21 @@ public class Room implements Serializable {
         this.roomType = null;
         this.isDisabled = false;
         this.isAvailable = true;
+        this.isVacant = true;
     }
 
     public Room(Integer roomLevel, Integer roomNum) {
         this();
         this.roomLevel = roomLevel;
         this.roomNum = roomNum;
+    }
+
+    public Boolean getIsVacant() {
+        return isVacant;
+    }
+
+    public void setIsVacant(Boolean isVacant) {
+        this.isVacant = isVacant;
     }
     
     public Boolean getIsDisabled() {

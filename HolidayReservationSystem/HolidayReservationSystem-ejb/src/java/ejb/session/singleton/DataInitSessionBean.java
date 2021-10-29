@@ -332,12 +332,12 @@ public class DataInitSessionBean {
     }
 
     private Long[] createRoomTypes() { 
-        //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
-        Long deluxeRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("DeluxeRoom", "Deluxe Room", 400, 2, 4, "Bed, Toilet, TV"));
-        Long premierRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("PremierRoom", "Premier Room", 600, 4, 6, "Bed, Toilet, TV, Bathtub"));
-        Long familyRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("FamilyRoom", "Family Room", 800, 6, 8, "Bed, Toilet, TV, Bathtub, Balcony"));
-        Long juniorSuiteId = roomTypeSessionBean.createNewRoomType(new RoomType("JuniorSuite", "Junior Suite Room", 1000, 8, 10, "Bed, Toilet, TV, Bathtub, Balcony, Fridge"));
-        Long grandSuiteId = roomTypeSessionBean.createNewRoomType(new RoomType("GrandSuite", "Grand Suite Room", 1200, 10, 12, "Bed, Toilet, TV, Bathtub, Balcony, Fridge, Safe"));
+        //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, Integer rank, String amenities
+        Long deluxeRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("DeluxeRoom", "Deluxe Room", 400, 2, 4, 5, "Bed, Toilet, TV"));
+        Long premierRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("PremierRoom", "Premier Room", 600, 4, 6, 4, "Bed, Toilet, TV, Bathtub"));
+        Long familyRoomId = roomTypeSessionBean.createNewRoomType(new RoomType("FamilyRoom", "Family Room", 800, 6, 8, 3, "Bed, Toilet, TV, Bathtub, Balcony"));
+        Long juniorSuiteId = roomTypeSessionBean.createNewRoomType(new RoomType("JuniorSuite", "Junior Suite Room", 1000, 8, 10, 2,"Bed, Toilet, TV, Bathtub, Balcony, Fridge"));
+        Long grandSuiteId = roomTypeSessionBean.createNewRoomType(new RoomType("GrandSuite", "Grand Suite Room", 1200, 10, 12, 1, "Bed, Toilet, TV, Bathtub, Balcony, Fridge, Safe"));
 
         return new Long[] {deluxeRoomId, premierRoomId, familyRoomId, juniorSuiteId, grandSuiteId};
     }

@@ -27,7 +27,7 @@ public interface ReservationSessionBeanRemote {
 
     public void associateExistingReservationWithGuestAndRoomTypeAndRoomRate(Long reservationId, Long guestId, Long typeId, Long rateId);
 
-    public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate);
+    public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate, int numOfRooms) throws ReservationQueryException;
 
     public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws ReservationQueryException;
 

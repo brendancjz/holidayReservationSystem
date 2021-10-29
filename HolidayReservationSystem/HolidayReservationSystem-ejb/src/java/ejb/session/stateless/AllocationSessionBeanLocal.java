@@ -5,7 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.Allocation;
+import entity.Room;
+import java.util.List;
 import javax.ejb.Local;
+import util.exception.AllocationQueryException;
 
 /**
  *
@@ -13,5 +17,9 @@ import javax.ejb.Local;
  */
 @Local
 public interface AllocationSessionBeanLocal {
+
+    public List<Allocation> retrieveAllAllocations() throws AllocationQueryException;
+
+    public Allocation getAllocationByAllocationId(Long allocationId);
     
 }

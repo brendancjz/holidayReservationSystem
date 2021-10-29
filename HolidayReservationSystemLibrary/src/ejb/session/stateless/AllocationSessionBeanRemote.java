@@ -9,6 +9,7 @@ import entity.Allocation;
 import entity.Room;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.AllocationQueryException;
 
 /**
  *
@@ -19,4 +20,5 @@ public interface AllocationSessionBeanRemote {
     public Long createNewAllocation(Allocation allocation);
     public Allocation getAllocationByAllocationId(Long allocationId);
     public void associateAllocationsWithExistingRooms(Long allocationId, List<Room> availRooms);
+    public List<Allocation> retrieveAllAllocations() throws AllocationQueryException;
 }

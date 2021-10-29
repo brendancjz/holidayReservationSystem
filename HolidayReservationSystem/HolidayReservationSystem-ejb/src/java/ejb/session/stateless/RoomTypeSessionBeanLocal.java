@@ -26,4 +26,8 @@ public interface RoomTypeSessionBeanLocal {
     public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId) throws FindRoomTypeException;
 
     public RoomType getRoomTypeByRoomTypeName(String typeName) throws RoomTypeQueryException;
+
+    public RoomType getNonDisabledRoomTypeByRank(Integer rank);
+
+    public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws RoomTypeQueryException;
 }

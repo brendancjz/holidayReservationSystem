@@ -7,7 +7,6 @@ package ejb.session.stateless;
 
 import entity.RoomRate;
 import entity.RoomType;
-import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -89,5 +88,27 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         type.getRooms().size();
         type.getRates().size();
         return type;
+    }
+
+    @Override
+    public RoomType getNonDisabledRoomTypeByRank(Integer rank) {
+        Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.typeRank = :rank AND r.isDisabled = false");
+        query.setParameter("rank", rank);
+        
+        return (RoomType) query.getSingleResult();
+    }
+
+    @Override
+    public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws RoomTypeQueryException {
+        Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.isDisabled = false ORDER BY r.typeRank ASC");
+        
+        List<RoomType> types = query.getResultList();
+        if (types.isEmpty()) throw new RoomTypeQueryException("List of RoomTypes is empty.");
+        for (int i = 0; i < types.size(); i++) {
+            RoomType type = types.get(i);
+            type.getRooms().size();
+            type.getRates().size();         
+        }
+        return types;
     }
 }

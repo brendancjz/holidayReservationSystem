@@ -164,31 +164,28 @@ public class MainApp {
                 int numOfRoomsToAllocate = reservation.getNumOfRooms();
                 List<Room> rooms = typeReserved.getRooms();
                 
-                int numOfAvailRooms = 0;
-                List<Room> availRooms = new ArrayList<>();
+                
+                List<Room> vacantRooms = new ArrayList<>();
                 for (Room room : rooms) {
-                    if (room.getIsAvailable()) numOfAvailRooms++;
-                    availRooms.add(room);
+                    if (room.getIsVacant()) {
+                        vacantRooms.add(room);
+                    }
+                    
                 }
                 
                 
                 
-                if (numOfAvailRooms >= numOfRoomsToAllocate) {
+                if (vacantRooms.size() >= numOfRoomsToAllocate) {
                     System.out.println("> Number of Rooms to allocate: " + numOfRoomsToAllocate);
-                    System.out.println("> Number of Rooms available: " + numOfAvailRooms);
-                
+                    System.out.println("> Number of Vacant Rooms: " + vacantRooms.size());
+                    
+                    List<Room> allocatedRooms = vacantRooms.subList(0, numOfRoomsToAllocate - 1);
+                    
                     Allocation newAllocation = new Allocation(reservation);
+                    
                     newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
-                    allocationSessionBean.associateAllocationsWithExistingRooms(newAllocation.getAllocationId(), availRooms);
-                    for (int i = 0; i < numOfRoomsToAllocate; i++) {
-                        Room room = availRooms.get(i);
-                        if (!room.getIsAvailable()) {
-                            numOfRoomsToAllocate++;
-                        } else {
-                            boolean isAvailable = false;
-                            roomManagementSessionBean.updateRoom(room.getRoomId(), room.getRoomLevel(), room.getRoomNum(), isAvailable, room.getRoomType());
-                        }
-                    }
+                    
+                    allocationSessionBean.associateAllocationsWithExistingRooms(newAllocation.getAllocationId(), allocatedRooms);
                     
                     System.out.println("Successfully allocated the reservation ID: " + reservation.getReservationId());
                 } else {

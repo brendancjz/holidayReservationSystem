@@ -12,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -40,6 +39,8 @@ public class RoomType implements Serializable {
     @NotNull
     private Integer capacity;
     @NotNull
+    private Integer typeRank;
+    @NotNull
     @Size(min=5, max=255)
     private String amenities;
     @NotNull
@@ -55,15 +56,24 @@ public class RoomType implements Serializable {
         this.isDisabled = false;
     }
  
-    public RoomType(String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities) {
+    public RoomType(String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, Integer rank, String amenities) {
         this();
         this.roomTypeName = roomTypeName;
         this.roomTypeDesc = roomTypeDesc;
         this.roomSize = roomSize;
         this.numOfBeds = numOfBeds;
         this.capacity = capacity;
+        this.typeRank = rank;
         this.amenities = amenities;
         
+    }
+
+    public Integer getTypeRank() {
+        return typeRank;
+    }
+
+    public void setTypeRank(Integer rank) {
+        this.typeRank = rank;
     }
     
     public Boolean getIsDisabled() {

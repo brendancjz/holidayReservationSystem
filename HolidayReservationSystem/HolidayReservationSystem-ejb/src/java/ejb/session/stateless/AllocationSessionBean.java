@@ -11,6 +11,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import util.exception.AllocationQueryException;
 
 /**
  *
@@ -38,9 +40,27 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     }
     
     @Override
-    public void associateAllocationsWithExistingRooms(Long allocationId, List<Room> availRooms) {
+    public void associateAllocationsWithExistingRooms(Long allocationId, List<Room> allocatedRooms) {
+        System.out.println("Code reaches in associateAllocationsWithExistingRooms");
         Allocation allocation = this.getAllocationByAllocationId(allocationId);
         
-        allocation.getRooms().addAll(availRooms);
+        for (Room room : allocatedRooms) {
+            em.merge(room);
+            room.setIsVacant(false);
+            allocation.getRooms().add(room);
+            System.out.println("Code reaches here in the loop of associateAllocationsWithExistingRooms");
+        }
     }
+
+    @Override
+    public List<Allocation> retrieveAllAllocations() throws AllocationQueryException {
+        List<Allocation> list;
+        Query query = em.createQuery("SELECT a FROM Allocation a");
+        list = query.getResultList();
+        if (list.isEmpty()) throw new AllocationQueryException("Allocation List is empty.");
+        
+        return list;
+    }
+
+    
 }

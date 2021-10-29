@@ -335,8 +335,8 @@ public class SalesManagerModule {
                     break;
             }
             doSalesManagerDashboardFeatures(sc, emId);
-        } catch (FindRoomRateException | ReservationQueryException ex) {
-                    System.out.println("Error: " + ex.getMessage());
+        } catch (FindRoomRateException ex) {
+            System.out.println("Error: " + ex.getMessage());
         }
     }
 
