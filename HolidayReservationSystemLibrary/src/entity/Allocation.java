@@ -7,12 +7,15 @@ package entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -25,6 +28,9 @@ public class Allocation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long allocationId;
+    @NotNull
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date currentDate;
     @OneToOne
     private Reservation reservation;
     @OneToMany
@@ -34,9 +40,18 @@ public class Allocation implements Serializable {
         this.rooms = new ArrayList<>();
     }
 
-    public Allocation(Reservation reservation) {
+    public Allocation(Reservation reservation, Date currentDate) {
         this();
         this.reservation = reservation;
+        this.currentDate = currentDate;
+    }
+
+    public Date getCurrentDate() {
+        return currentDate;
+    }
+
+    public void setCurrentDate(Date currentDate) {
+        this.currentDate = currentDate;
     }
 
     public Long getAllocationId() {

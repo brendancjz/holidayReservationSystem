@@ -5,6 +5,7 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.AllocationSessionBeanLocal;
 import ejb.session.stateless.EmployeeSessionBeanLocal;
 import ejb.session.stateless.GuestSessionBeanLocal;
 import ejb.session.stateless.PartnerSessionBeanLocal;
@@ -12,6 +13,7 @@ import ejb.session.stateless.ReservationSessionBeanLocal;
 import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
+import entity.Allocation;
 import entity.Employee;
 import entity.Guest;
 import entity.Partner;
@@ -49,6 +51,9 @@ import util.exception.RoomTypeQueryException;
 @LocalBean
 @Startup
 public class DataInitSessionBean {
+
+    @EJB
+    private AllocationSessionBeanLocal allocationSessionBean;
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
     
@@ -164,6 +169,14 @@ public class DataInitSessionBean {
                 reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRate(reservationId, 1L, 4L, 4L);
                 
                 System.out.println("created all reservations");
+            }
+             
+            if (em.find(Allocation.class, 1L) == null) {
+                LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
+                Date currDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                Long allocationId = allocationSessionBean.createNewAllocation(new Allocation(em.find(Reservation.class, 1L),  currDate));
+                allocationSessionBean.associateAllocationWithRoom(allocationId, 1L);
+                System.out.println("created all allocations");
             }
 
             System.out.println("== Printing out Guests");

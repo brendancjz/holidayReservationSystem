@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Scanner;
 import util.enumeration.RoomRateEnum;
 import util.exception.FindRoomRateException;
-import util.exception.ReservationQueryException;
 import util.exception.RoomRateQueryException;
 import util.exception.RoomTypeQueryException;
 

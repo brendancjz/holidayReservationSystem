@@ -13,12 +13,15 @@ import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
 import entity.Allocation;
 import entity.Employee;
+import entity.Guest;
 import entity.Reservation;
 import entity.Room;
 import entity.RoomType;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeEnum;
@@ -133,7 +136,7 @@ public class MainApp {
             module.doSalesManagerDashboardFeatures(sc, emId);
             run();
         } else if (emRole.equals(EmployeeEnum.GRELMANAGER.toString())) {
-            doGRelManagerDashboardFeatures(sc, emId, emRole);
+            doGRelManagerDashboardFeatures(sc, emId);
         }
         
         
@@ -141,8 +144,38 @@ public class MainApp {
 
  
 
-    private void doGRelManagerDashboardFeatures(Scanner sc, Long emId, String emRole) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private void doGRelManagerDashboardFeatures(Scanner sc, Long emId) {
+        System.out.println("==== Guest Relations Manager Dashboard Interface ====");
+        System.out.println("> 1. Walk in Search Room");
+        System.out.println("> 2. Check-in Guest");
+        System.out.println("> 3. Check-out Guest");
+        System.out.println("> 4. Logout");
+        System.out.print("> ");
+        int input = sc.nextInt();
+        sc.nextLine();
+        
+        switch (input) {
+            case 1:
+                System.out.println("You have selected 'Walk in Search Room'\n");
+                
+                break;
+            case 2:
+                System.out.println("You have selected 'Check-in Guest'\n");
+                doCheckInGuest(sc, emId);
+                break;
+            case 3:
+                System.out.println("You have selected 'Check-out Guest'\n");
+                
+                break;
+            case 4:
+                System.out.println("You have logged out.\n");
+         
+                break;
+            default:
+                System.out.println("Wrong input. Try again.\n");
+                doGRelManagerDashboardFeatures(sc, emId);
+                break;
+        }
     }
 
     private void doRoomAllocation() {
@@ -155,7 +188,7 @@ public class MainApp {
 
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate currDate = LocalDate.parse(currDay, dtFormat);
-            
+            Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
             List<Reservation> reservations = reservationSessionBean.getReservationsToAllocate(currDate);
             for(Reservation reservation: reservations) {
                 System.out.println("Allocating for Reservation ID: " + reservation.getReservationId());
@@ -181,7 +214,7 @@ public class MainApp {
                     
                     List<Room> allocatedRooms = vacantRooms.subList(0, numOfRoomsToAllocate - 1);
                     
-                    Allocation newAllocation = new Allocation(reservation);
+                    Allocation newAllocation = new Allocation(reservation, curr);
                     
                     newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
                     
@@ -202,6 +235,36 @@ public class MainApp {
             
         }
         
+        
+    }
+
+    private void doCheckInGuest(Scanner sc, Long emId) {
+        try {
+            System.out.println("==== Check In Guest Interface ====");
+            System.out.println("Please input your Guest details:");
+            System.out.print("> Guest Email: ");
+            String email = sc.nextLine();
+            System.out.print("> Current Date [DD MM YYYY]: ");
+            String currDay = sc.nextLine();
+            System.out.println();
+            
+            DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
+            LocalDate currDate = LocalDate.parse(currDay, dtFormat);
+            Guest guest = guestSessionBean.getGuestByEmail(email);
+            Allocation allocation = allocationSessionBean.getAllocationForGuestForCurrentDay(guest.getCustomerId(), currDate);
+            
+            System.out.println("Your room(s) are:");
+            for (Room room : allocation.getRooms()) {
+                System.out.println(":: Room Level: " + room.getRoomLevel());
+                System.out.println(":: Room Number: " + room.getRoomNum());
+                System.out.println();
+            }
+            
+            doGRelManagerDashboardFeatures(sc, emId);
+        } catch (Exception e) {
+            System.out.println("Invalid input. Try again.\n" + e.toString());
+            doCheckInGuest(sc, emId);
+        }
         
     }
 

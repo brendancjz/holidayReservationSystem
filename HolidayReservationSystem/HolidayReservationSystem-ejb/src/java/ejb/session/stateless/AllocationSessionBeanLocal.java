@@ -17,9 +17,11 @@ import util.exception.AllocationQueryException;
  */
 @Local
 public interface AllocationSessionBeanLocal {
-
+    public Long createNewAllocation(Allocation allocation);
     public List<Allocation> retrieveAllAllocations() throws AllocationQueryException;
 
     public Allocation getAllocationByAllocationId(Long allocationId);
+
+    public void associateAllocationWithRoom(Long allocationId, Long roomId);
     
 }

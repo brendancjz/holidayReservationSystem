@@ -7,6 +7,9 @@ package ejb.session.stateless;
 
 import entity.Allocation;
 import entity.Room;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -60,6 +63,29 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
         if (list.isEmpty()) throw new AllocationQueryException("Allocation List is empty.");
         
         return list;
+    }
+
+    @Override
+    public Allocation getAllocationForGuestForCurrentDay(Long guestId, LocalDate currDate) {
+        
+        Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        
+        Query query = em.createQuery("SELECT a FROM Allocation a WHERE a.reservation.customer.customerId = :guestId AND a.currentDate = :currDate");
+        query.setParameter("guestId", guestId);
+        query.setParameter("currDate", curr);
+        
+        Allocation allocation = (Allocation) query.getSingleResult();
+        
+        allocation.getRooms().size();
+        
+        return allocation;
+    }
+
+    @Override
+    public void associateAllocationWithRoom(Long allocationId, Long roomId) {
+        Room room = em.find(Room.class, roomId);
+        Allocation allocation = em.find(Allocation.class, allocationId);
+        allocation.getRooms().add(room);
     }
 
     
