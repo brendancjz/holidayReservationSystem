@@ -38,11 +38,12 @@ public class Allocation implements Serializable {
 
     public Allocation() {
         this.rooms = new ArrayList<>();
+        this.reservation = null;
     }
 
-    public Allocation(Reservation reservation, Date currentDate) {
+    public Allocation(Date currentDate) {
         this();
-        this.reservation = reservation;
+        
         this.currentDate = currentDate;
     }
 

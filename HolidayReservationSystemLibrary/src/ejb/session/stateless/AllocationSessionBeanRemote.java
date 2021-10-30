@@ -20,8 +20,12 @@ import util.exception.AllocationQueryException;
 public interface AllocationSessionBeanRemote {
     public Long createNewAllocation(Allocation allocation);
     public Allocation getAllocationByAllocationId(Long allocationId);
-    public void associateAllocationsWithExistingRooms(Long allocationId, List<Room> availRooms);
+    public void associateAllocationsWithExistingRoomsAndReservation(Long allocationId, List<Room> availRooms, Long reservationId);
     public List<Allocation> retrieveAllAllocations() throws AllocationQueryException;
     public Allocation getAllocationForGuestForCurrentDay(Long guestId, LocalDate currDate);
     public void associateAllocationWithRoom(Long allocationId, Long roomId);
+    public void associateAllocationWithReservation(Long allocationId, Long reservationId);
+
+    public Allocation getAllocationForGuestForCheckOutDay(Long customerId, LocalDate currDate);
+    
 }

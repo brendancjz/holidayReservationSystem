@@ -112,16 +112,23 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
         int countOfRoomsRequired = 0;
         
-        
-        List<Reservation> reservationsOfRoomType = this.getReservationsByRoomTypeId(typeId);
-
-        for (Reservation reservation: reservationsOfRoomType) {
-            Date start = reservation.getStartDate();
-            Date end = reservation.getEndDate();
-            if(isCollided(start, end, startDate, endDate)) {
-                countOfRoomsRequired++;
+        try {
+            List<Reservation> reservationsOfRoomType = this.getReservationsByRoomTypeId(typeId);
+            
+            for (Reservation reservation: reservationsOfRoomType) {
+                Date start = reservation.getStartDate();
+                Date end = reservation.getEndDate();
+                if(isCollided(start, end, startDate, endDate)) {
+                    countOfRoomsRequired++;
+                }
             }
+        } catch (ReservationQueryException e) {
+            //no reservations, no problems;
+            countOfRoomsRequired = 0;
         }
+        
+
+        
         
         return (count - countOfRoomsRequired - numOfRooms) >= 0;
     }
@@ -191,7 +198,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
     @Override
     public Reservation getReservationByReservationId(Long reservationId) {
-        return em.find(Reservation.class, reservationId);
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        
+        reservation.getRoomRates().size();
+        reservation.getRoomType().getRooms().size();
+        return reservation;
     }
 
     @Override

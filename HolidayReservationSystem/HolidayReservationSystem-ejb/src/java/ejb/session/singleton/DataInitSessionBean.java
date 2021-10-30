@@ -37,6 +37,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
+import util.exception.AllocationQueryException;
 import util.exception.EmployeeQueryException;
 import util.exception.ReservationQueryException;
 import util.exception.RoomQueryException;
@@ -174,7 +175,8 @@ public class DataInitSessionBean {
             if (em.find(Allocation.class, 1L) == null) {
                 LocalDateTime startLocalDateTime = LocalDateTime.of(2021,10, 10, 0, 0, 0);
                 Date currDate = Date.from(startLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                Long allocationId = allocationSessionBean.createNewAllocation(new Allocation(em.find(Reservation.class, 1L),  currDate));
+                Long allocationId = allocationSessionBean.createNewAllocation(new Allocation(currDate));
+                allocationSessionBean.associateAllocationWithReservation(allocationId, 1L);
                 allocationSessionBean.associateAllocationWithRoom(allocationId, 1L);
                 System.out.println("created all allocations");
             }
@@ -242,8 +244,9 @@ public class DataInitSessionBean {
                 System.out.println("  > Room Type: " + room.getRoomType().getRoomTypeName());
                 System.out.println("  > Is Available: " + room.getIsAvailable());
                 System.out.println("  > Is Disabled: " + room.getIsDisabled());
+                System.out.println("  > Is Vacant: " + room.getIsVacant());
             }
-            
+             
             System.out.println();
             System.out.println("== Printing Room Rates");
             List<RoomRate> rates = roomRateSessionBean.retrieveAllRoomRates();
@@ -288,10 +291,27 @@ public class DataInitSessionBean {
                 }
                 System.out.println();
             }
+              
+            System.out.println();
+            System.out.println("== Printing Allocations");
+            List<Allocation> allocations = allocationSessionBean.retrieveAllAllocations();
+            for (Allocation allocation : allocations) {
+                System.out.println("Allocation ID: " + allocation.getAllocationId());
+                System.out.println(" > Reservation ID: " + allocation.getReservation().getReservationId());
+                System.out.println(" > Date: " + allocation.getCurrentDate());
+                List<Room> rooms1 = allocation.getRooms();
+                System.out.println("> Rooms:");
+                for (Room room : rooms1) {
+                    System.out.println("    Room ID: " + room.getRoomId());
+                    System.out.println("    > Room Type: " + room.getRoomType().getRoomTypeName());
+                    System.out.println("    > Is Disabled: " + room.getIsDisabled());
+                }
+                System.out.println();
+            }
             
         } catch (EmployeeQueryException e) {
             System.out.println("** postConstruct throwing error " + e.getMessage());
-        } catch (ReservationQueryException | RoomQueryException | RoomRateQueryException | RoomTypeQueryException ex) {
+        } catch (ReservationQueryException | RoomQueryException | RoomRateQueryException | RoomTypeQueryException | AllocationQueryException ex) {
             Logger.getLogger(DataInitSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
