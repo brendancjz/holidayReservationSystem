@@ -38,5 +38,7 @@ public interface ReservationSessionBeanRemote {
     public void associateExistingReservationWithGuestAndRoomTypeAndRoomRates(Long reservationId, Long guestId, Long roomTypeId, List<RoomRate> ratesUsed);
 
     public List<Reservation> getReservationsToAllocate(LocalDate currDate);
+
+    public boolean isRoomTypeAvailableForWalkInReservation(Long roomTypeId, int numOfRooms);
     
 }

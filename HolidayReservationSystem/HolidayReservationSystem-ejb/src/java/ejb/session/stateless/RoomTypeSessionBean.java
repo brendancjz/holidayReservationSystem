@@ -94,8 +94,9 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public RoomType getNonDisabledRoomTypeByRank(Integer rank) {
         Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.typeRank = :rank AND r.isDisabled = false");
         query.setParameter("rank", rank);
-        
-        return (RoomType) query.getSingleResult();
+        RoomType type = (RoomType) query.getSingleResult();
+        if (type.getRooms() != null) type.getRooms().size();
+        return type;
     }
 
     @Override

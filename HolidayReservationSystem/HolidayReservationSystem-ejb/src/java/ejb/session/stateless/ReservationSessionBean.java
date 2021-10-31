@@ -136,8 +136,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     private boolean isCollided(Date start, Date end, LocalDate startDate, LocalDate endDate) {
         LocalDate start1 = start.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate end1 = end.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        boolean lowerBound = (start1.isEqual(startDate) || start1.isAfter(startDate)) && start1.isBefore(endDate);
-        boolean upperBound = (end1.isBefore(endDate) || end1.isEqual(endDate)) && end1.isAfter(startDate);
+        boolean lowerBound = start1.isEqual(startDate) || (start1.isAfter(startDate) && start1.isBefore(endDate));
+        boolean upperBound = (end1.isBefore(endDate) && end1.isAfter(startDate)) || end1.isEqual(endDate) ;
         return lowerBound || upperBound;
     }
 
@@ -200,8 +200,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     public Reservation getReservationByReservationId(Long reservationId) {
         Reservation reservation = em.find(Reservation.class, reservationId);
         
-        reservation.getRoomRates().size();
-        reservation.getRoomType().getRooms().size();
+        if (reservation.getRoomRates() != null) reservation.getRoomRates().size();
+        if (reservation.getRoomType() != null) reservation.getRoomType().getRooms().size();
+        
         return reservation;
     }
 
@@ -217,5 +218,17 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             reservation.getRoomType().getRooms().size();
         }
         return query.getResultList();
+    }
+
+    @Override
+    public boolean isRoomTypeAvailableForWalkInReservation(Long roomTypeId, int numOfRooms) {
+        RoomType type = em.find(RoomType.class, roomTypeId);
+        List<Room> rooms = type.getRooms();
+        int numOfVacantRooms = 0;
+        for (Room room : rooms) {
+            if (room.getIsVacant()) numOfVacantRooms++;
+        }
+        
+        return numOfRooms <= numOfVacantRooms;
     }
 }

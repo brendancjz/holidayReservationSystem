@@ -357,5 +357,10 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         return roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder();
     }
 
+    @Override
+    public RoomType getRoomTypeByRank(int rank) {
+        return roomTypeSessionBean.getNonDisabledRoomTypeByRank(rank);
+    }
+
     
 }

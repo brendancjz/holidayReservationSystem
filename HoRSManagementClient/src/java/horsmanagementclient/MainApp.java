@@ -5,6 +5,7 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.AllocationExceptionSessionBeanRemote;
 import ejb.session.stateless.AllocationSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
@@ -12,6 +13,7 @@ import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
 import entity.Allocation;
+import entity.AllocationException;
 import entity.Employee;
 import entity.Guest;
 import entity.Reservation;
@@ -46,16 +48,18 @@ public class MainApp {
     private GuestSessionBeanRemote guestSessionBean;
     private ReservationSessionBeanRemote reservationSessionBean;
     private AllocationSessionBeanRemote allocationSessionBean;
+    private AllocationExceptionSessionBeanRemote allocationExceptionSessionBean;
     
     MainApp(RoomManagementSessionBeanRemote roomManagementSessionBean, EmployeeSessionBeanRemote employeeSessionBean, 
             PartnerSessionBeanRemote partnerSessionBean, GuestSessionBeanRemote guestSessionBean, ReservationSessionBeanRemote reservationSessionBean,
-            AllocationSessionBeanRemote allocationSessionBean) {
+            AllocationSessionBeanRemote allocationSessionBean, AllocationExceptionSessionBeanRemote allocationExceptionSessionBean) {
         this.roomManagementSessionBean = roomManagementSessionBean;
         this.employeeSessionBean = employeeSessionBean;
         this.partnerSessionBean = partnerSessionBean;
         this.guestSessionBean = guestSessionBean;
         this.reservationSessionBean = reservationSessionBean;
         this.allocationSessionBean = allocationSessionBean;
+        this.allocationExceptionSessionBean = allocationExceptionSessionBean;
     }
     
     public void run() {
@@ -149,8 +153,6 @@ public class MainApp {
         
     }
 
- 
-
     private void doGRelManagerDashboardFeatures(Scanner sc, Long emId) {
         System.out.println("==== Guest Relations Manager Dashboard Interface ====");
         System.out.println("> 1. Walk in Search Room");
@@ -176,7 +178,7 @@ public class MainApp {
                 break;
             case 4:
                 System.out.println("You have logged out.\n");
-         
+                run();
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
@@ -197,8 +199,17 @@ public class MainApp {
             LocalDate currDate = LocalDate.parse(currDay, dtFormat);
             Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
             List<Reservation> reservations = reservationSessionBean.getReservationsToAllocate(currDate);
+            if (reservations.size() == 0 ) {
+                System.out.println("No room to allocate today.");
+                run();
+            }
+            
             for(Reservation reservation: reservations) {
                 System.out.println("Allocating for Reservation ID: " + reservation.getReservationId());
+                
+                //Update reservation to the latest db
+                reservation = reservationSessionBean.getReservationByReservationId(reservation.getReservationId());
+                
                 RoomType typeReserved = reservation.getRoomType();
                 
                 int numOfRoomsToAllocate = reservation.getNumOfRooms();
@@ -224,6 +235,7 @@ public class MainApp {
                     for (Room room : allocatedRooms) {
                         
                         allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                        
                     }
                     
                     allocationSessionBean.associateAllocationWithReservation(newAllocation.getAllocationId(), reservation.getReservationId());
@@ -236,14 +248,111 @@ public class MainApp {
                         System.out.println("   > Room ID: " + room.getRoomId());
                     }
                     System.out.println();
-                    run();
                 } else {
-                    System.out.println("\nUnable to fully allocate reservation.");
+                    
+                    
+                    int rankOfRoomType = typeReserved.getTypeRank();
+                    
+                    if (rankOfRoomType == 1) { //This is the highest rank. Confirm cannot allocate a rank higher. Throw typ2 exception
+                        AllocationException exception = new AllocationException(curr, 2);
+                        exception = allocationExceptionSessionBean.getAllocationExceptionByExceptionId(allocationExceptionSessionBean.createNewAllocationException(exception));
+                        
+                        allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception.getExceptionId(), reservation.getReservationId());
+                        
+                        System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
+                        run();
+                        return;
+                    } 
+                    
+                    List<Room> allocatedRooms = vacantRooms;
+
+                    //Type 1 Exception
+                    //Allocate all the rooms of the current RoomType into this allocation
+                    
+                    Allocation newAllocation = new Allocation(curr);
+                    newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
+
+                    for (Room room : allocatedRooms) {
+                        allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                    }
+                    
+                    //Get the remaining rooms from other RoomTypes, while loop
+                    int numOfRoomsNeedToUpgrade = numOfRoomsToAllocate - vacantRooms.size();
+                    while (numOfRoomsNeedToUpgrade > 0) {
+                        //get a higher rank RoomType
+                        rankOfRoomType = rankOfRoomType - 1;
+                        
+                        if (rankOfRoomType <= 0) {
+                            AllocationException exception = new AllocationException(curr, 2);
+                            exception = allocationExceptionSessionBean.getAllocationExceptionByExceptionId(allocationExceptionSessionBean.createNewAllocationException(exception));
+
+                            allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception.getExceptionId(), reservation.getReservationId());
+
+                            System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
+                            run();
+                            return;
+                        }
+                        
+                        RoomType higherRankedType = roomManagementSessionBean.getRoomTypeByRank(rankOfRoomType);
+                        
+                        List<Room> higherRankedRooms = higherRankedType.getRooms();
+                        List<Room> higherRankedVacantRooms = new ArrayList<>();
+                        for (Room room : higherRankedRooms) {
+                            if (room.getIsVacant()) {
+                                higherRankedVacantRooms.add(room);
+                                
+                            }
+
+                        }
+                        
+                        if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
+                            
+                            List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
+ 
+                            for (Room room : higherRankedAllocatedRooms) {
+                                allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                                allocatedRooms.add(room);
+                            }
+                            
+                            numOfRoomsNeedToUpgrade = 0;
+                        } else {
+                            
+                            if (!higherRankedVacantRooms.isEmpty()) {
+                                for (Room room : higherRankedVacantRooms) {
+                                    allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                                    allocatedRooms.add(room);
+                                }
+                            }
+                            numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
+                        }
+                        
+                    }
+                    
+                    allocationSessionBean.associateAllocationWithReservation(newAllocation.getAllocationId(), reservation.getReservationId());
+                    System.out.println("Successfully created an Allocation.");
+                    DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
+                    System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
+                    System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
+                    for (Room room : allocatedRooms) {
+                        System.out.println("   > Room Type: " + room.getRoomType().getRoomTypeName() + " Room ID: " + room.getRoomId());
+                    }
+                    System.out.println();
+                    
+                    //Create Type 1 Exception
+                    AllocationException exception = new AllocationException(curr, 1);
+                    exception = allocationExceptionSessionBean.getAllocationExceptionByExceptionId(allocationExceptionSessionBean.createNewAllocationException(exception));
+
+                    allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception.getExceptionId(), reservation.getReservationId());
+
+                    System.out.println("Type 1 Allocation Exception occurred.\n");
+
                 }
                 
                 
             }
             
+            run();
             
         } catch (Exception e) {
             System.out.println("Invalid input. Try again. " + e.toString());
@@ -263,47 +372,144 @@ public class MainApp {
             Reservation reservation = reservationSessionBean.getReservationByReservationId(reservationId);
             
             System.out.println("Allocating for Reservation ID: " + reservation.getReservationId());
-            RoomType typeReserved = reservation.getRoomType();
+                
+                //Update reservation to the latest db
+                reservation = reservationSessionBean.getReservationByReservationId(reservation.getReservationId());
+                
+                RoomType typeReserved = reservation.getRoomType();
+                
+                int numOfRoomsToAllocate = reservation.getNumOfRooms();
+                List<Room> rooms = typeReserved.getRooms();
 
-            int numOfRoomsToAllocate = reservation.getNumOfRooms();
-            List<Room> rooms = typeReserved.getRooms();
-
-            List<Room> vacantRooms = new ArrayList<>();
-            for (Room room : rooms) {
-                if (room.getIsVacant()) {
-                    vacantRooms.add(room);
+                List<Room> vacantRooms = new ArrayList<>();
+                for (Room room : rooms) {
+                    if (room.getIsVacant()) {
+                        vacantRooms.add(room);
+                    }
+                    
                 }
 
-            }
+                if (vacantRooms.size() >= numOfRoomsToAllocate) {
+                    System.out.println("> Number of Rooms to allocate: " + numOfRoomsToAllocate);
+                    System.out.println("> Number of Vacant Rooms: " + vacantRooms.size());
+                    
+                    List<Room> allocatedRooms = vacantRooms.subList(0, numOfRoomsToAllocate);
+                    
+                    Allocation newAllocation = new Allocation(curr);
+                    newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
+                    
+                    for (Room room : allocatedRooms) {
+                        
+                        allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                        
+                    }
+                    
+                    allocationSessionBean.associateAllocationWithReservation(newAllocation.getAllocationId(), reservation.getReservationId());
+                    System.out.println("Successfully created an Allocation.");
+                    DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
+                    System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
+                    System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
+                    for (Room room : allocatedRooms) {
+                        System.out.println("   > Room ID: " + room.getRoomId());
+                    }
+                    System.out.println();
+                } else {
+                    
+                    
+                    int rankOfRoomType = typeReserved.getTypeRank();
+                    
+                    if (rankOfRoomType == 1) { //This is the highest rank. Confirm cannot allocate a rank higher. Throw typ2 exception
+                        AllocationException exception = new AllocationException(curr, 2);
+                        exception = allocationExceptionSessionBean.getAllocationExceptionByExceptionId(allocationExceptionSessionBean.createNewAllocationException(exception));
+                        
+                        allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception.getExceptionId(), reservation.getReservationId());
+                        
+                        System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
+                        run();
+                        return;
+                    } 
+                    
+                    List<Room> allocatedRooms = vacantRooms;
 
-            if (vacantRooms.size() >= numOfRoomsToAllocate) {
-                System.out.println("> Number of Rooms to allocate: " + numOfRoomsToAllocate);
-                System.out.println("> Number of Vacant Rooms: " + vacantRooms.size());
+                    //Type 1 Exception
+                    //Allocate all the rooms of the current RoomType into this allocation
+                    
+                    Allocation newAllocation = new Allocation(curr);
+                    newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
 
-                List<Room> allocatedRooms = vacantRooms.subList(0, numOfRoomsToAllocate);
+                    for (Room room : allocatedRooms) {
+                        allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                    }
+                    
+                    //Get the remaining rooms from other RoomTypes, while loop
+                    int numOfRoomsNeedToUpgrade = numOfRoomsToAllocate - vacantRooms.size();
+                    while (numOfRoomsNeedToUpgrade > 0) {
+                        //get a higher rank RoomType
+                        int higherRank = rankOfRoomType - 1;
+                        
+                        if (higherRank == 0) {
+                            AllocationException exception = new AllocationException(curr, 2);
+                            exception = allocationExceptionSessionBean.getAllocationExceptionByExceptionId(allocationExceptionSessionBean.createNewAllocationException(exception));
 
-                Allocation newAllocation = new Allocation(curr);
-                newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
+                            allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception.getExceptionId(), reservation.getReservationId());
 
-                for (Room room : allocatedRooms) {
+                            System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
+                            run();
+                            return;
+                        }
+                        
+                        RoomType higherRankedType = roomManagementSessionBean.getRoomTypeByRank(rankOfRoomType - 1);
+                        
+                        List<Room> higherRankedRooms = higherRankedType.getRooms();
+                        List<Room> higherRankedVacantRooms = new ArrayList<>();
+                        for (Room room : higherRankedRooms) {
+                            if (room.getIsVacant()) {
+                                higherRankedVacantRooms.add(room);
+                            }
 
-                    allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                        }
+                        
+                        if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
+                            List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
+ 
+                            for (Room room : higherRankedAllocatedRooms) {
+                                allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                                allocatedRooms.add(room);
+                            }
+                            
+                            numOfRoomsNeedToUpgrade = 0;
+                        } else {
+                            for (Room room : higherRankedVacantRooms) {
+                                allocationSessionBean.associateAllocationWithRoom(newAllocation.getAllocationId(), room.getRoomId());
+                                allocatedRooms.add(room);
+                            }
+                            
+                            numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
+                        }
+                        
+                    }
+                    
+                    allocationSessionBean.associateAllocationWithReservation(newAllocation.getAllocationId(), reservation.getReservationId());
+                    System.out.println("Successfully created an Allocation.");
+                    DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
+                    System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
+                    System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
+                    for (Room room : allocatedRooms) {
+                        System.out.println("   > Room Type: " + room.getRoomType().getRoomTypeName() + " Room ID: " + room.getRoomId());
+                    }
+                    System.out.println();
+                    
+                    //Create Type 1 Exception
+                    AllocationException exception = new AllocationException(curr, 1);
+                    exception = allocationExceptionSessionBean.getAllocationExceptionByExceptionId(allocationExceptionSessionBean.createNewAllocationException(exception));
+
+                    allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception.getExceptionId(), reservation.getReservationId());
+
+                    System.out.println("Type 1 Allocation Exception occurred.\n");
+
                 }
-
-                allocationSessionBean.associateAllocationWithReservation(newAllocation.getAllocationId(), reservation.getReservationId());
-                System.out.println("Successfully created an Allocation.");
-                DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
-                System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
-                System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
-                System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
-                for (Room room : allocatedRooms) {
-                    System.out.println("   > Room ID: " + room.getRoomId());
-                }
-                System.out.println();
-                run();
-            } else {
-                System.out.println("\nUnable to fully allocate reservation.");
-            }
                   
             
         } catch (Exception e) {
@@ -326,6 +532,7 @@ public class MainApp {
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate currDate = LocalDate.parse(currDay, dtFormat);
             Guest guest = guestSessionBean.getGuestByEmail(email);
+            System.out.println("Hi " + guest.getFirstName() + ", checking you in...");
             Allocation allocation = allocationSessionBean.getAllocationForGuestForCurrentDay(guest.getCustomerId(), currDate);
             
             System.out.println("Your room(s) are:");
@@ -370,6 +577,7 @@ public class MainApp {
                 System.out.println("   > IsVacant: " + room.getIsVacant());
                 
             }
+            System.out.println();
             doGRelManagerDashboardFeatures(sc, emId);
         } catch (Exception e) {
             System.out.println("Invalid guest details. Try again.\n" + e.toString());
@@ -404,9 +612,8 @@ public class MainApp {
             for (int i = 0; i < types.size(); i++) {
                 RoomType type = types.get(i);
                 //Check if room type is available first. If available then display
-                boolean isRoomTypeAvail = reservationSessionBean.isRoomTypeAvailableForReservation(type.getRoomTypeId(), checkInDate, checkOutDate, numOfRooms);
-                
-                
+                boolean isRoomTypeAvail = reservationSessionBean.isRoomTypeAvailableForWalkInReservation(type.getRoomTypeId(), numOfRooms);
+
                 if (isRoomTypeAvail) {
                     //Derive the total reservation fee
                     double totalReservation = getTotalReservationFee(checkInDate, checkOutDate, type);
@@ -417,7 +624,7 @@ public class MainApp {
                 } else {
                     types.remove(type);
                     i--;
-                    System.out.println("Room Type delete " + type.getRoomTypeName());
+                    System.out.println("Room Type Not Avail: " + type.getRoomTypeName());
                 }
             }
             System.out.print("> ");
@@ -444,7 +651,7 @@ public class MainApp {
                 System.out.println("Going back to dashboard.\n");
                 doGRelManagerDashboardFeatures(sc, emId);
             }
-        } catch (FindRoomTypeException | RoomTypeQueryException | ReservationQueryException e) {
+        } catch (FindRoomTypeException | RoomTypeQueryException  e) {
             System.out.println("Error occured.");
             System.out.println(e.getMessage());
         } catch (Exception e) {

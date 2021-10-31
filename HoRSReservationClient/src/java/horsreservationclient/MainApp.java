@@ -215,7 +215,7 @@ public class MainApp {
             System.out.println();
             System.out.println("How many number rooms are you looking to reserve?");
             System.out.print("> Number of Rooms: ");
-            int numOfRooms = sc.nextInt();
+            int numOfRooms = sc.nextInt(); sc.nextLine();
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);

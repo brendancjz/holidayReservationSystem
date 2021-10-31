@@ -88,6 +88,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
         room.setIsVacant(Boolean.FALSE);
         Allocation allocation = em.find(Allocation.class, allocationId);
         allocation.getRooms().add(room);
+        
     }
 
     @Override

@@ -72,5 +72,7 @@ public interface RoomManagementSessionBeanRemote {
     public void updateRoomTypeRankingsUpdate(Integer currRank, Integer newRank) throws RoomTypeQueryException;
 
     public List<RoomType> getAllNonDisabledRoomTypes() throws RoomTypeQueryException;
+
+    public RoomType getRoomTypeByRank(int rank);
     
 }
