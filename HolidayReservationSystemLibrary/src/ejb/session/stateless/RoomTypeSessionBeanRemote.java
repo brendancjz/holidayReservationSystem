@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
@@ -24,5 +25,9 @@ public interface RoomTypeSessionBeanRemote {
 
     public Long createNewRoomType(RoomType roomType);
 
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);    
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);
+
+    public void associateRoomTypeWithRoomRate(Long roomTypeId, Long publishedRateDRId);
+    
+    public void associateRoomTypeWithRoom(Long roomTypeId, Long room1DRId);
 }

@@ -8,10 +8,12 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -28,17 +30,23 @@ public class Reservation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
+    @Column(nullable = false)
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date startDate;
+    @Column(nullable = false)
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date endDate;
+    @Column(nullable = false)
     @NotNull
     private Integer numOfRooms;
+    @Column(nullable = false)
     @NotNull
     private Double reservationFee;
     @ManyToOne
+    @JoinColumn(nullable = false)
     private Customer customer;
     @OneToOne
+    @JoinColumn(nullable = false)
     private RoomType roomType;
     @OneToOne
     private ArrayList<RoomRate> roomRates;

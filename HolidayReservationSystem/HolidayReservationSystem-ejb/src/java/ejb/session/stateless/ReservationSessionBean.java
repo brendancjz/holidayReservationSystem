@@ -62,9 +62,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
-    public void associateExistingReservationWithGuestAndRoomTypeAndRoomRate(Long reservationId, Long guestId, Long typeId, Long rateId) {
+    public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId) {
         
-        Reservation reservation = em.find(Reservation.class, reservationId);
         Guest guest = em.find(Guest.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
         RoomRate roomRate = em.find(RoomRate.class, rateId);
@@ -76,12 +75,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         reservation.setRoomType(roomType);
         reservation.getRoomRates().add(roomRate);
         
-        guest.getReservations().add(reservation);
+        
     }
     
     @Override
-    public void associateExistingReservationWithGuestAndRoomTypeAndRoomRates(Long reservationId, Long guestId, Long typeId, List<RoomRate> ratesUsed) {
-        Reservation reservation = em.find(Reservation.class, reservationId);
+    public void associateReservationWithGuestAndRoomTypeAndRoomRates(Reservation reservation, Long guestId, Long typeId, List<RoomRate> ratesUsed) {
         Guest guest = em.find(Guest.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
         for (RoomRate rate : ratesUsed) {
@@ -92,7 +90,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         reservation.setRoomType(roomType);
         
         
-        guest.getReservations().add(reservation);
     }
     
     @Override

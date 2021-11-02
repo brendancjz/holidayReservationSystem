@@ -46,9 +46,9 @@ public class AllocationExceptionSessionBean implements AllocationExceptionSessio
     }
     
     @Override
-    public void associateAllocationExceptionWithReservation(Long exceptionId, Long reservationId) {
+    public void associateAllocationExceptionWithReservation(AllocationException exception, Long reservationId) {
         Reservation r = em.find(Reservation.class, reservationId);
-        AllocationException exception = em.find(AllocationException.class, exceptionId);
+        
         exception.setReservation(r);
     }
 }

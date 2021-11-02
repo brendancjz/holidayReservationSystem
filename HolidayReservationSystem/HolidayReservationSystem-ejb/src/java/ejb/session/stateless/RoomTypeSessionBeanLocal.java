@@ -30,4 +30,8 @@ public interface RoomTypeSessionBeanLocal {
     public RoomType getNonDisabledRoomTypeByRank(Integer rank);
 
     public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws RoomTypeQueryException;
+
+    public void associateRoomTypeWithRoomRate(Long roomTypeId, Long publishedRateDRId);
+
+    public void associateRoomTypeWithRoom(Long roomTypeId, Long room1DRId);
 }

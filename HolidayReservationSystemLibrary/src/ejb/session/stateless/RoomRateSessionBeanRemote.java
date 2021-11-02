@@ -20,4 +20,6 @@ public interface RoomRateSessionBeanRemote {
     public Long createNewRoomRate(RoomRate roomRate);
 
     public List<RoomRate> retrieveAllRoomRates() throws RoomRateQueryException;
+    
+    public void associateRoomRateWithRoomType(RoomRate rate, Long roomTypeId);
 }

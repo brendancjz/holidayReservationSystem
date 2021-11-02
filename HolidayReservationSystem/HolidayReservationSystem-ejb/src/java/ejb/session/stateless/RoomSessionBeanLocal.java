@@ -23,4 +23,6 @@ public interface RoomSessionBeanLocal {
     public Room getRoomByRoomLevelAndRoomNumber(int level, int number) throws RoomQueryException;
 
     public Room getRoomByRoomId(Long roomId) throws FindRoomException;
+
+    public void associateRoomWithRoomType(Room room, Long roomTypeId);
 }

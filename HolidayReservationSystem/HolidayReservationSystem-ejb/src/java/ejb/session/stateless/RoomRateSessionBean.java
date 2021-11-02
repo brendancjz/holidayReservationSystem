@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.RoomRate;
+import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -69,5 +70,11 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         if (rate == null) throw new FindRoomRateException("Rate is null.");
         
         return rate;
+    }
+
+    @Override
+    public void associateRoomRateWithRoomType(RoomRate rate1, Long roomTypeId) {
+        RoomType type = em.find(RoomType.class, roomTypeId);
+        rate1.setRoomType(type);
     }
 }

@@ -6,13 +6,13 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -26,20 +26,24 @@ public class Room implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
+    @Column(nullable = false)
     @NotNull
-    @Digits(integer=2,fraction=0)
     private Integer roomLevel;
+    @Column(nullable = false)
     @NotNull
-    @Digits(integer=3,fraction=0)
     private Integer roomNum;
+    @Column(nullable = false)
     @NotNull
     private Boolean isAvailable;
+    @Column(nullable = false)
     @NotNull
     private Boolean isVacant;
+    @Column(nullable = false)
     @NotNull
     private Boolean isDisabled;
     @ManyToOne
-    private RoomType roomType;
+    @JoinColumn(nullable = false)
+    private RoomType roomType; 
 
     public Room() {
         this.roomType = null;

@@ -54,7 +54,7 @@ public interface RoomManagementSessionBeanRemote {
 
     public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, RoomTypeQueryException, RoomRateQueryException, RoomQueryException, ReservationQueryException, FindRoomRateException, FindRoomException;
 
-    public Room createNewRoom(Room newRoom, Long roomTypeId);
+    public Room createNewRoom(Room newRoom, Long roomTypeId) throws FindRoomException;
 
     public Room getRoom(int level, int number) throws RoomQueryException;
     public Room getRoom(Long roomId) throws FindRoomException ;

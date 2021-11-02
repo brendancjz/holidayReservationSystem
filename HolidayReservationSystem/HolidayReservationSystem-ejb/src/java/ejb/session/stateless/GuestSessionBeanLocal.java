@@ -23,5 +23,5 @@ public interface GuestSessionBeanLocal {
     public Guest getGuestByEmail(String email);
 
     public List<Guest> retrieveAllGuests();
-    
+    public void associateGuestWithReservation(Long guestId, Long reservationId);
 }

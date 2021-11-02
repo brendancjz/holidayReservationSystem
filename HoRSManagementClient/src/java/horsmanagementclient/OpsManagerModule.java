@@ -5,10 +5,15 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.AllocationExceptionSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
+import entity.AllocationException;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -27,10 +32,13 @@ import util.exception.RoomTypeQueryException;
 public class OpsManagerModule {
     
     private RoomManagementSessionBeanRemote roomManagementSessionBean;
+    private AllocationExceptionSessionBeanRemote allocationExceptionSessionBean;
 
-    public OpsManagerModule(RoomManagementSessionBeanRemote roomManagementSessionBean) {
+    public OpsManagerModule(RoomManagementSessionBeanRemote roomManagementSessionBean, AllocationExceptionSessionBeanRemote allocationExceptionSessionBean) {
         this.roomManagementSessionBean = roomManagementSessionBean;
+        this.allocationExceptionSessionBean = allocationExceptionSessionBean;
     }
+
     
     
     
@@ -80,7 +88,7 @@ public class OpsManagerModule {
                 break;
             case 8:
                 System.out.println("You have selected 'View Room Allocation Exception Report'\n");
-                //doViewAllMyReservations(sc, guestId);
+                doViewRoomAllocationExceptionReport(sc, emId);
                 break;
             case 9:
                 System.out.println("You have logged out.\n");
@@ -137,8 +145,8 @@ public class OpsManagerModule {
             if (rankInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
-            } else if ((Integer.parseInt(rankInput) > 0 && Integer.parseInt(rankInput) <= numOfRoomTypes)) {
-                throw new Exception();
+            } else if ((Integer.parseInt(rankInput) <= 0 || Integer.parseInt(rankInput) > numOfRoomTypes)) {
+                throw new Exception("Rank is out of range.");
             }
             Integer rank = Integer.parseInt(rankInput);
             System.out.print("> Room Amenities [MIN 5 CHAR]: ");
@@ -148,7 +156,7 @@ public class OpsManagerModule {
                 return;
             }
             System.out.println();
-            System.out.println("Here");
+            
             roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
             RoomType newRoomType = new RoomType(typeName, typeDesc, roomSize, numOfBeds, cap, rank, amenities);
             
@@ -170,7 +178,7 @@ public class OpsManagerModule {
         } catch (FindRoomTypeException e) {
             System.out.println("Error: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Invalid input. Try again.\n" + e.toString());
+            System.out.println("Invalid input. Try again.\n" + e.getMessage());
             doCreateNewRoomType(sc, emId);
         }
     }
@@ -638,5 +646,26 @@ public class OpsManagerModule {
         System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
         
         doOpsManagerDashboardFeatures(sc, emId);
+    }
+
+    private void doViewRoomAllocationExceptionReport(Scanner sc, Long emId) {
+        try {
+            System.out.println("==== View Room Allocation Exception Report ====");
+            List<AllocationException> list = allocationExceptionSessionBean.retrieveAllExceptions();
+            DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            for (AllocationException a : list) {
+                System.out.println(":: AllocationException ID: " + a.getExceptionId());
+                System.out.println("   > Exception Type: " + a.getExceptionType());
+                System.out.println("   > Date: " + outputFormat.format(a.getCurrentDate()));
+                System.out.println("   > Reservation ID: " + a.getReservation().getReservationId());
+            }
+            
+            System.out.println();
+            doOpsManagerDashboardFeatures(sc, emId);
+        } catch (Exception e) {
+            System.out.println("Error:" + e.toString());
+            doOpsManagerDashboardFeatures(sc, emId);
+        }
+        
     }
 }

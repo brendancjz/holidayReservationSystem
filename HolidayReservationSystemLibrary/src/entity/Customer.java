@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,15 +32,19 @@ public class Customer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long customerId;
+    @Column(nullable = false, length = 15)
     @NotNull
     @Size(min=3, max=15)
     protected String firstName;
+    @Column(nullable = false, length = 15)
     @NotNull
     @Size(min=3, max=15)
     protected String lastName;
+    @Column(nullable = false, length = 8)
     @NotNull
     @Digits(integer=8, fraction=0)
     protected Long contactNumber;
+    @Column(nullable = false, length = 50)
     @NotNull
     @Email
     protected String email;

@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Guest;
+import entity.Reservation;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -93,5 +94,12 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         guest.getReservations().size();
         
         return guest;
+    }
+
+    @Override
+    public void associateGuestWithReservation(Long guestId, Long reservationId) {
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        Guest guest = em.find(Guest.class, guestId);
+        guest.getReservations().add(reservation);
     }
 }

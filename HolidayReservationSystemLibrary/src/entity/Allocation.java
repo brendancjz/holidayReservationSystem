@@ -8,10 +8,12 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -28,10 +30,12 @@ public class Allocation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long allocationId;
+    @Column(nullable = false)
     @NotNull
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date currentDate;
     @OneToOne
+    @JoinColumn(nullable = false)
     private Reservation reservation;
     @OneToMany
     private ArrayList<Room> rooms;
@@ -43,7 +47,6 @@ public class Allocation implements Serializable {
 
     public Allocation(Date currentDate) {
         this();
-        
         this.currentDate = currentDate;
     }
 

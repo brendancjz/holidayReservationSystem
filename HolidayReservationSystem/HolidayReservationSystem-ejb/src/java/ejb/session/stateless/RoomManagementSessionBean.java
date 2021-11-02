@@ -74,21 +74,30 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         RoomType roomType = em.find(RoomType.class, roomTypeId);
         String roomRateName = rateEnum + roomType.getRoomTypeName();
         if (startDate == null && endDate == null) {
-            roomRateId = roomRateSessionBean.createNewRoomRate(new RoomRate(roomRateName,rateEnum,rateAmount));
+           
+            //CREATE ROOM RATE
+            RoomRate rate = new RoomRate(roomRateName,rateEnum,rateAmount);
+            //ASSOCIATE ROOM RATE WITH ROOM TYPE
+            roomRateSessionBean.associateRoomRateWithRoomType(rate, roomTypeId);
+            //PERSIST ROOM RATE
+            roomRateId = roomRateSessionBean.createNewRoomRate(rate);
+            //ASSOCIATE ROOM TYPE WITH ROOM RATE
+            roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeId, roomRateId);
+            
+
         } else {
             Date start = Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant());
             Date end = Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant());
-            roomRateId = roomRateSessionBean.createNewRoomRate(new RoomRate(roomRateName,rateEnum,rateAmount, start, end));
+
+            RoomRate rate = new RoomRate(roomRateName,rateEnum,rateAmount, start, end);
+            roomRateSessionBean.associateRoomRateWithRoomType(rate, roomTypeId);
+            roomRateId = roomRateSessionBean.createNewRoomRate(rate);
+            roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeId, roomRateId);
+
         }
         
         
-        //Link Room Type to Room Rate
-        //Link Room Rate to Room Type
         RoomRate roomRate = em.find(RoomRate.class, roomRateId);
-        roomRate.setRoomType(roomType);
-        ArrayList<RoomRate> rates = roomType.getRates();
-        rates.add(roomRate);
-        
         return roomRate;
     }
 
@@ -223,17 +232,16 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public Room createNewRoom(Room room, Long typeId) {
+    public Room createNewRoom(Room room, Long typeId) throws FindRoomException {
+        //ASSOCIATE ROOM WITH ROOM TYPE
+        roomSessionBean.associateRoomWithRoomType(room, typeId);
+        //PERSIST ROOM
         Long roomId = roomSessionBean.createNewRoom(room);
+        //ASSOCIATE ROOM TYPE WITH ROOM
+        roomTypeSessionBean.associateRoomTypeWithRoom(typeId, roomId);
         
-        //Link Room Type with Room
-        RoomType roomType = em.find(RoomType.class, typeId);
-        room = em.find(Room.class, roomId);
         
-        roomType.getRooms().add(room);
-        room.setRoomType(roomType);
-        
-        return room;
+        return roomSessionBean.getRoomByRoomId(roomId);
     } 
 
     @Override

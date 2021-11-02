@@ -23,4 +23,6 @@ public interface RoomRateSessionBeanLocal {
     public RoomRate getRoomRateByRoomRateName(String rateName) throws RoomRateQueryException;
 
     public RoomRate getRoomRateByRoomRateId(Long rateId) throws FindRoomRateException ;
+
+    public void associateRoomRateWithRoomType(RoomRate rate, Long roomTypeId);
 }

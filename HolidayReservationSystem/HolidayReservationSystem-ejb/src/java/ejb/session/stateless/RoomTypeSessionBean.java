@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
@@ -111,5 +112,21 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             type.getRates().size();         
         }
         return types;
+    }
+
+    @Override
+    public void associateRoomTypeWithRoomRate(Long roomTypeId, Long publishedRateDRId) {
+        RoomType type = em.find(RoomType.class, roomTypeId);
+        RoomRate rate = em.find(RoomRate.class, publishedRateDRId);
+        
+        type.getRates().add(rate);
+    }
+
+    @Override
+    public void associateRoomTypeWithRoom(Long roomTypeId, Long roomId) {
+        RoomType roomType = em.find(RoomType.class, roomTypeId);
+        Room room = em.find(Room.class, roomId);
+        
+        roomType.getRooms().add(room);
     }
 }

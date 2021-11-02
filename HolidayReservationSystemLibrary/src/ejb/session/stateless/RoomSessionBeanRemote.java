@@ -21,4 +21,5 @@ public interface RoomSessionBeanRemote {
 
     public List<Room> retrieveAllRooms() throws RoomQueryException;
     
+    public void associateRoomWithRoomType(Room room1, Long roomTypeId);
 }

@@ -7,12 +7,14 @@ package entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
@@ -30,21 +32,26 @@ public class RoomRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
+    @Column(nullable = false, length = 50)
     @NotNull
     @Size(min=5, max=50)
     private String roomRateName;
+    @Column(nullable = false)
     @NotNull
     @Enumerated(EnumType.STRING)
     private RoomRateEnum roomRateType;
+    @Column(nullable = false)
     @NotNull
     private Double ratePerNight;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date startDate;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date endDate;
+    @Column(nullable = false)
     @NotNull
     private Boolean isDisabled;
     @ManyToOne
+    @JoinColumn(nullable = false)
     private RoomType roomType;
 
     public RoomRate() {

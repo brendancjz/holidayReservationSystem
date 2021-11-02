@@ -290,13 +290,25 @@ public class MainApp {
             if (confirmationInput == 1) {
                 Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
                 Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+                
+                //CREATE RESERVATION OBJECT
                 Reservation reservation = new Reservation(startDate, endDate, numOfRooms, getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType) * numOfRooms);
-                Long reservationId = reservationSessionBean.createNewReservation(reservation);
+                
                 
                 DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+                
+                //ASSOCIATE THE RESERVATION WITH GUEST AND ROOM TYPE AND ROOM RATES
+                reservationSessionBean.associateReservationWithGuestAndRoomTypeAndRoomRates(reservation, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
+                
+                //PERSIST RESERVATION
+                Long reservationId = reservationSessionBean.createNewReservation(reservation);
+                
+                //ASSOCIATE RESERVATION TO GUEST
+                guestSessionBean.associateGuestWithReservation(guestId, reservationId);
+                
+                
                 reservation = reservationSessionBean.getReservationByReservationId(reservationId);
                 
-                reservationSessionBean.associateExistingReservationWithGuestAndRoomTypeAndRoomRates(reservationId, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
                 System.out.println("You have made a reservation:");
                 System.out.println(":: Reservation ID: " + reservation.getReservationId());
                 System.out.println("> Number Of Rooms: " + reservation.getNumOfRooms());

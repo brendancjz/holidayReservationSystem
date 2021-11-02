@@ -22,5 +22,7 @@ public interface GuestSessionBeanRemote {
     public Guest getGuestByEmail(String email);
 
     public Guest getGuestByGuestId(Long guestId);
+
+    public void associateGuestWithReservation(Long guestId, Long reservationId);
     
 }

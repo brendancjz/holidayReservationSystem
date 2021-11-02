@@ -22,8 +22,8 @@ public interface AllocationSessionBeanLocal {
 
     public Allocation getAllocationByAllocationId(Long allocationId);
 
-    public void associateAllocationWithRoom(Long allocationId, Long roomId);
+    public void associateAllocationWithRoom(Allocation allocation, Long roomId);
 
-    public void associateAllocationWithReservation(Long allocationId, Long reservationId);
+    public void associateAllocationWithReservation(Allocation allocation, Long reservationId);
     
 }

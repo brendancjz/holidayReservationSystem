@@ -22,5 +22,5 @@ public interface ReservationSessionBeanLocal {
     
     public List<Reservation> getReservationsByRoomTypeId(Long typeId) throws ReservationQueryException;
 
-    public void associateExistingReservationWithGuestAndRoomTypeAndRoomRate(Long reservationId, Long guestId, Long typeId, Long rateId);
+    public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId);
 }

@@ -21,5 +21,5 @@ public interface AllocationExceptionSessionBeanLocal {
     
     public List<AllocationException> retrieveAllExceptions();
     
-    public void associateAllocationExceptionWithReservation(Long exceptionId, Long reservationId);
+    public void associateAllocationExceptionWithReservation(AllocationException exception, Long reservationId);
 }
