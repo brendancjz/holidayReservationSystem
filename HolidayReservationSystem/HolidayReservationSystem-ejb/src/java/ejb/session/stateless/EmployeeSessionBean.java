@@ -11,8 +11,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.EmployeeQueryException;
-import util.exception.FindEmployeeException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -33,12 +32,12 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
     
     @Override
-    public List<Employee> retrieveAllEmployees() throws EmployeeQueryException {
+    public List<Employee> retrieveAllEmployees() throws EmptyListException {
         List<Employee> employees;
         Query query = em.createQuery("SELECT e FROM Employee e");
         employees = query.getResultList();
         
-        if (employees.isEmpty()) throw new EmployeeQueryException("List of employees is empty.");
+        if (employees.isEmpty()) throw new EmptyListException("List of employees is empty.\n");
         
         return employees;
     }
@@ -49,16 +48,15 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
 
     @Override
-    public boolean checkEmployeeExists(Long emId, String password) throws FindEmployeeException {
+    public boolean checkEmployeeExists(Long emId, String password) {
         Employee employee = this.getEmployeeById(emId);
         
         return employee.getPassword().equals(password);
     }
 
     @Override
-    public Employee getEmployeeById(Long emId) throws FindEmployeeException {
+    public Employee getEmployeeById(Long emId) {
         Employee employee = em.find(Employee.class, emId);
-        if (employee == null) throw new FindEmployeeException("emId cannot be found.");
         
         return employee;
     }

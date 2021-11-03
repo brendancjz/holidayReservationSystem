@@ -13,14 +13,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.enumeration.RoomRateEnum;
-import util.exception.AllocationQueryException;
-import util.exception.FindRoomException;
-import util.exception.FindRoomRateException;
-import util.exception.FindRoomTypeException;
-import util.exception.ReservationQueryException;
-import util.exception.RoomQueryException;
-import util.exception.RoomRateQueryException;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -29,49 +22,49 @@ import util.exception.RoomTypeQueryException;
 @Remote
 public interface RoomManagementSessionBeanRemote {
 
-    public List<RoomType> getAllRoomTypes() throws RoomTypeQueryException;
+    public List<RoomType> getAllRoomTypes() throws EmptyListException;
 
-    public List<RoomRate> getRoomRates(Long roomTypeId);
+    public List<RoomRate> getRoomRates(Long roomTypeId) throws EmptyListException;
 
     public RoomRate createNewRoomRate(Long roomTypeId, RoomRateEnum rateEnum, LocalDateTime startDate, LocalDateTime endDate, double rateAmount);
 
-    public RoomRate getRoomRate(String rateName) throws RoomRateQueryException;
-    public RoomRate getRoomRate(Long rateId) throws FindRoomRateException;
+    public RoomRate getRoomRate(String rateName);
+    public RoomRate getRoomRate(Long rateId);
 
-    public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate) throws FindRoomRateException;
+    public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate);
 
-    public void deleteRoomRate(Long roomRateId) throws FindRoomRateException;
+    public void deleteRoomRate(Long roomRateId);
 
-    public List<RoomRate> getAllRoomRates() throws RoomRateQueryException;
+    public List<RoomRate> getAllRoomRates() throws EmptyListException;
 
     public Long createNewRoomType(RoomType newRoomType);
 
-    public RoomType getRoomType(Long newRoomTypeId) throws FindRoomTypeException;
+    public RoomType getRoomType(Long newRoomTypeId);
 
-    public RoomType getRoomType(String typeName) throws RoomTypeQueryException;
+    public RoomType getRoomType(String typeName);
 
-    public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, Integer rank, String amenities) throws FindRoomTypeException, RoomTypeQueryException;
+    public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, Integer rank, String amenities);
 
-    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, RoomTypeQueryException, RoomRateQueryException, RoomQueryException, ReservationQueryException, FindRoomRateException, FindRoomException;
+    public void deleteRoomType(Long roomTypeId) throws EmptyListException;
 
-    public Room createNewRoom(Room newRoom, Long roomTypeId) throws FindRoomException;
+    public Room createNewRoom(Room newRoom, Long roomTypeId);
 
-    public Room getRoom(int level, int number) throws RoomQueryException;
-    public Room getRoom(Long roomId) throws FindRoomException ;
+    public Room getRoom(int level, int number) ;
+    public Room getRoom(Long roomId);
     
-    public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type)  throws FindRoomException ;
+    public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type);
 
-    public void deleteRoom(Long roomId) throws FindRoomException, ReservationQueryException;
+    public void deleteRoom(Long roomId);
 
-    public List<Room> retrieveAllRooms() throws RoomQueryException;
+    public List<Room> retrieveAllRooms() throws EmptyListException;
     
-    public void updateRoomVacancy(Long roomId, boolean vacancy) throws FindRoomException;
+    public void updateRoomVacancy(Long roomId, boolean vacancy);
 
-    public void updateRoomTypeRankingsCreation(Integer rank) throws RoomTypeQueryException;
-    public void updateRoomTypeRankingsDeletion(Integer rank) throws RoomTypeQueryException;
-    public void updateRoomTypeRankingsUpdate(Integer currRank, Integer newRank) throws RoomTypeQueryException;
+    public void updateRoomTypeRankingsCreation(Integer rank) throws EmptyListException;
+    public void updateRoomTypeRankingsDeletion(Integer rank) throws EmptyListException;
+    public void updateRoomTypeRankingsUpdate(Integer currRank, Integer newRank) throws EmptyListException;
 
-    public List<RoomType> getAllNonDisabledRoomTypes() throws RoomTypeQueryException;
+    public List<RoomType> getAllNonDisabledRoomTypes() throws EmptyListException;
 
     public RoomType getRoomTypeByRank(int rank);
     

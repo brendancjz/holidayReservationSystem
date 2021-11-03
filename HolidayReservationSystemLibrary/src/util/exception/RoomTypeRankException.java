@@ -9,9 +9,9 @@ package util.exception;
  *
  * @author brend
  */
-public class FindEmployeeException extends Exception {
-    public FindEmployeeException(String message) {
+public class RoomTypeRankException extends Exception{
+    public RoomTypeRankException(String message) {
         super(message);
-        
     }
+    
 }

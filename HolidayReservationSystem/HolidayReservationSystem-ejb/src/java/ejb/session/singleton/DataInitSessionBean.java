@@ -23,7 +23,6 @@ import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,12 +36,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
-import util.exception.AllocationQueryException;
-import util.exception.EmployeeQueryException;
-import util.exception.ReservationQueryException;
-import util.exception.RoomQueryException;
-import util.exception.RoomRateQueryException;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -300,11 +294,9 @@ public class DataInitSessionBean {
                 System.out.println();
             }
             
-        } catch (EmployeeQueryException e) {
-            System.out.println("** postConstruct throwing error " + e.getMessage());
-        } catch (ReservationQueryException | RoomQueryException | RoomRateQueryException | RoomTypeQueryException | AllocationQueryException ex) {
+        } catch (EmptyListException ex) {
             Logger.getLogger(DataInitSessionBean.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
     
     private void createRoomRates(Long[] roomTypeIds) {

@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.AllocationException;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -19,7 +20,7 @@ public interface AllocationExceptionSessionBeanLocal {
 
     public AllocationException getAllocationExceptionByExceptionId(Long exceptionId);
     
-    public List<AllocationException> retrieveAllExceptions();
+    public List<AllocationException> retrieveAllExceptions() throws EmptyListException;
     
     public void associateAllocationExceptionWithReservation(AllocationException exception, Long reservationId);
 }

@@ -9,8 +9,7 @@ import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
-import util.exception.FindRoomTypeException;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -18,7 +17,7 @@ import util.exception.RoomTypeQueryException;
  */
 @Local
 public interface RoomManagementSessionBeanLocal {
-    public List<RoomType> getAllRoomTypes() throws RoomTypeQueryException;
+    public List<RoomType> getAllRoomTypes() throws EmptyListException;
 
-    public List<RoomRate> getRoomRates(Long roomTypeId) throws FindRoomTypeException;
+    public List<RoomRate> getRoomRates(Long roomTypeId) throws EmptyListException;
 }

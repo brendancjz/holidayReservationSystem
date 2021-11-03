@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Partner;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -25,5 +26,5 @@ public interface PartnerSessionBeanLocal {
 
     public Partner getPartnerByEmail(String email);
 
-    public List<Partner> retrieveAllPartners();
+    public List<Partner> retrieveAllPartners() throws EmptyListException;
 }

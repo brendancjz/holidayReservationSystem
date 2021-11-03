@@ -9,8 +9,8 @@ package util.exception;
  *
  * @author brend
  */
-public class FindRoomTypeException extends Exception {
-    public FindRoomTypeException(String message) {
+public class GuestExistException extends Exception {
+    public GuestExistException(String message) {
         super(message);
     }
     

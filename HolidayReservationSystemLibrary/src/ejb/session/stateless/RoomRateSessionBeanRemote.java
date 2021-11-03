@@ -8,7 +8,7 @@ package ejb.session.stateless;
 import entity.RoomRate;
 import java.util.List;
 import javax.ejb.Remote;
-import util.exception.RoomRateQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -19,7 +19,7 @@ public interface RoomRateSessionBeanRemote {
 
     public Long createNewRoomRate(RoomRate roomRate);
 
-    public List<RoomRate> retrieveAllRoomRates() throws RoomRateQueryException;
+    public List<RoomRate> retrieveAllRoomRates() throws EmptyListException;
     
     public void associateRoomRateWithRoomType(RoomRate rate, Long roomTypeId);
 }

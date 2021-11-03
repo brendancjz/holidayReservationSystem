@@ -10,7 +10,7 @@ import entity.RoomRate;
 import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Remote;
-import util.exception.ReservationQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -19,17 +19,17 @@ import util.exception.ReservationQueryException;
 @Remote
 public interface ReservationSessionBeanRemote {
 
-    public List<Reservation> retrieveAllReservations() throws ReservationQueryException;
+    public List<Reservation> retrieveAllReservations() throws EmptyListException;
 
     public Long createNewReservation(Reservation reservation);
 
-    public List<Reservation> getReservationsByRoomTypeId(Long typeId) throws ReservationQueryException;
+    public List<Reservation> getReservationsByRoomTypeId(Long typeId) throws EmptyListException;
 
     public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId);
 
-    public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate, int numOfRooms) throws ReservationQueryException;
+    public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate, int numOfRooms);
 
-    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws ReservationQueryException;
+    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws EmptyListException;
 
     public int getNumberOfRoomsAvailableForReservation(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate);
 

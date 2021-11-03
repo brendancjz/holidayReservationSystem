@@ -10,10 +10,10 @@ import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.FindRoomRateException;
-import util.exception.RoomRateQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -34,17 +34,15 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public List<RoomRate> retrieveAllRoomRates() throws RoomRateQueryException {
+    public List<RoomRate> retrieveAllRoomRates() throws EmptyListException {
         Query query = em.createQuery("SELECT r FROM RoomRate r");
 
         List<RoomRate>  rates = query.getResultList();
         
-        if (rates.isEmpty()) throw new RoomRateQueryException("List of RoomRates is empty");
+        if (rates.isEmpty()) throw new EmptyListException("List of RoomRates is empty.\n");
         for (int i = 0; i < rates.size(); i++) {
             RoomRate rate = rates.get(i);
-//            if (rate.getIsDisabled()) { // Only return rates that are not disabled
-//                rates.remove(i);
-//            }
+            rate.getRoomType();
         }
         
         return rates;
@@ -55,20 +53,25 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     // "Insert Code > Add Business Method")
 
     @Override
-    public RoomRate getRoomRateByRoomRateName(String rateName) throws RoomRateQueryException {
+    public RoomRate getRoomRateByRoomRateName(String rateName) {
         Query query = em.createQuery("SELECT r FROM RoomRate r WHERE r.roomRateName=:name");
         query.setParameter("name", rateName);
-        List<RoomRate> rates = query.getResultList();
-        if (rates.isEmpty()) throw new RoomRateQueryException("No such Rate Name in Database.");
         
-        return rates.get(0);
+        try {
+             RoomRate rate = (RoomRate) query.getResultList();
+             rate.getRoomType();
+             return rate;
+        } catch (NoResultException e) {
+            return null;
+        }
+        
+       
     }
 
     @Override
-    public RoomRate getRoomRateByRoomRateId(Long rateId) throws FindRoomRateException {
+    public RoomRate getRoomRateByRoomRateId(Long rateId) {
         RoomRate rate = em.find(RoomRate.class, rateId);
-        if (rate == null) throw new FindRoomRateException("Rate is null.");
-        
+        rate.getRoomType();
         return rate;
     }
 

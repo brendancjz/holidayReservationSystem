@@ -7,10 +7,9 @@ package ejb.session.stateless;
 
 import entity.RoomRate;
 import entity.RoomType;
-import util.exception.FindRoomTypeException;
 import java.util.List;
 import javax.ejb.Local;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -18,18 +17,18 @@ import util.exception.RoomTypeQueryException;
  */
 @Local
 public interface RoomTypeSessionBeanLocal {
-    public List<RoomType> retrieveAllRoomTypes() throws RoomTypeQueryException;
+    public List<RoomType> retrieveAllRoomTypes() throws EmptyListException;
     
     public Long createNewRoomType(RoomType roomType);
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id);
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws EmptyListException;
 
-    public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId) throws FindRoomTypeException;
+    public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId);
 
-    public RoomType getRoomTypeByRoomTypeName(String typeName) throws RoomTypeQueryException;
+    public RoomType getRoomTypeByRoomTypeName(String typeName);
 
     public RoomType getNonDisabledRoomTypeByRank(Integer rank);
 
-    public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws RoomTypeQueryException;
+    public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws EmptyListException;
 
     public void associateRoomTypeWithRoomRate(Long roomTypeId, Long publishedRateDRId);
 

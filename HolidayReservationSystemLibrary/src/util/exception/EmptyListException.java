@@ -9,9 +9,8 @@ package util.exception;
  *
  * @author brend
  */
-public class AllocationQueryException extends Exception {
-
-    public AllocationQueryException(String message) {
+public class EmptyListException extends Exception {
+    public EmptyListException(String message) {
         super(message);
     }
 }

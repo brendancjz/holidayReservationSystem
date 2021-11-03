@@ -6,10 +6,9 @@
 package ejb.session.stateless;
 
 import entity.Allocation;
-import entity.Room;
 import java.util.List;
 import javax.ejb.Local;
-import util.exception.AllocationQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -18,7 +17,7 @@ import util.exception.AllocationQueryException;
 @Local
 public interface AllocationSessionBeanLocal {
     public Long createNewAllocation(Allocation allocation);
-    public List<Allocation> retrieveAllAllocations() throws AllocationQueryException;
+    public List<Allocation> retrieveAllAllocations() throws EmptyListException;
 
     public Allocation getAllocationByAllocationId(Long allocationId);
 

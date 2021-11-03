@@ -40,11 +40,11 @@ public class Customer implements Serializable {
     @NotNull
     @Size(min=3, max=15)
     protected String lastName;
-    @Column(nullable = false, length = 8)
+    @Column(nullable = false, length = 8, unique = true)
     @NotNull
     @Digits(integer=8, fraction=0)
     protected Long contactNumber;
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     @NotNull
     @Email
     protected String email;

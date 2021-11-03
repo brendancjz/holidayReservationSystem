@@ -8,7 +8,7 @@ package ejb.session.stateless;
 import entity.Employee;
 import java.util.List;
 import javax.ejb.Local;
-import util.exception.EmployeeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -17,7 +17,7 @@ import util.exception.EmployeeQueryException;
 @Local
 public interface EmployeeSessionBeanLocal {
     
-    public List<Employee> retrieveAllEmployees() throws EmployeeQueryException;
+    public List<Employee> retrieveAllEmployees() throws EmptyListException;
 
     public Long createNewEmployee(Employee employee);
     

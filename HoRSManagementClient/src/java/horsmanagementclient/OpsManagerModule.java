@@ -13,24 +13,21 @@ import entity.RoomRate;
 import entity.RoomType;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import util.exception.FindRoomException;
-import util.exception.FindRoomRateException;
-import util.exception.FindRoomTypeException;
-import util.exception.ReservationQueryException;
-import util.exception.RoomQueryException;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
+import util.exception.RoomExistException;
+import util.exception.RoomTypeExistException;
+import util.exception.RoomTypeRankException;
 
 /**
  *
  * @author brend
  */
 public class OpsManagerModule {
-    
+
     private RoomManagementSessionBeanRemote roomManagementSessionBean;
     private AllocationExceptionSessionBeanRemote allocationExceptionSessionBean;
 
@@ -39,9 +36,6 @@ public class OpsManagerModule {
         this.allocationExceptionSessionBean = allocationExceptionSessionBean;
     }
 
-    
-    
-    
     public void doOpsManagerDashboardFeatures(Scanner sc, Long emId) {
         System.out.println("==== Ops Manager Dashboard Interface ====");
         System.out.println("> 1. Create New Room Type");
@@ -56,7 +50,7 @@ public class OpsManagerModule {
         System.out.print("> ");
         int input = sc.nextInt();
         sc.nextLine();
-        
+
         switch (input) {
             case 1:
                 System.out.println("You have selected 'Create New Room Type'\n");
@@ -92,7 +86,7 @@ public class OpsManagerModule {
                 break;
             case 9:
                 System.out.println("You have logged out.\n");
-         
+
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
@@ -100,11 +94,11 @@ public class OpsManagerModule {
                 break;
         }
     }
-    
+
     private void doCreateNewRoomType(Scanner sc, Long emId) {
         try {
             System.out.println("==== Create New Room Type Interface ====");
-        //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
+            //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
             System.out.println("Creating new room type. To cancel anytime, enter 'q'.");
             System.out.print("> Room Type Name [MIN 5 CHAR]: ");
             String typeName = sc.nextLine();
@@ -112,6 +106,13 @@ public class OpsManagerModule {
                 doCancelledEntry(sc, emId);
                 return;
             }
+
+            //Check if exists
+            RoomType roomType = roomManagementSessionBean.getRoomType(typeName);
+            if (roomType != null) {
+                throw new RoomTypeExistException("Room Type Name already exist. Try again.\n");
+            }
+
             System.out.print("> Room Type Description [MIN 5 CHAR]: ");
             String typeDesc = sc.nextLine();
             if (typeDesc.equals("q")) {
@@ -119,34 +120,39 @@ public class OpsManagerModule {
                 return;
             }
             System.out.print("> Room Size: ");
-            String roomInput = sc.next(); sc.nextLine();
+            String roomInput = sc.next();
+            sc.nextLine();
             if (roomInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
-            Integer roomSize = Integer.parseInt(roomInput); 
+            Integer roomSize = Integer.parseInt(roomInput);
             System.out.print("> Number Of Beds: ");
-            String bedInput = sc.next(); sc.nextLine();
+            String bedInput = sc.next();
+            sc.nextLine();
             if (bedInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
-            Integer numOfBeds = Integer.parseInt(bedInput); 
+            Integer numOfBeds = Integer.parseInt(bedInput);
             System.out.print("> Room Capacity: ");
-            String capInput = sc.next(); sc.nextLine();
+            String capInput = sc.next();
+            sc.nextLine();
             if (capInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             Integer cap = Integer.parseInt(capInput);
+
             int numOfRoomTypes = roomManagementSessionBean.getAllNonDisabledRoomTypes().size() + 1;
             System.out.print("> Select Rank [1 - " + (numOfRoomTypes) + "]: ");
-            String rankInput = sc.next(); sc.nextLine();
+            String rankInput = sc.next();
+            sc.nextLine();
             if (rankInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             } else if ((Integer.parseInt(rankInput) <= 0 || Integer.parseInt(rankInput) > numOfRoomTypes)) {
-                throw new Exception("Rank is out of range.");
+                throw new RoomTypeRankException("Rank is out of range.");
             }
             Integer rank = Integer.parseInt(rankInput);
             System.out.print("> Room Amenities [MIN 5 CHAR]: ");
@@ -156,14 +162,14 @@ public class OpsManagerModule {
                 return;
             }
             System.out.println();
-            
+
             roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
             RoomType newRoomType = new RoomType(typeName, typeDesc, roomSize, numOfBeds, cap, rank, amenities);
-            
+
             Long newRoomTypeId = roomManagementSessionBean.createNewRoomType(newRoomType);
 
             RoomType type = roomManagementSessionBean.getRoomType(newRoomTypeId);
-            
+
             System.out.println("You have successfully created a new Room Type.");
             System.out.println("> Name: " + type.getRoomTypeName());
             System.out.println("> Description: " + type.getRoomTypeDesc());
@@ -173,13 +179,11 @@ public class OpsManagerModule {
             System.out.println("> Ranking: " + type.getTypeRank());
             System.out.println("> Amenities: " + type.getAmenities());
             System.out.println();
-            
+
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (FindRoomTypeException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Invalid input. Try again.\n" + e.getMessage());
-            doCreateNewRoomType(sc, emId);
+        } catch (RoomTypeRankException | RoomTypeExistException | EmptyListException ex) {
+            System.out.println(ex.getMessage());
+            doOpsManagerDashboardFeatures(sc, emId);
         }
     }
 
@@ -187,15 +191,18 @@ public class OpsManagerModule {
         System.out.println("==== View Room Type Details Interface ====");
         System.out.println("Viewing room type. To cancel entry anytime, enter 'q'.");
         try {
-            
+
             System.out.print("> Room Type Name: ");
-            String typeName = sc.nextLine();System.out.println();
+            String typeName = sc.nextLine();
+            System.out.println();
             if (typeName.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             RoomType type = roomManagementSessionBean.getRoomType(typeName);
-            
+            if (type == null) {
+                throw new RoomTypeExistException("Room Type does not exist.");
+            }
             System.out.println("Selected Room Type details:");
             System.out.println("> Name: " + type.getRoomTypeName());
             System.out.println("> Description: " + type.getRoomTypeDesc());
@@ -210,22 +217,22 @@ public class OpsManagerModule {
             List<RoomRate> rates = roomManagementSessionBean.getRoomRates(type.getRoomTypeId());
             if (!rates.isEmpty()) {
                 for (RoomRate rate : rates) {
-                System.out.println("  > " + rate.getRoomRateName());
+                    System.out.println("  > " + rate.getRoomRateName());
                 }
                 System.out.println();
             } else {
                 System.out.println("     NULL");
             }
-            
-            
-            
+
             System.out.println("\n   Select an action:");
             System.out.println("   > 1. Update Room Type");
             System.out.println("   > 2. Delete Room Type");
             System.out.println("   > 3. Back to Dashboard");
             System.out.print("   > ");
-            int input = sc.nextInt(); sc.nextLine(); System.out.println();
-            
+            int input = sc.nextInt();
+            sc.nextLine();
+            System.out.println();
+
             switch (input) {
                 case 1:
                     doUpdateRoomType(sc, emId, type.getRoomTypeId());
@@ -241,80 +248,80 @@ public class OpsManagerModule {
                     doOpsManagerDashboardFeatures(sc, emId);
                     break;
             }
-        } catch (RoomTypeQueryException ex) {
-            System.out.println("Error: " + ex.getMessage());
-        } catch (Exception e) {
-            System.out.println("General Exception: " + e.toString());
+        } catch (EmptyListException | RoomTypeExistException e) {
+            System.out.println("Error: " + e.toString());
             doOpsManagerDashboardFeatures(sc, emId);
-        }
+        } 
     }
 
     private void doViewAllRoomTypes(Scanner sc, Long emId) {
         try {
             System.out.println("==== View All Room Types Interface");
             System.out.printf("\n%3s%15s%25s%15s%15s%15s%15s%15s%12s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Rank", "Amenities");
-            
+
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
-            for (RoomType type : types ) {
-                
-                System.out.printf("\n%3s%15s%25s%15s%15s%15s%15s%15s%12s%50s", type.getRoomTypeId(),type.getRoomTypeName(),type.getRoomTypeDesc(),
+            for (RoomType type : types) {
+
+                System.out.printf("\n%3s%15s%25s%15s%15s%15s%15s%15s%12s%50s", type.getRoomTypeId(), type.getRoomTypeName(), type.getRoomTypeDesc(),
                         type.getRoomSize(), type.getNumOfBeds(), type.getCapacity(), type.getRooms().size(),
                         type.getIsDisabled(), type.getTypeRank(), type.getAmenities());
 
             }
-            
-            System.out.println(); 
+
             System.out.println();
-            
-        } catch (RoomTypeQueryException ex) {
-            System.out.println("Error: " + ex.getMessage());
-        } catch (Exception e) {
+            System.out.println();
+
+        } catch (EmptyListException e) {
             System.out.println("Main exception: " + e.toString() + "\n");
-            
+
         }
         doOpsManagerDashboardFeatures(sc, emId);
     }
-    
+
     private void doCreateNewRoom(Scanner sc, Long emId) {
         try {
             System.out.println("==== Create New Room Interface");
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             System.out.println("Select Room Type to have the new Room Rate:");
             int idx = 1;
-            for (RoomType type : types ) { 
-                if (!type.getIsDisabled()){
+            for (RoomType type : types) {
+                if (!type.getIsDisabled()) {
                     System.out.println("> " + idx++ + ". " + type.getRoomTypeName());
                 }
             }
             System.out.print("> ");
-            String tInput = sc.next(); sc.nextLine();
+            String tInput = sc.next();
+            sc.nextLine();
             if (tInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             int typeInput = Integer.parseInt(tInput);
-            
+
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
-            
+
             System.out.println("Creating new Room:");
             System.out.print("> Room Level: ");
-            String roomInput = sc.next();  sc.nextLine();
+            String roomInput = sc.next();
+            sc.nextLine();
             if (roomInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             int level = Integer.parseInt(roomInput);
             System.out.print("> Room Number: ");
-            String numInput = sc.next(); sc.nextLine();
+            String numInput = sc.next();
+            sc.nextLine();
             if (numInput.equals("q")) {
-                    doCancelledEntry(sc, emId);
-                    return;
-                }
-            int num = Integer.parseInt(numInput); System.out.println();
-            
+                doCancelledEntry(sc, emId);
+                return;
+            }
+            int num = Integer.parseInt(numInput);
+            System.out.println();
+
             Room newRoom = new Room(level, num);
             newRoom = roomManagementSessionBean.createNewRoom(newRoom, types.get(typeInput - 1).getRoomTypeId());
-            
+
             System.out.println("You have successfully created a new Room.");
             System.out.println("> Room Level: " + newRoom.getRoomLevel());
             System.out.println("> Room Number: " + newRoom.getRoomNum());
@@ -322,12 +329,10 @@ public class OpsManagerModule {
             System.out.println("> Is Available: " + newRoom.getIsAvailable());
             System.out.println("> Is Disabled: " + newRoom.getIsDisabled());
             System.out.println();
-            
+
             doOpsManagerDashboardFeatures(sc, emId);
-            
-        } catch (RoomTypeQueryException e) {
-            System.out.println("Error: " + e.toString());
-        } catch (Exception e) {
+
+        } catch (NumberFormatException | EmptyListException e) {
             System.out.println("General Error: " + e.toString());
         }
     }
@@ -337,26 +342,33 @@ public class OpsManagerModule {
             System.out.println("==== Update Room Interface ====");
             System.out.println("Updating room. To cancel entry at anytime, enter 'q'.");
             System.out.print("> Input existing Room Level: ");
-            String roomInput = sc.next(); sc.nextLine();
+            String roomInput = sc.next();
+            sc.nextLine();
             if (roomInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
-            int level = Integer.parseInt(roomInput); 
+            int level = Integer.parseInt(roomInput);
             System.out.print("> Input existing Room Number: ");
-            String numInput = sc.next(); sc.nextLine();
+            String numInput = sc.next();
+            sc.nextLine();
             if (numInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
-            int number = Integer.parseInt(numInput); System.out.println();
-            
+            int number = Integer.parseInt(numInput);
+            System.out.println();
+
             Room room = roomManagementSessionBean.getRoom(level, number);
+            if (room == null) {
+                throw new RoomExistException("Room does not exist.\n");
+            }
+
             boolean isAvail = room.getIsAvailable();
             level = room.getRoomLevel();
             number = room.getRoomNum();
             RoomType type = room.getRoomType();
-            
+
             if (room.getIsDisabled()) {
                 System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
                 doUpdateRoom(sc, emId);
@@ -372,30 +384,35 @@ public class OpsManagerModule {
                 System.out.println("> 3. Room Type");
                 System.out.println("> 4. Availability");
                 System.out.print("> ");
-                int input = sc.nextInt(); sc.nextLine(); System.out.println();
-                
+                int input = sc.nextInt();
+                sc.nextLine();
+                System.out.println();
+
                 switch (input) {
                     case 1:
                         System.out.print("> Input new level: ");
-                        level = sc.nextInt(); sc.nextLine();
+                        level = sc.nextInt();
+                        sc.nextLine();
                         break;
                     case 2:
                         System.out.print("> Input new number: ");
-                        number = sc.nextInt(); sc.nextLine();
+                        number = sc.nextInt();
+                        sc.nextLine();
                         break;
                     case 3:
                         List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
                         System.out.println("Select Room Type to change to:");
                         int idx = 1;
-                        for (RoomType t : types ) { 
-                            if (!t.getIsDisabled()){
+                        for (RoomType t : types) {
+                            if (!t.getIsDisabled()) {
                                 System.out.println("> " + idx++ + ". " + t.getRoomTypeName());
                             }
                         }
-                        
+
                         System.out.print("> ");
-                        int typeInput = sc.nextInt(); sc.nextLine();
-                        
+                        int typeInput = sc.nextInt();
+                        sc.nextLine();
+
                         type = types.get(typeInput - 1);
                         break;
                     case 4:
@@ -403,40 +420,43 @@ public class OpsManagerModule {
                         System.out.println("  > 1. True");
                         System.out.println("  > 2. False");
                         System.out.print("  > ");
-                        int input2 = sc.nextInt(); sc.nextLine();
-                        
+                        int input2 = sc.nextInt();
+                        sc.nextLine();
+
                         isAvail = (input2 == 1);
                         break;
                     default:
                         break;
-                } 
-                
+                }
+
                 System.out.println("Finalise changes?");
                 System.out.println("> 1. Yes");
                 System.out.println("> 2. No");
                 System.out.print("> ");
-                int answer = sc.nextInt(); sc.nextLine(); System.out.println();
-                if (answer == 1) done = true;
+                int answer = sc.nextInt();
+                sc.nextLine();
+                System.out.println();
+                if (answer == 1) {
+                    done = true;
+                }
             }
-            
+
             roomManagementSessionBean.updateRoom(room.getRoomId(), level, number, isAvail, type);
-            
+
             System.out.println("You have successfully updated the Room.\n");
-            
+
             room = roomManagementSessionBean.getRoom(room.getRoomId());
+
             System.out.println("Updated Room details:");
             System.out.println("> Room Level: " + room.getRoomLevel());
             System.out.println("> Room Number: " + room.getRoomNum());
             System.out.println("> IsAvailable: " + room.getIsAvailable());
             System.out.println("> Room Type: " + room.getRoomType().getRoomTypeName());
             System.out.println();
-            
+
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (RoomQueryException | RoomTypeQueryException | FindRoomException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                    doUpdateRoom(sc, emId);
-        } catch (Exception ex) {
-            System.out.println("Invalid input. Try again.");
+        } catch (NumberFormatException | EmptyListException | RoomExistException e) {
+            System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
         }
     }
@@ -445,34 +465,43 @@ public class OpsManagerModule {
         try {
             System.out.println("==== Delete Room Interface ====");
             System.out.print("> Input existing Room Level: ");
-            String roomInput = sc.next(); sc.nextLine();
+            String roomInput = sc.next();
+            sc.nextLine();
             if (roomInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             int level = Integer.parseInt(roomInput);
             System.out.print("> Input existing Room Number: ");
-            String numInput = sc.next(); sc.nextLine();
+            String numInput = sc.next();
+            sc.nextLine();
             if (numInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
-            int number = Integer.parseInt(numInput); System.out.println();
-            
+            int number = Integer.parseInt(numInput);
+            System.out.println();
+
             Room room = roomManagementSessionBean.getRoom(level, number);
+            if (room == null) {
+                throw new RoomExistException("Room does not exist.\n");
+            }
+
             if (room.getIsDisabled()) {
                 System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
                 doOpsManagerDashboardFeatures(sc, emId);
                 return;
             }
-            
+
             System.out.println("You have selected Room ID: " + room.getRoomId());
             System.out.println("Confirm Deletion?");
             System.out.println("> 1. Yes");
             System.out.println("> 2. No");
             System.out.print("> ");
-            
-            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+
+            int input = sc.nextInt();
+            sc.nextLine();
+            System.out.println();
             switch (input) {
                 case 1:
                     roomManagementSessionBean.deleteRoom(room.getRoomId());
@@ -487,12 +516,11 @@ public class OpsManagerModule {
                     doDeleteRoom(sc, emId);
                     break;
             }
-            
+
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (RoomQueryException ex) {
-            System.out.println("Error: " + ex.getMessage());
-        } catch (FindRoomException | ReservationQueryException ex) {
-            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NumberFormatException | RoomExistException e) {
+            System.out.println(e.getMessage());
+            doOpsManagerDashboardFeatures(sc, emId);
         }
     }
 
@@ -501,27 +529,31 @@ public class OpsManagerModule {
             System.out.println("==== View All Rooms Interface ====");
             List<Room> rooms = roomManagementSessionBean.retrieveAllRooms();
             System.out.printf("\n%3s%10s%10s%15s%15s", "ID", "Level", "Number", "Room Type", "Is Available");
-            
+
             for (Room room : rooms) {
                 if (!room.getIsDisabled()) {
                     System.out.printf("\n%3s%10s%10s%15s%15s", room.getRoomId(), room.getRoomLevel(),
                             room.getRoomNum(), room.getRoomType().getRoomTypeName(), room.getIsAvailable());
-                    
+
                 }
-                
+
             }
-            System.out.println(); System.out.println();
+            System.out.println();
+            System.out.println();
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (RoomQueryException ex) {
-            System.out.println("Error: " + ex.getMessage());
+        } catch (EmptyListException ex) {
+            System.out.println(ex.getMessage());
+            doOpsManagerDashboardFeatures(sc, emId);
         }
     }
-    
+
     private void doUpdateRoomType(Scanner sc, Long emId, Long roomTypeId) {
         System.out.println("==== Update Room Type Interface ====");
         System.out.println("Updating room type. To cancel entry at anytime, enter 'q'.");
         try {
             RoomType type = roomManagementSessionBean.getRoomType(roomTypeId);
+            if (type == null) throw new RoomTypeExistException("Room Type does not exist.\n");
+            
             boolean done = false;
             String name = type.getRoomTypeName();
             String desc = type.getRoomTypeDesc();
@@ -530,10 +562,9 @@ public class OpsManagerModule {
             Integer cap = type.getCapacity();
             Integer rank = type.getTypeRank();
             String amenities = type.getAmenities();
-            
+
             List<RoomType> typeList = roomManagementSessionBean.getAllNonDisabledRoomTypes();
-            
-            
+
             while (!done) {
                 System.out.println("Select which detail of the type you want to change:");
                 System.out.println("> 1. Name");
@@ -544,13 +575,15 @@ public class OpsManagerModule {
                 System.out.println("> 6. Ranking");
                 System.out.println("> 7. Amenities");
                 System.out.print("> ");
-                String inputStr = sc.next(); sc.nextLine(); 
+                String inputStr = sc.next();
+                sc.nextLine();
                 if (inputStr.equals("q")) {
                     doCancelledEntry(sc, emId);
                     return;
                 }
-                int input = Integer.parseInt(inputStr); System.out.println();
-                
+                int input = Integer.parseInt(inputStr);
+                System.out.println();
+
                 switch (input) {
                     case 1:
                         System.out.print("> Input new Name: ");
@@ -562,19 +595,23 @@ public class OpsManagerModule {
                         break;
                     case 3:
                         System.out.print("> Input new Room Size: ");
-                        size = sc.nextInt(); sc.nextLine();
+                        size = sc.nextInt();
+                        sc.nextLine();
                         break;
                     case 4:
                         System.out.print("> Input new Number Of Beds: ");
-                        beds = sc.nextInt(); sc.nextLine();
+                        beds = sc.nextInt();
+                        sc.nextLine();
                         break;
                     case 5:
                         System.out.print("> Input new Room Capacity: ");
-                        cap = sc.nextInt(); sc.nextLine();
+                        cap = sc.nextInt();
+                        sc.nextLine();
                         break;
                     case 6:
                         System.out.print("> Input new Ranking [1-" + typeList.size() + "]: ");
-                        rank = sc.nextInt(); sc.nextLine();
+                        rank = sc.nextInt();
+                        sc.nextLine();
                         break;
                     case 7:
                         System.out.print("> Input new Amenities: ");
@@ -583,18 +620,22 @@ public class OpsManagerModule {
                     default:
                         break;
                 }
-                
+
                 System.out.println("Finalise changes?");
                 System.out.println("> 1. Yes");
                 System.out.println("> 2. No");
                 System.out.print("> ");
-                int answer = sc.nextInt(); sc.nextLine(); System.out.println();
-                if (answer == 1) done = true;
+                int answer = sc.nextInt();
+                sc.nextLine();
+                System.out.println();
+                if (answer == 1) {
+                    done = true;
+                }
             }
             roomManagementSessionBean.updateRoomTypeRankingsUpdate(type.getTypeRank(), rank);
             roomManagementSessionBean.updateRoomType(roomTypeId, name, desc, size, beds, cap, rank, amenities);
             System.out.println("You have successfully updated the Room Type.\n");
-            
+
             type = roomManagementSessionBean.getRoomType(roomTypeId);
             System.out.println("Updated Room Rate details:");
             System.out.println("> Name: " + type.getRoomTypeName());
@@ -604,21 +645,25 @@ public class OpsManagerModule {
             System.out.println("> Capacity: " + type.getCapacity());
             System.out.println("> Amenities: " + type.getAmenities());
             System.out.println();
-            
+
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (FindRoomTypeException | RoomTypeQueryException ex) {
-            System.out.println("Error: " + ex.getMessage());
-        }
+        } catch (RoomTypeExistException | EmptyListException ex) {
+            System.out.println(ex.getMessage());
+            doOpsManagerDashboardFeatures(sc, emId);
+        } 
     }
 
     private void doDeleteRoomType(Scanner sc, Long emId, Long roomTypeId) {
-        System.out.println("=== Delete Room Type Interface ====");
-        System.out.println("Confirm Deletion?");
-        System.out.println("> 1. Yes");
-        System.out.println("> 2. No");
-        System.out.print("> ");
-        try { 
-            int input = sc.nextInt(); sc.nextLine(); System.out.println();
+        try {
+            System.out.println("=== Delete Room Type Interface ====");
+            System.out.println("Confirm Deletion?");
+            System.out.println("> 1. Yes");
+            System.out.println("> 2. No");
+            System.out.print("> ");
+
+            int input = sc.nextInt();
+            sc.nextLine();
+            System.out.println();
             switch (input) {
                 case 1:
                     roomManagementSessionBean.deleteRoomType(roomTypeId);
@@ -633,18 +678,18 @@ public class OpsManagerModule {
                     doDeleteRoomType(sc, emId, roomTypeId);
                     break;
             }
-            
+
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (FindRoomRateException | ReservationQueryException | FindRoomTypeException ex) {
-            System.out.println("Error: " + ex.getMessage());
-        } catch (Exception e) {
-            System.out.println("Unspecified Error " + e.getMessage());
+        } catch (EmptyListException ex) {
+            System.out.println(ex.getMessage());
+            doOpsManagerDashboardFeatures(sc, emId);
         }
+
     }
-    
+
     private void doCancelledEntry(Scanner sc, Long emId) {
         System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
-        
+
         doOpsManagerDashboardFeatures(sc, emId);
     }
 
@@ -652,6 +697,7 @@ public class OpsManagerModule {
         try {
             System.out.println("==== View Room Allocation Exception Report ====");
             List<AllocationException> list = allocationExceptionSessionBean.retrieveAllExceptions();
+
             DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
             for (AllocationException a : list) {
                 System.out.println(":: AllocationException ID: " + a.getExceptionId());
@@ -659,13 +705,13 @@ public class OpsManagerModule {
                 System.out.println("   > Date: " + outputFormat.format(a.getCurrentDate()));
                 System.out.println("   > Reservation ID: " + a.getReservation().getReservationId());
             }
-            
+
             System.out.println();
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (Exception e) {
-            System.out.println("Error:" + e.toString());
+        } catch (EmptyListException e) {
+            System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
         }
-        
+
     }
 }

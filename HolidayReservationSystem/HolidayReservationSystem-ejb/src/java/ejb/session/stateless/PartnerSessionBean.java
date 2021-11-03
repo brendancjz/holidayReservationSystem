@@ -8,76 +8,69 @@ package ejb.session.stateless;
 import entity.Partner;
 import java.util.List;
 import javax.ejb.Stateless;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.EmptyListException;
 
 /**
  *
  * @author brend
  */
-@WebService(serviceName = "HolidayReservationSystemWebService")
 @Stateless
 public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSessionBeanLocal {
+
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
 
-    @WebMethod(operationName = "checkPartnerExists")
     @Override
-    public boolean checkPartnerExists(@WebParam(name = "email") String email) {
+    public boolean checkPartnerExists(String email) {
         boolean partnerExists = false;
-        
-        try {
-            Query query = em.createQuery("SELECT p FROM Partner p");
-        
-            
-            List<Partner> partnerList = query.getResultList();
-            for (Partner p : partnerList) {
-                if (p.getEmail().equals(email)) {
-                    partnerExists = true;
-                }
+
+        Query query = em.createQuery("SELECT p FROM Partner p");
+        List<Partner> partnerList = query.getResultList();
+        for (Partner p : partnerList) {
+            if (p.getEmail().equals(email)) {
+                partnerExists = true;
             }
-        } catch (Exception e) {
-            System.out.println("** checkCustomerExists throwing error " + e.getMessage());
         }
-   
+
         return partnerExists;
     }
-    
+
     @Override
     public Long createNewPartner(Partner p) {
         em.persist(p);
         em.flush();
-        
+
         return p.getCustomerId();
     }
-    
+
     @Override
     public Partner getPartnerByEmail(String email) {
         Partner p = null;
         try {
             Query query = em.createQuery("SELECT p FROM Partner p WHERE p.email = :email");
             query.setParameter("email", email);
-            
+
             p = (Partner) query.getSingleResult();
         } catch (Exception e) {
             System.out.println("** getGuestByEmail throwing error " + e.getMessage());
         }
-        
+
         return p;
     }
-    
+
     @Override
-    public List<Partner> retrieveAllPartners() {
+    public List<Partner> retrieveAllPartners() throws EmptyListException {
         Query query = em.createQuery("SELECT p FROM Partner p");
         List<Partner> partners = query.getResultList();
-        for (Partner p: partners) {
+        if (partners.isEmpty()) throw new EmptyListException("List of Partners is empty.\n");
+        for (Partner p : partners) {
             p.getReservations().size();
         }
-        
+
         return partners;
     }
 
@@ -88,11 +81,27 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
     @Override
     public boolean verifyLoginDetails(String email) {
-        return true;
+        Query query = em.createQuery("SELECT p FROM Partner p WHERE p.email = :email");
+        query.setParameter("email", email);
+        try {
+            Partner p = (Partner) query.getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
+    
     @Override
     public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email) {
-        return true;
+        Query query = em.createQuery("SELECT p FROM Partner p WHERE p.email = :email");
+        query.setParameter("email", email);
+        try {
+            Partner p = (Partner) query.getSingleResult();
+            return false;
+        } catch (NoResultException e) {
+            return true;
+        }
+        
     }
 }

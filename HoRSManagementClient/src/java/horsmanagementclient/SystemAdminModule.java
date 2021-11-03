@@ -11,8 +11,10 @@ import entity.Employee;
 import entity.Partner;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.enumeration.EmployeeEnum;
-import util.exception.EmployeeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -153,11 +155,12 @@ public class SystemAdminModule {
             }
             System.out.println();
             System.out.println();
-            doSystemAdminDashboardFeatures(sc, emId);
-        } catch (EmployeeQueryException e) {
+            
+        } catch (EmptyListException e) {
             System.out.println("Error: " + e.getMessage());
+            
         }
-        
+        doSystemAdminDashboardFeatures(sc, emId);
     }
     
     private void doCreateNewPartner(Scanner sc, Long emId) {
@@ -221,15 +224,20 @@ public class SystemAdminModule {
     }
     
     private void doViewAllPartners(Scanner sc, Long emId) {
-        System.out.println("==== View All Partners Interface ====");
-        List<Partner> partners = partnerSessionBean.retrieveAllPartners();
-        System.out.printf("\n%3s%15s%15s%20s%30s", "ID", "First Name", "Last Name", "Contact Number", "Email");
-        for (Partner partner : partners) {
-            System.out.printf("\n%3s%15s%15s%20s%30s", partner.getCustomerId(), 
-                        partner.getFirstName(), partner.getLastName(), 
+        try {
+            System.out.println("==== View All Partners Interface ====");
+            List<Partner> partners = partnerSessionBean.retrieveAllPartners();
+            System.out.printf("\n%3s%15s%15s%20s%30s", "ID", "First Name", "Last Name", "Contact Number", "Email");
+            for (Partner partner : partners) {
+                System.out.printf("\n%3s%15s%15s%20s%30s", partner.getCustomerId(), 
+                        partner.getFirstName(), partner.getLastName(),
                         partner.getContactNumber(), partner.getEmail());
+            }
+            System.out.println(); System.out.println();
+            doSystemAdminDashboardFeatures(sc, emId);
+        } catch (EmptyListException ex) {
+            System.out.println(ex.getMessage());
+            doSystemAdminDashboardFeatures(sc, emId);
         }
-        System.out.println(); System.out.println();
-        doSystemAdminDashboardFeatures(sc, emId);
     }
 }

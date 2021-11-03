@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -39,10 +40,14 @@ public class AllocationExceptionSessionBean implements AllocationExceptionSessio
     }
     
     @Override
-    public List<AllocationException> retrieveAllExceptions() {
+    public List<AllocationException> retrieveAllExceptions() throws EmptyListException {
         Query query = em.createQuery("SELECT a FROM AllocationException a");
-        
-        return query.getResultList();
+        List<AllocationException> list = query.getResultList();
+        if (list.isEmpty()) throw new EmptyListException("List of Allocation Exceptions is empty.\n");
+        for (AllocationException ex : list) {
+            ex.getReservation();
+        }
+        return list;
     }
     
     @Override

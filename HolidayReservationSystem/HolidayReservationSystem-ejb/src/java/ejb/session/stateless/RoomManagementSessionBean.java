@@ -15,22 +15,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.RoomRateEnum;
-import util.exception.AllocationQueryException;
-import util.exception.FindRoomException;
-import util.exception.FindRoomRateException;
-import util.exception.FindRoomTypeException;
-import util.exception.ReservationQueryException;
-import util.exception.RoomQueryException;
-import util.exception.RoomRateQueryException;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -59,12 +50,12 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     
 
     @Override
-    public List<RoomType> getAllRoomTypes() throws RoomTypeQueryException {
+    public List<RoomType> getAllRoomTypes() throws EmptyListException {
         return roomTypeSessionBean.retrieveAllRoomTypes();
     }
     
     @Override
-    public List<RoomRate> getRoomRates(Long roomTypeId) {
+    public List<RoomRate> getRoomRates(Long roomTypeId) throws EmptyListException {
         return roomTypeSessionBean.getRoomRatesByRoomTypeId(roomTypeId);
     }
 
@@ -102,17 +93,17 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public RoomRate getRoomRate(String rateName) throws RoomRateQueryException {
+    public RoomRate getRoomRate(String rateName) {
         return roomRateSessionBean.getRoomRateByRoomRateName(rateName);
     }
     
     @Override
-    public RoomRate getRoomRate(Long rateId) throws FindRoomRateException {
+    public RoomRate getRoomRate(Long rateId) {
         return roomRateSessionBean.getRoomRateByRoomRateId(rateId);
     }
 
     @Override
-    public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate) throws FindRoomRateException {
+    public void updateRoomRate(Long rateId, String name, Double amount, Date startDate, Date endDate) {
         RoomRate rate = this.getRoomRate(rateId);
         
         rate.setRoomRateName(name);
@@ -122,7 +113,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public void deleteRoomRate(Long roomRateId) throws FindRoomRateException {
+    public void deleteRoomRate(Long roomRateId) {
         RoomRate rate = roomRateSessionBean.getRoomRateByRoomRateId(roomRateId);
         List<Reservation> reservations;
         try {
@@ -140,7 +131,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             rate.getRoomType().getRates().remove(rate);
             em.remove(rate);
             System.out.println("Deleted Room Room: " + rate.getRoomRateName());
-        } catch (ReservationQueryException ex) {
+        } catch (EmptyListException ex) {
             //Delete cause no one using
             rate.getRoomType().getRates().remove(rate);
             em.remove(rate);
@@ -151,13 +142,13 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public List<RoomRate> getAllRoomRates() throws RoomRateQueryException {
+    public List<RoomRate> getAllRoomRates() throws EmptyListException {
         List<RoomRate> rates;
             
         Query query = em.createQuery("SELECT r FROM RoomRate r");
         rates = query.getResultList();
 
-        if (rates.isEmpty()) throw new RoomRateQueryException("List of Rates is empty");
+        if (rates.isEmpty()) throw new EmptyListException("List of Rates is empty.\n");
             
         return rates;
     }
@@ -168,19 +159,19 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public RoomType getRoomType(Long roomTypeId) throws FindRoomTypeException {
+    public RoomType getRoomType(Long roomTypeId) {
         return roomTypeSessionBean.getRoomTypeByRoomTypeId(roomTypeId);
     }
 
     @Override
-    public RoomType getRoomType(String typeName) throws RoomTypeQueryException {
+    public RoomType getRoomType(String typeName) {
         RoomType type = roomTypeSessionBean.getRoomTypeByRoomTypeName(typeName);
         type.getRooms().size();
         return type;
     }
 
     @Override
-    public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, Integer rank, String amenities) throws FindRoomTypeException, RoomTypeQueryException {
+    public void updateRoomType(Long roomTypeId, String name, String desc, Integer size, Integer beds, Integer cap, Integer rank, String amenities) {
         RoomType type = this.getRoomType(roomTypeId);
         type.setRoomTypeName(name);
         type.setRoomTypeDesc(desc);
@@ -192,7 +183,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public void deleteRoomType(Long roomTypeId) throws FindRoomTypeException, RoomTypeQueryException, RoomRateQueryException, RoomQueryException, ReservationQueryException, FindRoomRateException, FindRoomException  {
+    public void deleteRoomType(Long roomTypeId) throws EmptyListException  {
         RoomType type = this.getRoomType(roomTypeId);
         List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
         List<RoomRate> rates = roomRateSessionBean.retrieveAllRoomRates();
@@ -232,7 +223,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public Room createNewRoom(Room room, Long typeId) throws FindRoomException {
+    public Room createNewRoom(Room room, Long typeId) {
         //ASSOCIATE ROOM WITH ROOM TYPE
         roomSessionBean.associateRoomWithRoomType(room, typeId);
         //PERSIST ROOM
@@ -245,17 +236,17 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     } 
 
     @Override
-    public Room getRoom(int level, int number) throws RoomQueryException {
+    public Room getRoom(int level, int number) {
         return roomSessionBean.getRoomByRoomLevelAndRoomNumber(level, number);
     }
     
     @Override
-    public Room getRoom(Long roomId) throws FindRoomException {
+    public Room getRoom(Long roomId) {
         return roomSessionBean.getRoomByRoomId(roomId);
     }
 
     @Override
-    public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type) throws FindRoomException {
+    public void updateRoom(Long roomId, int level, int number, boolean avail, RoomType type) {
         Room room = this.getRoom(roomId);
         type = em.merge(type);
         RoomType currType = room.getRoomType();
@@ -273,14 +264,14 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
     
     @Override
-    public void updateRoomVacancy(Long roomId, boolean vacancy) throws FindRoomException {
+    public void updateRoomVacancy(Long roomId, boolean vacancy) {
         Room room = this.getRoom(roomId);
         room.setIsVacant(vacancy);
         System.out.println("Room ID: " + roomId + " isVacant: " + vacancy);
     }
 
     @Override
-    public void deleteRoom(Long roomId) throws FindRoomException, ReservationQueryException {
+    public void deleteRoom(Long roomId) {
          //delete/disable room
         Room room = roomSessionBean.getRoomByRoomId(roomId);
         //Get list of allocations
@@ -302,7 +293,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             //Room to be deleted
             room.getRoomType().getRooms().remove(room);
             em.remove(room);
-        } catch (AllocationQueryException ex) {
+        } catch (EmptyListException ex) {
             //Room to be deleted cause there are no allocations
             room.getRoomType().getRooms().remove(room);
             em.remove(room);
@@ -310,13 +301,13 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public List<Room> retrieveAllRooms() throws RoomQueryException {
+    public List<Room> retrieveAllRooms() throws EmptyListException {
         return roomSessionBean.retrieveAllRooms();
     }
 
     @Override
-    public void updateRoomTypeRankingsCreation(Integer rank) throws RoomTypeQueryException {
-        System.out.println("============= updateRoomTypeRankingsCreation");
+    public void updateRoomTypeRankingsCreation(Integer rank) throws EmptyListException {
+        System.out.println(":: Updating Room Type Rankings Creation");
         int lowestRank = roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder().size() + 1; //current num of room types
         List<RoomType> types = new ArrayList<>();
         while(rank < lowestRank) {
@@ -331,8 +322,8 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
     
     @Override 
-    public void updateRoomTypeRankingsDeletion(Integer rank) throws RoomTypeQueryException {
-        System.out.println("========= updateRoomTypeRankingsDeletion");
+    public void updateRoomTypeRankingsDeletion(Integer rank) throws EmptyListException {
+        System.out.println(":: Updating Room Type Rankings Deletion");
         int lowestRank = roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder().size(); 
         List<RoomType> types = new ArrayList<>();
         while(rank < lowestRank) {
@@ -341,13 +332,14 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             types.add(type);
         }
         for (RoomType type : types) {
-            System.out.println("TYPES THAT ARE LOWER RANK:" + type.getRoomTypeName());
+            System.out.println(type.getRoomTypeName() + " is lower rank.");
             type.setTypeRank(type.getTypeRank() - 1);
         }
     }
 
     @Override
-    public void updateRoomTypeRankingsUpdate(Integer currRank, Integer newRank) throws RoomTypeQueryException {
+    public void updateRoomTypeRankingsUpdate(Integer currRank, Integer newRank) throws EmptyListException {
+        System.out.println(":: Updating Room Type Rankings Update");
         //get all room types ordered by rank
         List<RoomType> rTypes = roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder();
         RoomType type = rTypes.get(currRank - 1);
@@ -361,7 +353,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public List<RoomType> getAllNonDisabledRoomTypes() throws RoomTypeQueryException {
+    public List<RoomType> getAllNonDisabledRoomTypes() throws EmptyListException {
         return roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder();
     }
 

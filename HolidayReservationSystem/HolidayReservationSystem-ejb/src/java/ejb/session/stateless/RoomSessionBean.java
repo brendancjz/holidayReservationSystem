@@ -10,10 +10,10 @@ import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.FindRoomException;
-import util.exception.RoomQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -36,40 +36,39 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public List<Room> retrieveAllRooms() throws RoomQueryException {
-        
-        
+    public List<Room> retrieveAllRooms() throws EmptyListException {
         Query query = em.createQuery("SELECT r FROM Room r");
 
         List<Room> rooms  = query.getResultList();
-        if (rooms.isEmpty()) throw new RoomQueryException("Room list is missing");
+        if (rooms.isEmpty()) throw new EmptyListException("Room list is empty.\n");
         for (int i = 0; i < rooms.size(); i++) {
             Room room = rooms.get(i);
-
-//            if (room.getIsDisabled()) { //Only return the rooms that are not disabled.
-//                rooms.remove(i);
-//            }
+            room.getRoomType();
         }
         return rooms;
     }
 
     @Override
-    public Room getRoomByRoomLevelAndRoomNumber(int level, int number) throws RoomQueryException {
+    public Room getRoomByRoomLevelAndRoomNumber(int level, int number) {
         Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomLevel=:level AND r.roomNum=:num");
         query.setParameter("level", level);
         query.setParameter("num", number);
+        try {
+            Room room = (Room) query.getSingleResult();
+            room.getRoomType();
+            return room;
+        } catch (NoResultException e) {
+            return null;
+        }
         
-        List<Room> room = query.getResultList();
-        if (room.isEmpty()) throw new RoomQueryException("Room is missing");
-        return room.get(0);
+        
+        
     }
 
     @Override
-    public Room getRoomByRoomId(Long roomId) throws FindRoomException {
+    public Room getRoomByRoomId(Long roomId) {
         Room room = em.find(Room.class, roomId);
-        
-        if (room == null) throw new FindRoomException("Room is null");
-        
+        room.getRoomType();
         return room;
     }
 

@@ -8,8 +8,7 @@ package ejb.session.stateless;
 import entity.Employee;
 import java.util.List;
 import javax.ejb.Remote;
-import util.exception.EmployeeQueryException;
-import util.exception.FindEmployeeException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -18,14 +17,14 @@ import util.exception.FindEmployeeException;
 @Remote
 public interface EmployeeSessionBeanRemote {
 
-    public List<Employee> retrieveAllEmployees() throws EmployeeQueryException;
+    public List<Employee> retrieveAllEmployees() throws EmptyListException;
 
     public Long createNewEmployee(Employee employee);
 
     public boolean verifyLoginDetails(Long emId, String password);
 
-    public boolean checkEmployeeExists(Long emId, String password) throws FindEmployeeException;
+    public boolean checkEmployeeExists(Long emId, String password);
 
-    public Employee getEmployeeById(Long emId) throws FindEmployeeException;
+    public Employee getEmployeeById(Long emId);
     
 }

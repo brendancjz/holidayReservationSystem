@@ -11,10 +11,10 @@ import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.FindRoomTypeException;
-import util.exception.RoomTypeQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -35,42 +35,40 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public List<RoomType> retrieveAllRoomTypes() throws RoomTypeQueryException{
+    public List<RoomType> retrieveAllRoomTypes() throws EmptyListException{
         Query query = em.createQuery("SELECT r FROM RoomType r");
 
         List<RoomType> types = query.getResultList();
 
-        if (types.isEmpty()) throw new RoomTypeQueryException("list of RoomTypes is empty.");
+        if (types.isEmpty()) throw new EmptyListException("List of RoomTypes is empty.\n");
         for (int i = 0; i < types.size(); i++) {
             RoomType type = types.get(i);
             type.getRooms().size();
-            type.getRates().size();
-            
-//            if (type.getIsDisabled()) { //Only return the room types that are not disabled
-//                types.remove(i);
-//                System.out.println("-- removed room type from list.");
-//            }
-            
-            
+            type.getRates().size(); 
         } 
         
         return types;
     }
     
     @Override
-    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) {
+    public List<RoomRate> getRoomRatesByRoomTypeId(Long id) throws EmptyListException {
 
         RoomType roomType = em.find(RoomType.class, id);
         List<RoomRate> rates = roomType.getRates();
+        if (rates.isEmpty()) throw new EmptyListException("List of Room Rates is empty.\n");
+        for (RoomRate rate : rates) {
+            rate.getRoomType();
+        }
+        
         return rates;
     }
 
     @Override
-    public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId) throws FindRoomTypeException{
+    public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId){
         RoomType type;
         
         type = em.find(RoomType.class, newRoomTypeId);
-        if (type == null) throw new FindRoomTypeException("RoomType is null");
+        
         
         type.getRooms().size();
         type.getRates().size();
@@ -78,34 +76,41 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
 
     @Override
-    public RoomType getRoomTypeByRoomTypeName(String typeName) throws RoomTypeQueryException {
+    public RoomType getRoomTypeByRoomTypeName(String typeName) {
         Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.roomTypeName=:name");
         query.setParameter("name", typeName);
-        
-        List<RoomType> types = query.getResultList();
-        
-        if (types.isEmpty()) throw new RoomTypeQueryException("Invalid Room Type Name");
-        RoomType type = types.get(0);
-        type.getRooms().size();
-        type.getRates().size();
-        return type;
+        try {
+            RoomType type = (RoomType) query.getSingleResult();
+            type.getRooms().size();
+            type.getRates().size();
+            
+            return type;
+        } catch (NoResultException e ) {
+            return null;
+        }
     }
 
     @Override
     public RoomType getNonDisabledRoomTypeByRank(Integer rank) {
         Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.typeRank = :rank AND r.isDisabled = false");
         query.setParameter("rank", rank);
-        RoomType type = (RoomType) query.getSingleResult();
-        if (type.getRooms() != null) type.getRooms().size();
-        return type;
+        try {
+            RoomType type = (RoomType) query.getSingleResult();
+            type.getRooms().size();
+            type.getRates().size();
+            return type;
+        } catch (NoResultException e) {
+            return null;
+        }
+        
     }
 
     @Override
-    public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws RoomTypeQueryException {
+    public List<RoomType> retrieveAllNotDisabledRoomTypesByRankOrder() throws EmptyListException {
         Query query = em.createQuery("SELECT r FROM RoomType r WHERE r.isDisabled = false ORDER BY r.typeRank ASC");
         
         List<RoomType> types = query.getResultList();
-        if (types.isEmpty()) throw new RoomTypeQueryException("List of RoomTypes is empty.");
+        if (types.isEmpty()) throw new EmptyListException("List of RoomTypes is empty.\n");
         for (int i = 0; i < types.size(); i++) {
             RoomType type = types.get(i);
             type.getRooms().size();

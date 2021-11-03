@@ -10,8 +10,10 @@ import entity.Reservation;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -25,66 +27,79 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
 
     @Override
     public boolean verifyLoginDetails(String email) {
-        return true;
+        Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email = :email");
+        query.setParameter("email", email);
+        try {
+            Guest g = (Guest) query.getSingleResult();
+            return false;
+        } catch (NoResultException e) {
+            return true;
+        }
     }
-    
+
     @Override
     public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email) {
-        return true;
+        Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email = :email");
+        query.setParameter("email", email);
+        try {
+            Guest g = (Guest) query.getSingleResult();
+            return false;
+        } catch (NoResultException e) {
+            return true;
+        }
     }
-    
+
     @Override
     public boolean checkGuestExists(String email) {
         boolean guestExists = false;
-        
-        try {
-            Query query = em.createQuery("SELECT g FROM Guest g");
-        
-            
-            List<Guest> guestList = query.getResultList();
-            for (Guest guest : guestList) {
-                if (guest.getEmail().equals(email)) {
-                    guestExists = true;
-                }
+
+        Query query = em.createQuery("SELECT g FROM Guest g");
+
+        List<Guest> guestList = query.getResultList();
+        for (Guest guest : guestList) {
+            if (guest.getEmail().equals(email)) {
+                guestExists = true;
             }
-        } catch (Exception e) {
-            System.out.println("** checkGuestExists throwing error " + e.getMessage());
         }
-   
+
         return guestExists;
     }
-    
+
     @Override
     public Long createNewGuest(Guest guest) {
         em.persist(guest);
         em.flush();
-        
+
         return guest.getCustomerId();
     }
-    
+
     @Override
     public Guest getGuestByEmail(String email) {
-        Guest guest = null;
+        
         try {
             Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email= :email");
             query.setParameter("email", email);
+
+            Guest guest = (Guest) query.getSingleResult();
+            guest.getReservations().size();
             
-            guest = (Guest) query.getSingleResult();
-        } catch (Exception e) {
-            System.out.println("** getGuestByEmail throwing error " + e.getMessage());
+            return guest;
+        } catch (NoResultException e) {
+            return null;
         }
+
         
-        return guest;
     }
-    
+
     @Override
-    public List<Guest> retrieveAllGuests() {
+    public List<Guest> retrieveAllGuests() throws EmptyListException {
         Query query = em.createQuery("SELECT g FROM Guest g");
         List<Guest> guests = query.getResultList();
-        for (Guest guest: guests) {
+        if (guests.isEmpty()) throw new EmptyListException("List of guest is empty.\n");
+        for (Guest guest : guests) {
             guest.getReservations().size();
         }
-        
+
         return guests;
     }
 
@@ -92,7 +107,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     public Guest getGuestByGuestId(Long guestId) {
         Guest guest = em.find(Guest.class, guestId);
         guest.getReservations().size();
-        
+
         return guest;
     }
 

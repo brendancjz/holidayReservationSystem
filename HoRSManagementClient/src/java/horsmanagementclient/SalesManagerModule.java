@@ -19,10 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.RoomRateEnum;
-import util.exception.FindRoomRateException;
-import util.exception.RoomRateQueryException;
-import util.exception.RoomTypeQueryException;
-
+import util.exception.EmptyListException;
+import util.exception.RoomRateExistException;
 /**
  *
  * @author brend
@@ -150,6 +148,9 @@ public class SalesManagerModule {
             double rateAmount = Double.parseDouble(inputRate);
             System.out.println("** You have selected: $" + rateAmount + "\n");
             
+            RoomRate checkRateExist = roomManagementSessionBean.getRoomRate(rateEnums[rateInput - 1] + types.get(typeInput - 1).getRoomTypeName());
+            if (checkRateExist != null) throw new RoomRateExistException("Room Rate already exists.\n");
+            
             RoomRate rate = roomManagementSessionBean.createNewRoomRate(types.get(typeInput - 1).getRoomTypeId(), rateEnums[rateInput - 1], startDate, endDate, rateAmount);
             System.out.println("You have successfully created a new Room Rate.");
             System.out.println("> Name: " + rate.getRoomRateName());
@@ -160,9 +161,7 @@ public class SalesManagerModule {
             System.out.println();
             
             doSalesManagerDashboardFeatures(sc, emId);
-        } catch (RoomTypeQueryException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (Exception e) {
+        } catch (NumberFormatException | EmptyListException | RoomRateExistException e) {
             System.out.println("\nInvalid input. Try again.\n");
             System.out.println(e.toString() + "\n");
             doCreateNewRoomRate(sc, emId);
@@ -180,6 +179,7 @@ public class SalesManagerModule {
                 return;
             }
             RoomRate rate = roomManagementSessionBean.getRoomRate(rateName);
+            if (rate == null) throw new RoomRateExistException("Room Rate does not exist.\n");
             
             System.out.println("Selected Room Rate details:");
             System.out.println("> Name: " + rate.getRoomRateName());
@@ -216,7 +216,7 @@ public class SalesManagerModule {
                     doSalesManagerDashboardFeatures(sc, emId);
                     break;
             }
-        } catch (RoomRateQueryException ex) {
+        } catch (RoomRateExistException ex) {
             System.out.println("Error: " + ex.getMessage() + "\n");
             doViewRoomRateDetails(sc, emId);
         }
@@ -229,6 +229,7 @@ public class SalesManagerModule {
         System.out.println("Updating a room rate. To cancel entry, enter 'q'");
         try {
             RoomRate rate = roomManagementSessionBean.getRoomRate(rateId);
+            if (rate == null) throw new RoomRateExistException("Room Rate does not exist.\n");
             boolean done = false;
             String name = rate.getRoomRateName();
             Double amount = rate.getRatePerNight();
@@ -306,7 +307,7 @@ public class SalesManagerModule {
             System.out.println();
             
             doSalesManagerDashboardFeatures(sc, emId);
-        } catch (FindRoomRateException ex) {
+        } catch (NumberFormatException | RoomRateExistException ex) {
             System.out.println("Error: " + ex.getMessage());
         }
     }
@@ -334,7 +335,7 @@ public class SalesManagerModule {
                     break;
             }
             doSalesManagerDashboardFeatures(sc, emId);
-        } catch (FindRoomRateException ex) {
+        } catch (Exception ex) {
             System.out.println("Error: " + ex.getMessage());
         }
     }
@@ -367,7 +368,7 @@ public class SalesManagerModule {
             System.out.println(); 
             System.out.println();
             doSalesManagerDashboardFeatures(sc, emId);
-        } catch (RoomRateQueryException e) {
+        } catch (EmptyListException e) {
             System.out.println("Error: " + e.getMessage());
         }
     } 

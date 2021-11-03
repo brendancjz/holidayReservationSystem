@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Guest;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -22,6 +23,6 @@ public interface GuestSessionBeanLocal {
     public Long createNewGuest(Guest guest);
     public Guest getGuestByEmail(String email);
 
-    public List<Guest> retrieveAllGuests();
+    public List<Guest> retrieveAllGuests() throws EmptyListException;
     public void associateGuestWithReservation(Long guestId, Long reservationId);
 }

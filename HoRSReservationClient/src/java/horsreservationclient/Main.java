@@ -9,20 +9,8 @@ import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
-import entity.Guest;
-import entity.RoomRate;
-import entity.RoomType;
-import util.exception.FindRoomTypeException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
 import java.util.Scanner;
 import javax.ejb.EJB;
-import util.exception.ReservationQueryException;
-import util.exception.RoomTypeQueryException;
 
 /**
  *

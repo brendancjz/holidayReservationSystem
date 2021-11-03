@@ -9,8 +9,9 @@ package util.exception;
  *
  * @author brend
  */
-public class RoomQueryException extends Exception {
-    public RoomQueryException(String message) {
+public class RoomExistException extends Exception {
+    public RoomExistException(String message) {
         super(message);
     }
+    
 }

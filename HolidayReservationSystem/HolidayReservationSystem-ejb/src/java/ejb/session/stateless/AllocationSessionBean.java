@@ -10,14 +10,14 @@ import entity.Reservation;
 import entity.Room;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.AllocationQueryException;
+import util.exception.EmptyListException;
 
 /**
  *
@@ -33,42 +33,47 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     public Long createNewAllocation(Allocation allocation) {
         em.persist(allocation);
         em.flush();
-        
+
         return allocation.getAllocationId();
     }
-    
+
     @Override
     public Allocation getAllocationByAllocationId(Long allocationId) {
         Allocation allocation = em.find(Allocation.class, allocationId);
         allocation.getRooms().size();
-        return allocation; 
+        return allocation;
     }
-    
+
     @Override
-    public List<Allocation> retrieveAllAllocations() throws AllocationQueryException {
+    public List<Allocation> retrieveAllAllocations() throws EmptyListException {
         List<Allocation> list;
         Query query = em.createQuery("SELECT a FROM Allocation a");
         list = query.getResultList();
-        if (list.isEmpty()) throw new AllocationQueryException("Allocation List is empty.");
-        
-        
+        if (list.isEmpty()) {
+            throw new EmptyListException("Allocation List is empty.\n");
+        }
+
         return list;
     }
 
     @Override
     public Allocation getAllocationForGuestForCurrentDay(Long guestId, LocalDate currDate) {
-        
+
         Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        
+
         Query query = em.createQuery("SELECT a FROM Allocation a WHERE a.reservation.customer.customerId = :guestId AND a.currentDate = :currDate");
         query.setParameter("guestId", guestId);
         query.setParameter("currDate", curr);
-        
-        Allocation allocation = (Allocation) query.getSingleResult();
-        
-        allocation.getRooms().size();
-        
-        return allocation;
+
+        try {
+            Allocation allocation = (Allocation) query.getSingleResult();
+            allocation.getRooms().size();
+            allocation.getReservation();
+            return allocation;
+        } catch (NoResultException e) {
+            return null;
+        }
+
     }
 
     @Override
@@ -82,7 +87,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     @Override
     public void associateAllocationWithReservation(Allocation allocation, Long reservationId) {
         Reservation r = em.find(Reservation.class, reservationId);
-        
+
         allocation.setReservation(r);
     }
 
@@ -93,18 +98,21 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
         Query query = em.createQuery("SELECT a FROM Allocation a WHERE a.reservation.customer.customerId = :customerId AND a.reservation.endDate = :endDate");
         query.setParameter("customerId", customerId);
         query.setParameter("endDate", curr);
-        
-        Allocation allocation = (Allocation) query.getSingleResult();
-        
-        allocation.getRooms().size();
-        
-        return allocation;
+
+        try {
+            Allocation allocation = (Allocation) query.getSingleResult();
+            allocation.getRooms().size();
+            allocation.getReservation();
+            return allocation;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public void removeAllocation(Allocation newAllocation) {
         newAllocation = em.merge(newAllocation);
-        
+
         em.remove(newAllocation);
     }
 
@@ -117,9 +125,8 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
         }
         newAllocation.setReservation(null);
         newAllocation.setRoom(null);
-        
+
         em.remove(newAllocation);
     }
 
-    
 }
