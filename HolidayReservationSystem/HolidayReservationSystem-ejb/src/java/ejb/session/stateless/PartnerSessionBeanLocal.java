@@ -27,4 +27,6 @@ public interface PartnerSessionBeanLocal {
     public Partner getPartnerByEmail(String email);
 
     public List<Partner> retrieveAllPartners() throws EmptyListException;
+    
+    public Partner getPartnerByPartnerId(Long partnerId);
 }

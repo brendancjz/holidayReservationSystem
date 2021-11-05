@@ -29,7 +29,7 @@ public interface ReservationSessionBeanRemote {
 
     public boolean isRoomTypeAvailableForReservation(Long typeId, LocalDate startDate, LocalDate endDate, int numOfRooms);
 
-    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws EmptyListException;
+    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate, Long guestId) throws EmptyListException;
 
     public int getNumberOfRoomsAvailableForReservation(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate);
 

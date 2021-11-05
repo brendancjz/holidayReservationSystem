@@ -35,40 +35,78 @@ public class HoRSWebService {
     @Resource
     private javax.transaction.UserTransaction utx;
 
-    
     @WebMethod(operationName = "checkPartnerExists")
     public Boolean checkPartnerExists(@WebParam(name = "email") String email) {
         return partnerSessionBean.checkPartnerExists(email);
     }
 
     @WebMethod(operationName = "createNewPartner")
-    public Long createNewPartner(@WebParam(name = "p") Partner p) {
-        
+    public Long createNewPartner(@WebParam(name = "firstName") String firstName,
+            @WebParam(name = "lastName") String lastName,
+            @WebParam(name = "contactNum") Long contactNum,
+            @WebParam(name = "email") String email) {
+
+        Partner p = new Partner(firstName, lastName, contactNum, email);
         return partnerSessionBean.createNewPartner(p);
     }
-    
+
     @WebMethod(operationName = "getPartnerByEmail")
     public Partner getPartnerByEmail(@WebParam(name = "email") String email) {
-        
-        return partnerSessionBean.getPartnerByEmail(email);
+
+        Partner partner = partnerSessionBean.getPartnerByEmail(email);
+
+        em.detach(partner);
+        for (Reservation reservation : partner.getReservations()) {
+            em.detach(reservation);
+            reservation.setCustomer(null);
+        }
+        return partner;
     }
-    
+
     @WebMethod(operationName = "retrieveAllPartners")
     public List<Partner> retrieveAllPartners() {
-        
+
         try {
             List<Partner> partners = partnerSessionBean.retrieveAllPartners();
-            for (Partner partner : partners ) {
+            for (Partner partner : partners) {
                 em.detach(partner);
                 for (Reservation reservation : partner.getReservations()) {
                     em.detach(reservation);
                     reservation.setCustomer(null);
                 }
             }
-            return  partners;
+            return partners;
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
             return null;
         }
     }
+
+    @WebMethod(operationName = "getPartnerByPartnerId")
+    public Partner getPartnerByPartnerId(@WebParam(name = "partnerId") Long partnerId) {
+        Partner partner = partnerSessionBean.getPartnerByPartnerId(partnerId);
+
+        em.detach(partner);
+        for (Reservation reservation : partner.getReservations()) {
+            em.detach(reservation);
+            reservation.setCustomer(null);
+        }
+        return partner;
+    }
+
+    @WebMethod(operationName = "verifyLoginDetails")
+    public boolean verifyLoginDetails(@WebParam(name = "email") String email) {
+
+        return partnerSessionBean.verifyLoginDetails(email);
+    }
+
+    @WebMethod(operationName = "verifyRegisterDetails")
+    public boolean verifyRegisterDetails(@WebParam(name = "firstName") String firstName,
+            @WebParam(name = "lastName") String lastName,
+            @WebParam(name = "contactNum") Long contactNum,
+            @WebParam(name = "email") String email) {
+
+        return partnerSessionBean.verifyRegisterDetails(firstName, lastName, contactNum, email);
+    }
+
 }

@@ -184,6 +184,10 @@ public class OpsManagerModule {
         } catch (RoomTypeRankException | RoomTypeExistException | EmptyListException ex) {
             System.out.println(ex.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
+        } catch (Exception e) {
+            System.out.println("Something went wrong.");
+            System.out.println(e.toString());
+            doCreateNewRoomType(sc, emId);
         }
     }
 

@@ -26,6 +26,8 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import util.exception.EmptyListException;
+import util.exception.InvalidInputException;
+import util.exception.ReservationExistException;
 
 /**
  *
@@ -89,22 +91,23 @@ public class MainApp {
         System.out.println("Enter login details:");
         System.out.print("> Email: ");
         String email = sc.nextLine();
+        try {
+            if (guestSessionBean.verifyLoginDetails(email)
+                    && guestSessionBean.checkGuestExists(email)) {
 
-        if (guestSessionBean.verifyLoginDetails(email)
-                && guestSessionBean.checkGuestExists(email)) {
-
-            try {
                 Guest currGuest = guestSessionBean.getGuestByEmail(email);
                 System.out.println("Welcome " + currGuest.getFirstName() + ", you're in!\n");
 
                 doDashboardFeatures(sc, currGuest.getCustomerId());
-            } catch (EmptyListException ex) {
-                Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+
+            } else {
+                System.out.println("No account match or wrong login details. Try again.\n");
+                doLogin(sc);
             }
-        } else {
-            System.out.println("No account match or wrong login details. Try again.\n");
-            doLogin(sc);
+        } catch (Exception e) {
+            System.out.println(e.toString());
         }
+        
     }
 
     public void doDashboardFeatures(Scanner sc, Long guestId) {
@@ -171,6 +174,7 @@ public class MainApp {
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
+            if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) throw new InvalidInputException("Invalid dates input.\n");
             System.out.println("Which Room Type did you reserve?");
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             int idx = 1;
@@ -183,7 +187,8 @@ public class MainApp {
 
             RoomType selectedType = types.get(typeInput - 1);
             System.out.println();
-            Reservation reservation = reservationSessionBean.getReservationsByRoomTypeIdAndDuration(selectedType.getRoomTypeId(), checkInDate, checkOutDate);
+            Reservation reservation = reservationSessionBean.getReservationsByRoomTypeIdAndDuration(selectedType.getRoomTypeId(), checkInDate, checkOutDate, guestId);
+            if (reservation == null) throw new ReservationExistException("Reservation does not exist.\n");
             DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
             String duration = outputFormat.format(reservation.getStartDate())
                     + " -> " + outputFormat.format(reservation.getEndDate());
@@ -196,8 +201,10 @@ public class MainApp {
             System.out.println("   > Duration: " + duration);
             System.out.println();
             doDashboardFeatures(sc, guestId);
+        } catch (InvalidInputException | ReservationExistException | EmptyListException e) {
+            System.out.println(e.getMessage());
+            doDashboardFeatures(sc, guestId);
         } catch (Exception e) {
-            System.out.println("Invalid input. Please try again.\n");
             System.out.println(e.toString());
             doViewMyReservationDetails(sc, guestId);
         }
@@ -219,6 +226,7 @@ public class MainApp {
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
+            if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) throw new InvalidInputException("Invalid dates input.\n");
             long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
             //Output all the room types, give guest option to select the room he wants to search
@@ -266,9 +274,12 @@ public class MainApp {
                 doDashboardFeatures(sc, guestId);
             }
 
-        } catch (Exception e) {
+        } catch (EmptyListException | InvalidInputException e) {
             System.out.println(e.toString());
             System.out.println("You have made a wrong input. Try again.\n");
+            doDashboardFeatures(sc, guestId);
+        } catch (Exception e) {
+            System.out.println(e.toString());
             doSearchHotelRoom(sc, guestId);
         }
 

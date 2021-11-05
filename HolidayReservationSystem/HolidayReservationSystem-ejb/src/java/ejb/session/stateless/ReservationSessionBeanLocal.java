@@ -23,4 +23,6 @@ public interface ReservationSessionBeanLocal {
     public List<Reservation> getReservationsByRoomTypeId(Long typeId) throws EmptyListException;
 
     public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId);
+
+    public Long createNewReservation(Reservation reservation, Long guestId, Long typeId, Long rateId);
 }

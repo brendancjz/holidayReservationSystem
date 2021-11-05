@@ -20,7 +20,7 @@ public interface GuestSessionBeanRemote {
     public Long createNewGuest(Guest guest);
 
     public boolean checkGuestExists(String email);
-    public Guest getGuestByEmail(String email) throws EmptyListException;
+    public Guest getGuestByEmail(String email);
 
     public Guest getGuestByGuestId(Long guestId);
 

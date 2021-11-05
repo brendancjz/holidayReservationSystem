@@ -86,17 +86,17 @@ public class DataInitSessionBean {
             }
            
             if (em.find(Guest.class, 1L) == null) {
-                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826789L, "theo@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826723L, "theo@gmail.com"));
                 guestSessionBean.createNewGuest(new Guest("Iggy", "Goh", 12345678L, "iggy@gmail.com"));
-                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 84821234L, "xy@gmail.com"));
-                guestSessionBean.createNewGuest(new Guest("Guoo", "Jun", 84822345L, "junjun@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 12321234L, "xy@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Guoo", "Junn", 84821245L, "junjun@gmail.com"));
                 System.out.println("created all guests"); 
             }
             
             if (em.find(Partner.class, 5L) == null) { //hardcoded the 5L cause four guests are created first.
-                partnerSessionBean.createNewPartner(new Partner("Theo", "Doric", 84826789L, "mbs@gmail.com"));
-                partnerSessionBean.createNewPartner(new Partner("Iggy", "Goh", 12345678L, "hotels@gmail.com"));
-                partnerSessionBean.createNewPartner(new Partner("Xiang", "Yong", 84821234L, "fourseasons@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("Teoh", "Doic", 84812329L, "mbs@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("Hames", "Godfish", 11236738L, "hotels@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("XiaXia", "Bong", 84123234L, "fourseasons@gmail.com"));
                 System.out.println("created all partners"); 
             }
 
@@ -314,29 +314,29 @@ public class DataInitSessionBean {
         roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], publishedRateDRId);
         
         RoomRate rate2 = new RoomRate("PublishedRatePR",RoomRateEnum.PublishedRate,Double.valueOf(140));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate2, roomTypeIds[0]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate2, roomTypeIds[1]);
         Long publishedRatePRId = roomRateSessionBean.createNewRoomRate(rate2);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], publishedRatePRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], publishedRatePRId);
         
         RoomRate rate3 = new RoomRate("PublishedRateFR",RoomRateEnum.PublishedRate,Double.valueOf(160));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate3, roomTypeIds[0]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate3, roomTypeIds[2]);
         Long publishedRateFRId = roomRateSessionBean.createNewRoomRate(rate3);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], publishedRateFRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], publishedRateFRId);
         
         RoomRate rate4 = new RoomRate("PublishedRateJS",RoomRateEnum.PublishedRate,Double.valueOf(180)); 
-        roomRateSessionBean.associateRoomRateWithRoomType(rate4, roomTypeIds[0]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate4, roomTypeIds[3]);
         Long publishedRateJSId = roomRateSessionBean.createNewRoomRate(rate4);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], publishedRateJSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], publishedRateJSId);
         
         RoomRate rate5 = new RoomRate("PublishedRateGS",RoomRateEnum.PublishedRate,Double.valueOf(200));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate5, roomTypeIds[0]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate5, roomTypeIds[4]);
         Long publishedRateGSId = roomRateSessionBean.createNewRoomRate(rate5);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], publishedRateGSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[4], publishedRateGSId);
 
         RoomRate rate6 = new RoomRate("NormalRateDR",RoomRateEnum.NormalRate,Double.valueOf(100));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate6, roomTypeIds[1]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate6, roomTypeIds[0]);
         Long normalRateDRId = roomRateSessionBean.createNewRoomRate(rate6);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], normalRateDRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], normalRateDRId);
         
         RoomRate rate7 = new RoomRate("NormalRatePR",RoomRateEnum.NormalRate,Double.valueOf(120));
         roomRateSessionBean.associateRoomRateWithRoomType(rate7, roomTypeIds[1]);
@@ -344,19 +344,19 @@ public class DataInitSessionBean {
         roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], normalRatePRId);
         
         RoomRate rate8 = new RoomRate("NormalRateFR",RoomRateEnum.NormalRate,Double.valueOf(140));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate8, roomTypeIds[1]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate8, roomTypeIds[2]);
         Long normalRateFRId = roomRateSessionBean.createNewRoomRate(rate8);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], normalRateFRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], normalRateFRId);
         
         RoomRate rate9 = new RoomRate("NormalRateJS",RoomRateEnum.NormalRate,Double.valueOf(160));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate9, roomTypeIds[1]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate9, roomTypeIds[3]);
         Long normalRateJSId = roomRateSessionBean.createNewRoomRate(rate9);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], normalRateJSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], normalRateJSId);
         
         RoomRate rate10 = new RoomRate("NormalRateGS",RoomRateEnum.NormalRate,Double.valueOf(180));
-        roomRateSessionBean.associateRoomRateWithRoomType(rate10, roomTypeIds[1]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate10, roomTypeIds[4]);
         Long normalRateGSId = roomRateSessionBean.createNewRoomRate(rate10);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], normalRateGSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[4], normalRateGSId);
         
 
         //Validity Period for Peak Rate
@@ -366,14 +366,14 @@ public class DataInitSessionBean {
         Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         RoomRate rate11 = new RoomRate("PeakRateDR",RoomRateEnum.PeakRate,Double.valueOf(120), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate11, roomTypeIds[2]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate11, roomTypeIds[0]);
         Long peakRateDRId = roomRateSessionBean.createNewRoomRate(rate11);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], peakRateDRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], peakRateDRId);
         
         RoomRate rate12 = new RoomRate("PeakRatePR",RoomRateEnum.PeakRate,Double.valueOf(140), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate12, roomTypeIds[2]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate12, roomTypeIds[1]);
         Long peakRatePRId = roomRateSessionBean.createNewRoomRate(rate12);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], peakRatePRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], peakRatePRId);
         
         RoomRate rate13 = new RoomRate("PeakRateFR",RoomRateEnum.PeakRate,Double.valueOf(160), startDate, endDate);
         roomRateSessionBean.associateRoomRateWithRoomType(rate13, roomTypeIds[2]);
@@ -381,14 +381,14 @@ public class DataInitSessionBean {
         roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], peakRateFRId);
         
         RoomRate rate14 = new RoomRate("PeakRateJS",RoomRateEnum.PeakRate,Double.valueOf(180), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate14, roomTypeIds[2]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate14, roomTypeIds[3]);
         Long peakRateJSId = roomRateSessionBean.createNewRoomRate(rate14);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], peakRateJSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], peakRateJSId);
         
         RoomRate rate15 = new RoomRate("PeakRateGS",RoomRateEnum.PeakRate,Double.valueOf(200), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate15, roomTypeIds[2]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate15, roomTypeIds[4]);
         Long peakRateGSId = roomRateSessionBean.createNewRoomRate(rate15);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], peakRateGSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[4], peakRateGSId);
 
         //Validity Period for Promo Rate
         startLocalDateTime = LocalDateTime.of(2021,10, 14, 0, 0, 0);
@@ -397,19 +397,19 @@ public class DataInitSessionBean {
         endDate = Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
         
         RoomRate rate16 = new RoomRate("PromotionRateDR",RoomRateEnum.PromotionRate,Double.valueOf(80), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate16, roomTypeIds[3]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate16, roomTypeIds[0]);
         Long promoRateDRId = roomRateSessionBean.createNewRoomRate(rate16);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], promoRateDRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[0], promoRateDRId);
         
         RoomRate rate17 = new RoomRate("PromotionRatePR",RoomRateEnum.PromotionRate,Double.valueOf(100), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate17, roomTypeIds[3]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate17, roomTypeIds[1]);
         Long promoRatePRId = roomRateSessionBean.createNewRoomRate(rate17);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], promoRatePRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[1], promoRatePRId);
         
         RoomRate rate18 = new RoomRate("PromotionRateFR",RoomRateEnum.PromotionRate,Double.valueOf(120), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate18, roomTypeIds[3]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate18, roomTypeIds[2]);
         Long promoRateFRId = roomRateSessionBean.createNewRoomRate(rate18);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], promoRateFRId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[2], promoRateFRId);
         
         RoomRate rate19 = new RoomRate("PromotionRateJS",RoomRateEnum.PromotionRate,Double.valueOf(140), startDate, endDate);
         roomRateSessionBean.associateRoomRateWithRoomType(rate19, roomTypeIds[3]);
@@ -417,9 +417,9 @@ public class DataInitSessionBean {
         roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], promoRateJSId);
         
         RoomRate rate20 = new RoomRate("PromotionRateGS",RoomRateEnum.PromotionRate,Double.valueOf(160), startDate, endDate);
-        roomRateSessionBean.associateRoomRateWithRoomType(rate20, roomTypeIds[3]);
+        roomRateSessionBean.associateRoomRateWithRoomType(rate20, roomTypeIds[4]);
         Long promoRateGSId = roomRateSessionBean.createNewRoomRate(rate20);
-        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[3], promoRateGSId);
+        roomTypeSessionBean.associateRoomTypeWithRoomRate(roomTypeIds[4], promoRateGSId);
 
         
     }

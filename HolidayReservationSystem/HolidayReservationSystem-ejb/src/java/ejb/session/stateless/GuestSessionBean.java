@@ -31,9 +31,9 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         query.setParameter("email", email);
         try {
             Guest g = (Guest) query.getSingleResult();
-            return false;
-        } catch (NoResultException e) {
             return true;
+        } catch (NoResultException e) {
+            return false;
         }
     }
 
@@ -51,18 +51,14 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
 
     @Override
     public boolean checkGuestExists(String email) {
-        boolean guestExists = false;
-
-        Query query = em.createQuery("SELECT g FROM Guest g");
-
-        List<Guest> guestList = query.getResultList();
-        for (Guest guest : guestList) {
-            if (guest.getEmail().equals(email)) {
-                guestExists = true;
-            }
+        Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email = :email");
+        query.setParameter("email", email);
+        try {
+            Guest g = (Guest) query.getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
         }
-
-        return guestExists;
     }
 
     @Override

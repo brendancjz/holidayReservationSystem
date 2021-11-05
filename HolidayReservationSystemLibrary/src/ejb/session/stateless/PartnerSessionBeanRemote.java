@@ -30,5 +30,7 @@ public interface PartnerSessionBeanRemote {
     public List<Partner> retrieveAllPartners() throws EmptyListException;
 
     public Partner getPartnerByPartnerId(Long partnerId);
+
+    
     
 }

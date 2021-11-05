@@ -72,17 +72,26 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
         return reservations;
     }
+    
+    @Override
+    public Long createNewReservation(Reservation reservation, Long guestId, Long typeId, Long rateId) {
+        this.associateReservationWithGuestAndRoomTypeAndRoomRate(reservation, guestId, typeId, rateId);
+        em.persist(reservation);
+        em.flush();
+
+        return reservation.getReservationId();
+    }
 
     @Override
     public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId) {
-
+        System.out.println("Inside associateReservationWithGuestAndRoomTypeAndRoomRate() method");
         Guest guest = em.find(Guest.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
         RoomRate roomRate = em.find(RoomRate.class, rateId);
 
-        System.out.println("Inside associateExistingReservationWithGuestAndRoomTypeAndRoomRate() method");
+        
 
-        System.out.println(guest.getReservations() == null);
+        
         reservation.setCustomer(guest);
         reservation.setRoomType(roomType);
         reservation.getRoomRates().add(roomRate);
@@ -146,11 +155,13 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
 
     @Override
-    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) {
+    public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate, Long guestId) {
+        
+        
         Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        Query query = em.createQuery("SELECT r FROM Reservation r "
-                + "WHERE r.roomType.roomTypeId = :typeId AND r.startDate = :start AND r.endDate = :end");
+        Query query = em.createQuery("SELECT r FROM Guest g JOIN g.reservations r WHERE g.customerId = :guestId AND r.roomType.roomTypeId = :typeId AND r.startDate = :start AND r.endDate = :end");
+        query.setParameter("guestId", guestId);
         query.setParameter("typeId", roomTypeId);
         query.setParameter("start", startDate);
         query.setParameter("end", endDate);

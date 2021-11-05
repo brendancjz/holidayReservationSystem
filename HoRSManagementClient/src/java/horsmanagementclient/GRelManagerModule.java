@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.exception.EmptyListException;
 import util.exception.GuestExistException;
 
@@ -281,7 +279,7 @@ public class GRelManagerModule {
             }
 
             doGRelManagerDashboardFeatures(sc, emId);
-        } catch (EmptyListException | GuestExistException e) {
+        } catch (GuestExistException e) {
             System.out.println("Invalid input. Try again.\n" + e.toString());
             doCheckInGuest(sc, emId);
         }
@@ -322,7 +320,7 @@ public class GRelManagerModule {
             }
             System.out.println();
             doGRelManagerDashboardFeatures(sc, emId);
-        } catch (EmptyListException | GuestExistException e) {
+        } catch (GuestExistException e) {
             System.out.println("Invalid guest details. Try again.\n" + e.toString());
             doCheckOutGuest(sc, emId);
         }
