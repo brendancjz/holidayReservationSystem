@@ -20,11 +20,11 @@ public interface EmployeeSessionBeanRemote {
     public List<Employee> retrieveAllEmployees() throws EmptyListException;
 
     public Long createNewEmployee(Employee employee);
-
-    public boolean verifyLoginDetails(Long emId, String password);
-
-    public boolean checkEmployeeExists(Long emId, String password);
+    
+    public boolean checkEmployeeExists(String username, String password);
 
     public Employee getEmployeeById(Long emId);
+
+    public Employee getEmployeeByUsername(String username);
     
 }

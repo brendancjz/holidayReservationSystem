@@ -160,13 +160,19 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
 
     @Override
     public RoomType getRoomType(Long roomTypeId) {
+        
         return roomTypeSessionBean.getRoomTypeByRoomTypeId(roomTypeId);
     }
 
     @Override
     public RoomType getRoomType(String typeName) {
+        
         RoomType type = roomTypeSessionBean.getRoomTypeByRoomTypeName(typeName);
-        type.getRooms().size();
+        if (type != null) {
+            type.getRooms().size();
+            type.getRates().size();
+        }
+        
         return type;
     }
 

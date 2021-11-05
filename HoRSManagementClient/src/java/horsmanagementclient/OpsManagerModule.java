@@ -15,9 +15,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.ejb.EJBTransactionRolledbackException;
 import util.exception.EmptyListException;
+import util.exception.InvalidInputException;
 import util.exception.RoomExistException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeRankException;
@@ -58,7 +58,7 @@ public class OpsManagerModule {
                 break;
             case 2:
                 System.out.println("You have selected 'View Room Type Details'\n");
-                doViewRoomTypeDeatails(sc, emId);
+                doViewRoomTypeDetails(sc, emId);
                 break;
             case 3:
                 System.out.println("You have selected 'View All Room Types'\n");
@@ -108,8 +108,8 @@ public class OpsManagerModule {
             }
 
             //Check if exists
-            RoomType roomType = roomManagementSessionBean.getRoomType(typeName);
-            if (roomType != null) {
+            RoomType checkTypeExist = roomManagementSessionBean.getRoomType(typeName);
+            if (checkTypeExist != null) {
                 throw new RoomTypeExistException("Room Type Name already exist. Try again.\n");
             }
 
@@ -184,6 +184,9 @@ public class OpsManagerModule {
         } catch (RoomTypeRankException | RoomTypeExistException | EmptyListException ex) {
             System.out.println(ex.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
+        } catch (EJBTransactionRolledbackException e) {
+            System.out.println("Sorry. You have inputted invalid values. Try again.\n");
+            doOpsManagerDashboardFeatures(sc, emId);
         } catch (Exception e) {
             System.out.println("Something went wrong.");
             System.out.println(e.toString());
@@ -191,7 +194,7 @@ public class OpsManagerModule {
         }
     }
 
-    private void doViewRoomTypeDeatails(Scanner sc, Long emId) {
+    private void doViewRoomTypeDetails(Scanner sc, Long emId) {
         System.out.println("==== View Room Type Details Interface ====");
         System.out.println("Viewing room type. To cancel entry anytime, enter 'q'.");
         try {
@@ -205,7 +208,7 @@ public class OpsManagerModule {
             }
             RoomType type = roomManagementSessionBean.getRoomType(typeName);
             if (type == null) {
-                throw new RoomTypeExistException("Room Type does not exist.");
+                throw new RoomTypeExistException("Room Type does not exist.\n");
             }
             System.out.println("Selected Room Type details:");
             System.out.println("> Name: " + type.getRoomTypeName());
@@ -253,9 +256,9 @@ public class OpsManagerModule {
                     break;
             }
         } catch (EmptyListException | RoomTypeExistException e) {
-            System.out.println("Error: " + e.toString());
+            System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
-        } 
+        }
     }
 
     private void doViewAllRoomTypes(Scanner sc, Long emId) {
@@ -301,7 +304,9 @@ public class OpsManagerModule {
                 return;
             }
             int typeInput = Integer.parseInt(tInput);
-
+            if (typeInput <= 0 || typeInput >= types.size()) {
+                throw new InvalidInputException("Sorry, invalid type input. Try again.\n");
+            }
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
 
             System.out.println("Creating new Room:");
@@ -336,8 +341,14 @@ public class OpsManagerModule {
 
             doOpsManagerDashboardFeatures(sc, emId);
 
-        } catch (NumberFormatException | EmptyListException e) {
-            System.out.println("General Error: " + e.toString());
+        } catch (InvalidInputException | NumberFormatException | EmptyListException e) {
+            System.out.println(e.getMessage());
+            doOpsManagerDashboardFeatures(sc, emId);
+        } catch (EJBTransactionRolledbackException e) {
+            System.out.println("Sorry. You have inputted invalid values. Try again.\n");
+            doOpsManagerDashboardFeatures(sc, emId);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -416,6 +427,9 @@ public class OpsManagerModule {
                         System.out.print("> ");
                         int typeInput = sc.nextInt();
                         sc.nextLine();
+                        if (typeInput <= 0 || typeInput >= types.size()) {
+                            throw new InvalidInputException("Sorry, invalid type input. Restarting.\n");
+                        }
 
                         type = types.get(typeInput - 1);
                         break;
@@ -430,7 +444,8 @@ public class OpsManagerModule {
                         isAvail = (input2 == 1);
                         break;
                     default:
-                        break;
+                        continue;
+
                 }
 
                 System.out.println("Finalise changes?");
@@ -459,7 +474,7 @@ public class OpsManagerModule {
             System.out.println();
 
             doOpsManagerDashboardFeatures(sc, emId);
-        } catch (NumberFormatException | EmptyListException | RoomExistException e) {
+        } catch (InvalidInputException | NumberFormatException | EmptyListException | RoomExistException e) {
             System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
         }
@@ -493,6 +508,10 @@ public class OpsManagerModule {
 
             if (room.getIsDisabled()) {
                 System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
+                doOpsManagerDashboardFeatures(sc, emId);
+                return;
+            } else if (!room.getIsAvailable()) {
+                System.out.println("Sorry, you selected an unavilable Room. Try again with another room.\n");
                 doOpsManagerDashboardFeatures(sc, emId);
                 return;
             }
@@ -556,8 +575,10 @@ public class OpsManagerModule {
         System.out.println("Updating room type. To cancel entry at anytime, enter 'q'.");
         try {
             RoomType type = roomManagementSessionBean.getRoomType(roomTypeId);
-            if (type == null) throw new RoomTypeExistException("Room Type does not exist.\n");
-            
+            if (type == null) {
+                throw new RoomTypeExistException("Room Type does not exist.\n");
+            }
+
             boolean done = false;
             String name = type.getRoomTypeName();
             String desc = type.getRoomTypeDesc();
@@ -616,6 +637,10 @@ public class OpsManagerModule {
                         System.out.print("> Input new Ranking [1-" + typeList.size() + "]: ");
                         rank = sc.nextInt();
                         sc.nextLine();
+                        if (rank <= 0 || rank >= typeList.size()) {
+                            throw new InvalidInputException("Invalid rank input.\n");
+                        }
+                        
                         break;
                     case 7:
                         System.out.print("> Input new Amenities: ");
@@ -654,7 +679,10 @@ public class OpsManagerModule {
         } catch (RoomTypeExistException | EmptyListException ex) {
             System.out.println(ex.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
-        } 
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            doUpdateRoomType(sc, emId, roomTypeId);
+        }
     }
 
     private void doDeleteRoomType(Scanner sc, Long emId, Long roomTypeId) {

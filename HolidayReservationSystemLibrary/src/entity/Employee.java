@@ -33,6 +33,10 @@ public class Employee implements Serializable {
     @NotNull
     @Size(min=3, max=15)
     private String lastName;
+    @Column(nullable = false, unique = true)
+    @NotNull
+    @Size(min=3, max=15)
+    private String username;
     @Column(nullable = false)
     @NotNull
     private String employeeRole;
@@ -44,11 +48,20 @@ public class Employee implements Serializable {
     public Employee() {
     }
 
-    public Employee(String firstName, String lastName, String employeeRole, String password) {
+    public Employee(String firstName, String lastName, String username, String employeeRole, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.username = username;
         this.employeeRole = employeeRole;
         this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Long getEmployeeId() {

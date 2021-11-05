@@ -44,13 +44,14 @@ import util.exception.EmptyListException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class DataInitSessionBean {
 
-    @EJB
-    private AllocationSessionBeanLocal allocationSessionBean;
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    private AllocationSessionBeanLocal allocationSessionBean;
     
     @EJB
     private EmployeeSessionBeanLocal employeeSessionBean;
@@ -78,10 +79,10 @@ public class DataInitSessionBean {
         System.out.println("==== Inside Post Construct Method ====");
         try {
             if (em.find(Employee.class, 1L) == null) {
-                employeeSessionBean.createNewEmployee(new Employee("Bren", "Dan", EmployeeEnum.SYSTEMADMIN.toString(), "password"));
-                employeeSessionBean.createNewEmployee(new Employee("Dan", "Bren", EmployeeEnum.OPSMANAGER.toString(), "password"));
-                employeeSessionBean.createNewEmployee(new Employee("Chia", "Seeds", EmployeeEnum.SALESMANAGER.toString(), "password"));
-                employeeSessionBean.createNewEmployee(new Employee("Jun", "Zhe", EmployeeEnum.GRELMANAGER.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Bren", "Dan", "sysadmin", EmployeeEnum.SYSTEMADMIN.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Dan", "Bren", "opmanager", EmployeeEnum.OPSMANAGER.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Chia", "Seeds", "salesmanager", EmployeeEnum.SALESMANAGER.toString(), "password"));
+                employeeSessionBean.createNewEmployee(new Employee("Jun", "Zhe", "guestrelo", EmployeeEnum.GRELMANAGER.toString(), "password"));
                 System.out.println("created all employees"); 
             }
            

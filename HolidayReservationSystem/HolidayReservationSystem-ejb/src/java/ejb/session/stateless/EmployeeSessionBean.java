@@ -9,6 +9,7 @@ import entity.Employee;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.EmptyListException;
@@ -43,13 +44,9 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
 
     @Override
-    public boolean verifyLoginDetails(Long emId, String password) {
-        return true;
-    }
-
-    @Override
-    public boolean checkEmployeeExists(Long emId, String password) {
-        Employee employee = this.getEmployeeById(emId);
+    public boolean checkEmployeeExists(String username, String password) {
+        Employee employee = this.getEmployeeByUsername(username);
+        if (employee == null) return false;
         
         return employee.getPassword().equals(password);
     }
@@ -59,6 +56,22 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
         Employee employee = em.find(Employee.class, emId);
         
         return employee;
+    }
+    
+    @Override
+    public Employee getEmployeeByUsername(String username) {
+        Query query = em.createQuery("SELECT e FROM Employee e WHERE e.username=:name");
+        query.setParameter("name", username);
+        
+        try {
+            Employee employee = (Employee) query.getSingleResult();
+            
+            return employee;
+        } catch (NoResultException e) {
+            return null;
+        }
+        
+        
     }
 
     
