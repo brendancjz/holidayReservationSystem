@@ -246,7 +246,7 @@ public class MainApp {
 
                     System.out.println("> " + count++ + ". " + type.getRoomTypeDesc()
                             + "\n     ** Amenities: " + type.getAmenities()
-                            + "\n     ** Total reservation fee is " + totalReservation);
+                            + "\n     ** Total reservation fee is " + totalReservation * numOfRooms);
                 } else {
                     types.remove(type);
                     i--;

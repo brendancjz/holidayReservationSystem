@@ -19,8 +19,10 @@ public interface AllocationExceptionSessionBeanLocal {
     public Long createNewAllocationException(AllocationException exception);
 
     public AllocationException getAllocationExceptionByExceptionId(Long exceptionId);
-    
+
     public List<AllocationException> retrieveAllExceptions() throws EmptyListException;
-    
+
     public void associateAllocationExceptionWithReservation(AllocationException exception, Long reservationId);
+
+    public void createNewAllocationException(AllocationException exception, Long reservationId);
 }

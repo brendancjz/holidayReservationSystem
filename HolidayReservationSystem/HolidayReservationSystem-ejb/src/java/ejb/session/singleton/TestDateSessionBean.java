@@ -5,6 +5,7 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.AllocationExceptionSessionBeanLocal;
 import ejb.session.stateless.AllocationSessionBeanLocal;
 import ejb.session.stateless.EmployeeSessionBeanLocal;
 import ejb.session.stateless.GuestSessionBeanLocal;
@@ -14,6 +15,7 @@ import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.Allocation;
+import entity.AllocationException;
 import entity.Employee;
 import entity.Guest;
 import entity.Partner;
@@ -21,12 +23,7 @@ import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -46,6 +43,9 @@ import util.exception.EmptyListException;
 @LocalBean
 @Startup
 public class TestDateSessionBean {
+
+    @EJB
+    private AllocationExceptionSessionBeanLocal allocationExceptionSessionBean;
 
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
@@ -84,6 +84,21 @@ public class TestDateSessionBean {
                 employeeSessionBean.createNewEmployee(new Employee("Chia", "Seeds", "salesmanager", EmployeeEnum.SALESMANAGER.toString(), "password"));
                 employeeSessionBean.createNewEmployee(new Employee("Jun", "Zhe", "guestrelo", EmployeeEnum.GRELMANAGER.toString(), "password"));
                 System.out.println("created all employees");
+            }
+            
+            if (em.find(Guest.class, 1L) == null) {
+                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826723L, "theo@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Iggy", "Goh", 12345678L, "iggy@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 12321234L, "xy@gmail.com"));
+                guestSessionBean.createNewGuest(new Guest("Guoo", "Junn", 84821245L, "junjun@gmail.com"));
+                System.out.println("created all guests"); 
+            }
+            
+            if (em.find(Partner.class, 5L) == null) { //hardcoded the 5L cause four guests are created first.
+                partnerSessionBean.createNewPartner(new Partner("Teoh", "Doic", 84812329L, "mbs@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("Hames", "Godfish", 11236738L, "hotels@gmail.com"));
+                partnerSessionBean.createNewPartner(new Partner("XiaXia", "Bong", 84123234L, "fourseasons@gmail.com"));
+                System.out.println("created all partners"); 
             }
 
             if (em.find(Room.class, 1L) == null && em.find(RoomType.class, 1L) == null && em.find(RoomRate.class, 1L) == null) {
@@ -253,7 +268,7 @@ public class TestDateSessionBean {
                 System.out.println();
             } catch (EmptyListException e) {
                 System.out.println(e.getMessage());
-            }
+            } 
 
             System.out.println("== Printing Allocations");
             try {
@@ -263,7 +278,7 @@ public class TestDateSessionBean {
                     if (allocation.getReservation() != null) {
                         System.out.println(" > Reservation ID: " + allocation.getReservation().getReservationId());
                     }
-
+ 
                     System.out.println(" > Date: " + allocation.getCurrentDate());
                     List<Room> rooms1 = allocation.getRooms();
                     System.out.println("> Rooms:");
@@ -277,6 +292,26 @@ public class TestDateSessionBean {
             } catch (EmptyListException e) {
                 System.out.println(e.getMessage());
             }
+              
+            System.out.println("== Printing Allocations Exceptions");
+            try {
+                List<AllocationException> exceptions = allocationExceptionSessionBean.retrieveAllExceptions();
+                for (AllocationException ex : exceptions) {
+                    System.out.println("Allocation Exception ID: " + ex.getExceptionId());
+                    
+                    if (ex.getReservation() != null) {
+                        System.out.println(" > Reservation ID: " + ex.getReservation().getReservationId());
+                    }
+
+                    System.out.println(" > Date: " + ex.getCurrentDate());
+                    
+                    System.out.println();
+                }
+            } catch (EmptyListException e) {
+                System.out.println(e.getMessage());
+            }
+            
+            
 
         } catch (Exception ex) {
             ex.printStackTrace();

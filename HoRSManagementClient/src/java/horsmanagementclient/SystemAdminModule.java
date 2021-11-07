@@ -296,6 +296,7 @@ public class SystemAdminModule {
             if (reservations.isEmpty()) {
                 System.out.println("No room to allocate today.\n");
                 doSystemAdminDashboardFeatures(sc, emId);
+                return;
             }
 
             for (Reservation reservation : reservations) {
@@ -326,24 +327,22 @@ public class SystemAdminModule {
                     //CREATE
                     Allocation newAllocation = new Allocation(curr);
 
-                    //ASSOCIATE
-                    for (Room room : allocatedRooms) {
-
-                        allocationSessionBean.associateAllocationWithRoom(newAllocation, room.getRoomId());
-
-                    }
-
-                    allocationSessionBean.associateAllocationWithReservation(newAllocation, reservation.getReservationId());
-
                     //PERSIST
-                    newAllocation = allocationSessionBean.getAllocationByAllocationId(allocationSessionBean.createNewAllocation(newAllocation));
-
+                    Long newAllocationId = allocationSessionBean.createNewAllocation(newAllocation, reservation.getReservationId());
+                    
+                    List<Long> roomList = new ArrayList<>();
+                    for (Room room : allocatedRooms) {
+                        roomList.add(room.getRoomId());
+                    }
+                    allocationSessionBean.associateAllocationWithRooms(newAllocationId, roomList);
+                    
+                    newAllocation = allocationSessionBean.getAllocationByAllocationId(newAllocationId);
                     System.out.println("Successfully created an Allocation.");
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                     System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
                     System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
                     System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
-                    for (Room room : allocatedRooms) {
+                    for (Room room : newAllocation.getRooms()) {
                         System.out.println("   > Room ID: " + room.getRoomId());
                     }
                     System.out.println();
@@ -355,9 +354,9 @@ public class SystemAdminModule {
                         //CREATE
                         AllocationException exception = new AllocationException(curr, 2);
                         //ASSOCIATE
-                        allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception, reservation.getReservationId());
+
                         //PERSIST
-                        allocationExceptionSessionBean.createNewAllocationException(exception);
+                        allocationExceptionSessionBean.createNewAllocationException(exception, reservation.getReservationId());
                         System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
 
                         continue;
@@ -370,10 +369,6 @@ public class SystemAdminModule {
                     //CREATE
                     Allocation newAllocation = new Allocation(curr);
                     System.out.println("created the allocation object.");
-
-                    for (Room room : allocatedRooms) {
-                        allocationSessionBean.associateAllocationWithRoom(newAllocation, room.getRoomId());
-                    }
 
                     System.out.println("Unable to allocate all rooms to the room type. Check higher room types for rooms.");
 
@@ -408,41 +403,46 @@ public class SystemAdminModule {
                         }
 
                         if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
-
+                            System.out.println("done getting the rooms");
                             List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
 
                             for (Room room : higherRankedAllocatedRooms) {
-                                allocationSessionBean.associateAllocationWithRoom(newAllocation, room.getRoomId());
+
                                 allocatedRooms.add(room);
                             }
 
                             numOfRoomsNeedToUpgrade = 0;
                         } else {
-
+                            System.out.println("not done getting the rooms");
                             if (!higherRankedVacantRooms.isEmpty()) {
                                 for (Room room : higherRankedVacantRooms) {
-                                    allocationSessionBean.associateAllocationWithRoom(newAllocation, room.getRoomId());
+
                                     allocatedRooms.add(room);
                                 }
                             }
                             numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
                         }
-
+                        System.out.println("end of while loop.");
                     }
 
                     //PERSIST
                     System.out.println("persisting the allocation.");
-                    //ASSOCIATING
 
-                    System.out.println("asoociated allocation with reservation. should be null. " + newAllocation.getReservation() == null);
                     Long newAllocationId = allocationSessionBean.createNewAllocation(newAllocation, reservation.getReservationId());
+                    
+                    //ASSOCIATING 
+                    List<Long> roomList = new ArrayList<>();
+                    for (Room room : allocatedRooms) {
+                        roomList.add(room.getRoomId());
+                    }
+                    allocationSessionBean.associateAllocationWithRooms(newAllocationId, roomList);
                     newAllocation = allocationSessionBean.getAllocationByAllocationId(newAllocationId);
                     System.out.println("Successfully created an Allocation.");
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                     System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
                     System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
                     System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
-                    for (Room room : allocatedRooms) {
+                    for (Room room : newAllocation.getRooms()) {
                         System.out.println("   > Room Type: " + room.getRoomType().getRoomTypeName() + " Room ID: " + room.getRoomId());
                     }
                     System.out.println();
@@ -450,10 +450,8 @@ public class SystemAdminModule {
                     //Create Type 1 Exception
                     //CREATE
                     AllocationException exception = new AllocationException(curr, 1);
-                    //ASSOCIATE
-                    allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception, reservation.getReservationId());
                     //PERSIST
-                    allocationExceptionSessionBean.createNewAllocationException(exception);
+                    allocationExceptionSessionBean.createNewAllocationException(exception, reservation.getReservationId());
 
                     System.out.println("Type 1 Allocation Exception occurred.\n");
 
