@@ -7,7 +7,6 @@ package ejb.session.stateless;
 
 import entity.Guest;
 import javax.ejb.Remote;
-import util.exception.EmptyListException;
 
 /**
  *
