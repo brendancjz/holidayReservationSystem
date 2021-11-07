@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Allocation;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.EmptyListException;
@@ -24,5 +25,7 @@ public interface AllocationSessionBeanLocal {
     public void associateAllocationWithRoom(Allocation allocation, Long roomId);
 
     public void associateAllocationWithReservation(Allocation allocation, Long reservationId);
+
+    public void doRoomAllocation(LocalDate currDate);
     
 }

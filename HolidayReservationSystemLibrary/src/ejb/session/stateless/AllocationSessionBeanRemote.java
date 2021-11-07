@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Allocation;
+import entity.Room;
 import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Remote;
@@ -29,5 +30,7 @@ public interface AllocationSessionBeanRemote {
     public void removeAllocation(Allocation newAllocation);
 
     public void dissociateAllocationWithRoomsAndReservation(Allocation newAllocation);
+
+    public Long createNewAllocation(Allocation newAllocation, Long reservationId, List<Room> allocatedRooms);
     
 }

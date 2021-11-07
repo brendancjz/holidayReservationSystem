@@ -24,5 +24,7 @@ public interface AllocationExceptionSessionBeanRemote {
     public List<AllocationException> retrieveAllExceptions() throws EmptyListException;
 
     public void associateAllocationExceptionWithReservation(AllocationException exception, Long reservationId);
+
+    public void createNewAllocationException(AllocationException exception, Long reservationId);
     
 }

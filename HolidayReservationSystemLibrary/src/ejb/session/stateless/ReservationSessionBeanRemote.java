@@ -40,5 +40,7 @@ public interface ReservationSessionBeanRemote {
     public List<Reservation> getReservationsToAllocate(LocalDate currDate);
 
     public boolean isRoomTypeAvailableForWalkInReservation(Long roomTypeId, int numOfRooms);
+
+    public Long createNewReservation(Reservation reservation, Long guestId, Long roomTypeId, List<RoomRate> ratesUsed);
     
 }

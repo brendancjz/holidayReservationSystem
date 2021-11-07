@@ -308,11 +308,8 @@ public class MainApp {
 
                 DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-                //ASSOCIATE THE RESERVATION WITH GUEST AND ROOM TYPE AND ROOM RATES
-                reservationSessionBean.associateReservationWithGuestAndRoomTypeAndRoomRates(reservation, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
-
                 //PERSIST RESERVATION
-                Long reservationId = reservationSessionBean.createNewReservation(reservation);
+                Long reservationId = reservationSessionBean.createNewReservation(reservation, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
 
                 //ASSOCIATE RESERVATION TO GUEST
                 guestSessionBean.associateGuestWithReservation(guestId, reservationId);

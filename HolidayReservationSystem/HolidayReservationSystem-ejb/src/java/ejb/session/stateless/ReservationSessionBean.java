@@ -72,7 +72,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
         return reservations;
     }
-    
+
     @Override
     public Long createNewReservation(Reservation reservation, Long guestId, Long typeId, Long rateId) {
         this.associateReservationWithGuestAndRoomTypeAndRoomRate(reservation, guestId, typeId, rateId);
@@ -89,9 +89,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         RoomType roomType = em.find(RoomType.class, typeId);
         RoomRate roomRate = em.find(RoomRate.class, rateId);
 
-        
-
-        
         reservation.setCustomer(guest);
         reservation.setRoomType(roomType);
         reservation.getRoomRates().add(roomRate);
@@ -156,8 +153,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
     @Override
     public Reservation getReservationsByRoomTypeIdAndDuration(Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate, Long guestId) {
-        
-        
+
         Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         Query query = em.createQuery("SELECT r FROM Guest g JOIN g.reservations r WHERE g.customerId = :guestId AND r.roomType.roomTypeId = :typeId AND r.startDate = :start AND r.endDate = :end");
@@ -252,5 +248,15 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
 
         return numOfRooms <= numOfVacantRooms;
+    }
+
+    @Override
+    public Long createNewReservation(Reservation reservation, Long guestId, Long roomTypeId, List<RoomRate> ratesUsed) {
+        //ASSOCIATE THE RESERVATION WITH GUEST AND ROOM TYPE AND ROOM RATES
+        this.associateReservationWithGuestAndRoomTypeAndRoomRates(reservation, guestId, roomTypeId, ratesUsed);
+        em.persist(reservation);
+        em.flush();
+
+        return reservation.getReservationId();
     }
 }

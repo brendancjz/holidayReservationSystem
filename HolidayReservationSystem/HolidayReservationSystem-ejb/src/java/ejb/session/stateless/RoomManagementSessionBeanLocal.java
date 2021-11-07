@@ -20,4 +20,5 @@ public interface RoomManagementSessionBeanLocal {
     public List<RoomType> getAllRoomTypes() throws EmptyListException;
 
     public List<RoomRate> getRoomRates(Long roomTypeId) throws EmptyListException;
+    public RoomType getRoomTypeByRank(int rank);
 }
