@@ -46,6 +46,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
     @Override
     public Long createNewAllocation(Allocation allocation) {
+        
         em.persist(allocation);
         em.flush();
 
@@ -318,15 +319,12 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     }
 
     @Override
-    public Long createNewAllocation(Allocation newAllocation, Long reservationId, List<Room> allocatedRooms) {
-        //ASSOCIATE
-        for (Room room : allocatedRooms) {
-            this.associateAllocationWithRoom(newAllocation, room.getRoomId());
-        }
-
+    public Long createNewAllocation(Allocation newAllocation, Long reservationId) {
+        System.out.println("Creating new allocation with reservation.");
         this.associateAllocationWithReservation(newAllocation, reservationId);
         em.persist(newAllocation);
         em.flush();
+        
         return newAllocation.getAllocationId();
     }
 

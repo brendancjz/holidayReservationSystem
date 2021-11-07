@@ -31,6 +31,6 @@ public interface AllocationSessionBeanRemote {
 
     public void dissociateAllocationWithRoomsAndReservation(Allocation newAllocation);
 
-    public Long createNewAllocation(Allocation newAllocation, Long reservationId, List<Room> allocatedRooms);
+    public Long createNewAllocation(Allocation newAllocation, Long reservationId);
     
 }

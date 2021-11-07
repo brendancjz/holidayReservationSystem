@@ -20,21 +20,30 @@
 *.rar
 
 # User defined
+# Main Application Folder
 nbproject/private/
 build/
 dist/
 
+# EJB Folder
 HolidayReservationSystem-ejb/nbproject/private/
 HolidayReservationSystem-ejb/build/
 HolidayReservationSystem-ejb/dist/
 
-HolidayReservationSystemClient/nbproject/private/
-HolidayReservationSystemClient/build/
-HolidayReservationSystemClient/dist/
-
+# Class Library Folder
 HolidayReservationSystemLibrary/nbproject/private/
 HolidayReservationSystemLibrary/build/
 HolidayReservationSystemLibrary/dist/
+
+# Management Client Folder
+HoRSManagementClient/nbproject/private/
+HoRSManagementClient/build/
+HoRSManagementClient//dist/
+
+# Reservation Client Folder 
+HoRSReservationClient/nbproject/private/
+HoRSReservationClient/build/
+HoRSReservationClient/dist/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

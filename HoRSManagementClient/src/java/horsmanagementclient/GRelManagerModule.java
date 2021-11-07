@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.AllocationExistException;
 import util.exception.EmptyListException;
 import util.exception.GuestExistException;
 
@@ -270,7 +271,9 @@ public class GRelManagerModule {
 
             System.out.println("Hi " + guest.getFirstName() + ", checking you in...");
             Allocation allocation = allocationSessionBean.getAllocationForGuestForCurrentDay(guest.getCustomerId(), currDate);
-
+            if (allocation == null) {
+                throw new AllocationExistException("No allocations for this customer.\n");
+            }
             System.out.println("Your room(s) are:");
             for (Room room : allocation.getRooms()) {
                 System.out.println(":: Room Level: " + room.getRoomLevel());
@@ -279,9 +282,14 @@ public class GRelManagerModule {
             }
 
             doGRelManagerDashboardFeatures(sc, emId);
-        } catch (GuestExistException e) {
-            System.out.println("Invalid input. Try again.\n" + e.toString());
-            doCheckInGuest(sc, emId);
+        } catch (AllocationExistException | GuestExistException e) {
+            System.out.println(e.getMessage());
+            doCheckOutGuest(sc, emId);
+        } catch (Exception e) {
+            System.out.println("Something went wrong.");
+            e.printStackTrace();
+            doGRelManagerDashboardFeatures(sc, emId);
+            
         }
 
     }
@@ -305,7 +313,9 @@ public class GRelManagerModule {
             }
 
             Allocation allocation = allocationSessionBean.getAllocationForGuestForCheckOutDay(guest.getCustomerId(), currDate);
-
+            if (allocation == null) {
+                throw new AllocationExistException("No allocations for this customer.\n");
+            }
             for (Room room : allocation.getRooms()) {
                 roomManagementSessionBean.updateRoomVacancy(room.getRoomId(), Boolean.TRUE);
             }
@@ -320,9 +330,14 @@ public class GRelManagerModule {
             }
             System.out.println();
             doGRelManagerDashboardFeatures(sc, emId);
-        } catch (GuestExistException e) {
-            System.out.println("Invalid guest details. Try again.\n" + e.toString());
+        } catch (AllocationExistException | GuestExistException e) {
+            System.out.println(e.getMessage());
             doCheckOutGuest(sc, emId);
+        } catch (Exception e) {
+            System.out.println("Something went wrong.");
+            e.printStackTrace();
+            doGRelManagerDashboardFeatures(sc, emId);
+            
         }
 
     }
