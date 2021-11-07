@@ -124,7 +124,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             }
         }
         int countOfRoomsRequired = 0;
-
+ 
         try {
             List<Reservation> reservationsOfRoomType = this.getReservationsByRoomTypeId(typeId);
 
@@ -132,7 +132,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 Date start = reservation.getStartDate();
                 Date end = reservation.getEndDate();
                 if (isCollided(start, end, startDate, endDate)) {
-                    countOfRoomsRequired++;
+                    System.out.println("Reservation ID: " + reservation.getReservationId() + " collides with this new reservation.");
+                    countOfRoomsRequired += reservation.getNumOfRooms();
+                    //countOfRoomsRequired++;
                 }
             }
         } catch (EmptyListException e) {

@@ -425,7 +425,6 @@ public class GRelManagerModule {
                 doGRelManagerDashboardFeatures(sc, emId);
             }
         } catch (EmptyListException e) {
-            System.out.println(e.toString());
             System.out.println("You have made a wrong input. Try again.\n");
             doWalkInSearchRoom(sc, emId);
         }
