@@ -222,7 +222,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
                         continue;
                     }
-
+ 
                     List<Room> allocatedRooms = vacantRooms;
 
                     //Type 1 Exception

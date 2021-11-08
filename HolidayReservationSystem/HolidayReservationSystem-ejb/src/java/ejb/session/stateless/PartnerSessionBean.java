@@ -26,7 +26,6 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
     @Override
     public boolean checkPartnerExists(String email) {
-        boolean partnerExists = false;
 
         Query query = em.createQuery("SELECT p FROM Partner p WHERE p.email = :email");
         query.setParameter("email", email);

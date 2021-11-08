@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Customer;
 import entity.Guest;
 import entity.Reservation;
 import entity.Room;
@@ -85,11 +86,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId) {
         System.out.println("Inside associateReservationWithGuestAndRoomTypeAndRoomRate() method");
-        Guest guest = em.find(Guest.class, guestId);
+        Customer customer = em.find(Customer.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
         RoomRate roomRate = em.find(RoomRate.class, rateId);
 
-        reservation.setCustomer(guest);
+        reservation.setCustomer(customer);
         reservation.setRoomType(roomType);
         reservation.getRoomRates().add(roomRate);
 
@@ -97,13 +98,13 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
     @Override
     public void associateReservationWithGuestAndRoomTypeAndRoomRates(Reservation reservation, Long guestId, Long typeId, List<RoomRate> ratesUsed) {
-        Guest guest = em.find(Guest.class, guestId);
+        Customer customer = em.find(Customer.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
         for (RoomRate rate : ratesUsed) {
             em.merge(rate);
             reservation.getRoomRates().add(rate);
         }
-        reservation.setCustomer(guest);
+        reservation.setCustomer(customer);
         reservation.setRoomType(roomType);
 
     }
@@ -260,5 +261,42 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         em.flush();
 
         return reservation.getReservationId();
+    }
+
+    @Override
+    public List<Reservation> getReservationsByPartnerId(Long partnerId) throws EmptyListException {
+        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.customer.customerId = :id");
+        query.setParameter("id", partnerId);
+        
+        List<Reservation> reservations = query.getResultList();
+        
+        if (reservations.isEmpty()) throw new EmptyListException("Lsit of partner reservations is empty.\n");
+        
+        for (Reservation r : reservations) {
+            r.getRoomRates().size();
+            r.getRoomType();
+        }
+        
+        return reservations;
+    }
+
+    @Override
+    public Reservation getReservationsByDuration(LocalDate checkInDate, LocalDate checkOutDate, Long partnerId) {
+        
+        Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.customer.customerId = :id AND r.startDate = :start AND r.endDate = :end");
+        query.setParameter("id", partnerId);
+        query.setParameter("start", startDate);
+        query.setParameter("end", endDate);
+
+        try {
+            Reservation reservation = (Reservation) query.getSingleResult();
+            reservation.getRoomRates().size();
+            reservation.getRoomType();
+            return reservation;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

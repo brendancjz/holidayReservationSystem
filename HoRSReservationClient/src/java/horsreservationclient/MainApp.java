@@ -250,7 +250,7 @@ public class MainApp {
                 } else {
                     types.remove(type);
                     i--;
-                    System.out.println("Room Type delete " + type.getRoomTypeName());
+                    
                 }
             }
             System.out.print("> ");
