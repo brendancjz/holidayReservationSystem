@@ -52,6 +52,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         for (Reservation r : reservations) {
             r.getRoomRates().size();
             r.getRoomType();
+           
         }
 
         return reservations;

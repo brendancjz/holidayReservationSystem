@@ -22,6 +22,12 @@
 <message name="getRoomRatesResponse">
 <part name="parameters" element="tns:getRoomRatesResponse"/>
 </message>
+<message name="getRoomTypeFromReservationId">
+<part name="parameters" element="tns:getRoomTypeFromReservationId"/>
+</message>
+<message name="getRoomTypeFromReservationIdResponse">
+<part name="parameters" element="tns:getRoomTypeFromReservationIdResponse"/>
+</message>
 <message name="getPartnerReservation">
 <part name="parameters" element="tns:getPartnerReservation"/>
 </message>
@@ -40,11 +46,23 @@
 <message name="checkPartnerExistsResponse">
 <part name="parameters" element="tns:checkPartnerExistsResponse"/>
 </message>
+<message name="getReservationByReservationId">
+<part name="parameters" element="tns:getReservationByReservationId"/>
+</message>
+<message name="getReservationByReservationIdResponse">
+<part name="parameters" element="tns:getReservationByReservationIdResponse"/>
+</message>
 <message name="retrieveAllPartners">
 <part name="parameters" element="tns:retrieveAllPartners"/>
 </message>
 <message name="retrieveAllPartnersResponse">
 <part name="parameters" element="tns:retrieveAllPartnersResponse"/>
+</message>
+<message name="getPartnerByEmail">
+<part name="parameters" element="tns:getPartnerByEmail"/>
+</message>
+<message name="getPartnerByEmailResponse">
+<part name="parameters" element="tns:getPartnerByEmailResponse"/>
 </message>
 <message name="getAllPartnerReservations">
 <part name="parameters" element="tns:getAllPartnerReservations"/>
@@ -57,12 +75,6 @@
 </message>
 <message name="createNewReservationWithTwoRatesUsedResponse">
 <part name="parameters" element="tns:createNewReservationWithTwoRatesUsedResponse"/>
-</message>
-<message name="createNewPartner">
-<part name="parameters" element="tns:createNewPartner"/>
-</message>
-<message name="createNewPartnerResponse">
-<part name="parameters" element="tns:createNewPartnerResponse"/>
 </message>
 <message name="getAllRoomTypes">
 <part name="parameters" element="tns:getAllRoomTypes"/>
@@ -89,6 +101,10 @@
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/getRoomRatesRequest" message="tns:getRoomRates"/>
 <output wsam:Action="http://ws.session.ejb/HoRSWebService/getRoomRatesResponse" message="tns:getRoomRatesResponse"/>
 </operation>
+<operation name="getRoomTypeFromReservationId">
+<input wsam:Action="http://ws.session.ejb/HoRSWebService/getRoomTypeFromReservationIdRequest" message="tns:getRoomTypeFromReservationId"/>
+<output wsam:Action="http://ws.session.ejb/HoRSWebService/getRoomTypeFromReservationIdResponse" message="tns:getRoomTypeFromReservationIdResponse"/>
+</operation>
 <operation name="getPartnerReservation">
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/getPartnerReservationRequest" message="tns:getPartnerReservation"/>
 <output wsam:Action="http://ws.session.ejb/HoRSWebService/getPartnerReservationResponse" message="tns:getPartnerReservationResponse"/>
@@ -101,9 +117,17 @@
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/checkPartnerExistsRequest" message="tns:checkPartnerExists"/>
 <output wsam:Action="http://ws.session.ejb/HoRSWebService/checkPartnerExistsResponse" message="tns:checkPartnerExistsResponse"/>
 </operation>
+<operation name="getReservationByReservationId">
+<input wsam:Action="http://ws.session.ejb/HoRSWebService/getReservationByReservationIdRequest" message="tns:getReservationByReservationId"/>
+<output wsam:Action="http://ws.session.ejb/HoRSWebService/getReservationByReservationIdResponse" message="tns:getReservationByReservationIdResponse"/>
+</operation>
 <operation name="retrieveAllPartners">
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/retrieveAllPartnersRequest" message="tns:retrieveAllPartners"/>
 <output wsam:Action="http://ws.session.ejb/HoRSWebService/retrieveAllPartnersResponse" message="tns:retrieveAllPartnersResponse"/>
+</operation>
+<operation name="getPartnerByEmail">
+<input wsam:Action="http://ws.session.ejb/HoRSWebService/getPartnerByEmailRequest" message="tns:getPartnerByEmail"/>
+<output wsam:Action="http://ws.session.ejb/HoRSWebService/getPartnerByEmailResponse" message="tns:getPartnerByEmailResponse"/>
 </operation>
 <operation name="getAllPartnerReservations">
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/getAllPartnerReservationsRequest" message="tns:getAllPartnerReservations"/>
@@ -112,10 +136,6 @@
 <operation name="createNewReservationWithTwoRatesUsed">
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/createNewReservationWithTwoRatesUsedRequest" message="tns:createNewReservationWithTwoRatesUsed"/>
 <output wsam:Action="http://ws.session.ejb/HoRSWebService/createNewReservationWithTwoRatesUsedResponse" message="tns:createNewReservationWithTwoRatesUsedResponse"/>
-</operation>
-<operation name="createNewPartner">
-<input wsam:Action="http://ws.session.ejb/HoRSWebService/createNewPartnerRequest" message="tns:createNewPartner"/>
-<output wsam:Action="http://ws.session.ejb/HoRSWebService/createNewPartnerResponse" message="tns:createNewPartnerResponse"/>
 </operation>
 <operation name="getAllRoomTypes">
 <input wsam:Action="http://ws.session.ejb/HoRSWebService/getAllRoomTypesRequest" message="tns:getAllRoomTypes"/>
@@ -155,6 +175,15 @@
 <soap:body use="literal"/>
 </output>
 </operation>
+<operation name="getRoomTypeFromReservationId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="getPartnerReservation">
 <soap:operation soapAction=""/>
 <input>
@@ -182,7 +211,25 @@
 <soap:body use="literal"/>
 </output>
 </operation>
+<operation name="getReservationByReservationId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="retrieveAllPartners">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="getPartnerByEmail">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>
@@ -201,15 +248,6 @@
 </output>
 </operation>
 <operation name="createNewReservationWithTwoRatesUsed">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-</operation>
-<operation name="createNewPartner">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>

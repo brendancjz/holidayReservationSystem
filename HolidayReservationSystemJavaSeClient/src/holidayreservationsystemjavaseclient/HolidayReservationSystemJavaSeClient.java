@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ws.client.HoRSWebService_Service;
 import ws.client.Partner;
 import ws.client.Reservation;
@@ -47,6 +45,7 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.println("> 2. Exit");
             System.out.print("> ");
             int input = sc.nextInt();
+            sc.nextLine();
 
             System.out.println();
 
@@ -79,10 +78,10 @@ public class HolidayReservationSystemJavaSeClient {
 
             if (service.getHoRSWebServicePort().checkPartnerExists(email)) {
 
-//                Partner currPartner = service.getHoRSWebServicePort().getPartnerByEmail(email);
-//                System.out.println("Welcome " + currPartner.getFirstName() + ", you're in!\n");
-//
-                doDashboardFeatures(sc, 5L);
+                Partner currPartner = service.getHoRSWebServicePort().getPartnerByEmail(email);
+                System.out.println("Welcome " + currPartner.getFirstName() + ", you're in!\n");
+
+                doDashboardFeatures(sc, currPartner.getCustomerId());
 
             } else {
                 System.out.println("No account match or wrong login details. Try again.\n");
@@ -128,22 +127,34 @@ public class HolidayReservationSystemJavaSeClient {
     }
 
     private static void doViewAllPartnerReservations(Scanner sc, Long customerId) {
-        System.out.println("==== View All Partner Reservations Interface ====");
-        HoRSWebService_Service service = new HoRSWebService_Service();
-        List<Reservation> reservations = service.getHoRSWebServicePort().getAllPartnerReservations(customerId);
+        try {
+            System.out.println("==== View All Partner Reservations Interface ====");
 
-        DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.printf("\n%3s%20s%15s%15s%30s", "ID", "Room Type", "No. of Rooms", "Total Fees", "Duration");
-        for (Reservation reservation : reservations) {
-            System.out.printf("\n%3s%20s%15s%15s%30s", reservation.getReservationId(),
-                    reservation.getRoomType().getRoomTypeName(), reservation.getReservationFee(),
-                    reservation.getNumOfRooms(), outputFormat.format(reservation.getStartDate())
-                    + " -> " + outputFormat.format(reservation.getEndDate()));
+            HoRSWebService_Service service = new HoRSWebService_Service();
+            List<Reservation> reservations = service.getHoRSWebServicePort().getAllPartnerReservations(customerId);
+            if (reservations == null) {
+                System.out.println("Partner has not made any reservations.\n");
+                doDashboardFeatures(sc, customerId);
+            }
+            DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            System.out.printf("\n%3s%20s%15s%15s%30s", "ID", "Room Type", "No. of Rooms", "Total Fees", "Duration");
+            for (Reservation reservation : reservations) {
+                Date start = Date.from(reservation.getStartDate().toGregorianCalendar().toInstant());
+                Date end = Date.from(reservation.getEndDate().toGregorianCalendar().toInstant());
+                RoomType type = service.getHoRSWebServicePort().getRoomTypeFromReservationId(reservation.getReservationId());
+                System.out.printf("\n%3s%20s%15s%15s%30s", reservation.getReservationId(),
+                        type.getRoomTypeName(), reservation.getReservationFee(),
+                        reservation.getNumOfRooms(), outputFormat.format(start)
+                        + " -> " + outputFormat.format(end));
 
+            }
+            System.out.println();
+            System.out.println();
+            doDashboardFeatures(sc, customerId);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        System.out.println();
-        System.out.println();
-        doDashboardFeatures(sc, customerId);
+
     }
 
     private static void doViewPartnerReservationDetails(Scanner sc, Long customerId) {
@@ -171,20 +182,23 @@ public class HolidayReservationSystemJavaSeClient {
             }
 
             DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
-            String duration = outputFormat.format(reservation.getStartDate())
-                    + " -> " + outputFormat.format(reservation.getEndDate());
+            Date start = Date.from(reservation.getStartDate().toGregorianCalendar().toInstant());
+            Date end = Date.from(reservation.getEndDate().toGregorianCalendar().toInstant());
+            String duration = outputFormat.format(start)
+                    + " -> " + outputFormat.format(end);
+            RoomType type = service.getHoRSWebServicePort().getRoomTypeFromReservationId(reservation.getReservationId());
+
             System.out.println("Selected Reservation details:");
             System.out.println(":: Reservation ID: " + reservation.getReservationId());
             System.out.println("   > Reservation Fee: " + reservation.getReservationFee());
 
-            System.out.println("   > Room Type: " + reservation.getRoomType().getRoomTypeName());
+            System.out.println("   > Room Type: " + type.getRoomTypeName());
             System.out.println("   > Num of Rooms: " + reservation.getNumOfRooms());
             System.out.println("   > Duration: " + duration);
             System.out.println();
             doDashboardFeatures(sc, customerId);
         } catch (Exception e) {
-            System.out.println(e.toString());
-            doDashboardFeatures(sc, customerId);
+            e.printStackTrace();
         }
     }
 
@@ -234,7 +248,11 @@ public class HolidayReservationSystemJavaSeClient {
                 if (isRoomTypeAvail) {
                     //Derive the total reservation fee
                     double totalReservation = getTotalReservationFee(checkInDate, checkOutDate, type);
-
+                    if (totalReservation == -1) {
+                        System.out.println("No Room Rates available.\n");
+                        doDashboardFeatures(sc, customerId);
+                        return;
+                    }
                     System.out.println("> " + count++ + ". " + type.getRoomTypeDesc()
                             + "\n     ** Amenities: " + type.getAmenities()
                             + "\n     ** Total reservation fee is " + totalReservation * numOfRooms);
@@ -266,8 +284,8 @@ public class HolidayReservationSystemJavaSeClient {
             }
 
         } catch (Exception e) {
-            System.out.println(e.toString());
-            doPartnerSearchRoom(sc, customerId);
+            e.printStackTrace();
+
         }
     }
 
@@ -292,9 +310,8 @@ public class HolidayReservationSystemJavaSeClient {
 
                 DateFormat outputFormat = new SimpleDateFormat("dd MM yyyy");
 
-                
-                String checkIn = outputFormat.format(checkInDate);
-                String checkOut = outputFormat.format(checkOutDate);
+                String checkIn = outputFormat.format(startDate);
+                String checkOut = outputFormat.format(endDate);
                 Long reservationId;
                 switch (ratesUsed.size()) {
                     case 1:
@@ -314,17 +331,18 @@ public class HolidayReservationSystemJavaSeClient {
                                 getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType) * numOfRooms, customerId, selectedRoomType.getRoomTypeId(), ratesUsed.get(0).getRoomRateId(), ratesUsed.get(1).getRoomRateId(), ratesUsed.get(2).getRoomRateId(), ratesUsed.get(3).getRoomRateId());
                         break;
                 }
-                
-                
-//                Reservation reservation = service.getHoRSWebServicePort().getReservationByReservationId(reservationId);
-//
-//                System.out.println("You have made a reservation:");
-//                System.out.println(":: Reservation ID: " + reservation.getReservationId());
-//                System.out.println("> Number Of Rooms: " + reservation.getNumOfRooms());
-//                System.out.println("> Reservation Fee: " + reservation.getReservationFee());
-//                System.out.println("> Start Date: " + outputFormat.format(reservation.getStartDate()));
-//                System.out.println("> End Date: " + outputFormat.format(reservation.getEndDate()));
-//                System.out.println();
+
+                Reservation reservation = service.getHoRSWebServicePort().getReservationByReservationId(reservationId);
+
+                Date start = Date.from(reservation.getStartDate().toGregorianCalendar().toInstant());
+                Date end = Date.from(reservation.getEndDate().toGregorianCalendar().toInstant());
+                System.out.println("You have made a reservation:");
+                System.out.println(":: Reservation ID: " + reservation.getReservationId());
+                System.out.println("> Number Of Rooms: " + reservation.getNumOfRooms());
+                System.out.println("> Reservation Fee: " + reservation.getReservationFee());
+                System.out.println("> Start Date: " + outputFormat.format(start));
+                System.out.println("> End Date: " + outputFormat.format(end));
+                System.out.println();
 
             } else {
                 System.out.println("Going back to dashboard.\n");
@@ -342,20 +360,25 @@ public class HolidayReservationSystemJavaSeClient {
 
         HoRSWebService_Service service = new HoRSWebService_Service();
         List<RoomRate> rates = service.getHoRSWebServicePort().getRoomRates(selectedRoomType.getRoomTypeId());
+        if (rates == null) {
 
+            return -1;
+        }
         for (int i = 0; i < numOfDays; i++) {
             //get the rate Per night for each night
             boolean foundRate = false;
             for (int j = rates.size() - 1; j >= 0; j--) {
                 RoomRate rate = rates.get(j);
+                boolean isCurrentDateWithinRange = true;
+                if (rate.getStartDate() != null || rate.getEndDate() != null) {
+                    LocalDate start = rate.getStartDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate end = rate.getEndDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    boolean lowerBound = checkInDate.isAfter(start) || checkInDate.isEqual(start);
+                    boolean upperBound = checkInDate.isBefore(end) || checkInDate.isEqual(end);
+                    isCurrentDateWithinRange = lowerBound && upperBound;
+                }
 
-                LocalDate start = rate.getStartDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalDate end = rate.getEndDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                boolean lowerBound = checkInDate.isAfter(start) || checkInDate.isEqual(start);
-                boolean upperBound = checkInDate.isBefore(end) || checkInDate.isEqual(end);
-                boolean isCurrentDateWithinRange = lowerBound && upperBound;
-
-                if (((rate.getStartDate() == null) || isCurrentDateWithinRange) && !foundRate) {
+                if ((isCurrentDateWithinRange) && !foundRate) {
                     totalReservation += rate.getRatePerNight();
                     checkInDate = checkInDate.plusDays(1);
                     foundRate = true;
@@ -382,13 +405,16 @@ public class HolidayReservationSystemJavaSeClient {
             for (int j = rates.size() - 1; j >= 0; j--) {
                 RoomRate rate = rates.get(j);
 
-                LocalDate start = rate.getStartDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalDate end = rate.getEndDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                boolean lowerBound = checkInDate.isAfter(start) || checkInDate.isEqual(start);
-                boolean upperBound = checkInDate.isBefore(end) || checkInDate.isEqual(end);
-                boolean isCurrentDateWithinRange = lowerBound && upperBound;
+                boolean isCurrentDateWithinRange = true;
+                if (rate.getStartDate() != null || rate.getEndDate() != null) {
+                    LocalDate start = rate.getStartDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate end = rate.getEndDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    boolean lowerBound = checkInDate.isAfter(start) || checkInDate.isEqual(start);
+                    boolean upperBound = checkInDate.isBefore(end) || checkInDate.isEqual(end);
+                    isCurrentDateWithinRange = lowerBound && upperBound;
+                }
 
-                if (((rate.getStartDate() == null) || isCurrentDateWithinRange) && !foundRate) {
+                if ((isCurrentDateWithinRange) && !foundRate) {
                     if (!ratesUsed.contains(rate)) {
                         ratesUsed.add(rate); //Adding unique room rates
                     }

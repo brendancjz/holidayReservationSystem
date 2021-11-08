@@ -155,6 +155,30 @@ public class HoRSWebService {
         }
     }
 
+    @WebMethod(operationName = "getRoomTypeFromReservationId")
+    public RoomType getRoomTypeFromReservationId(@WebParam(name = "reservationId") Long id) {
+        try {
+            Reservation reservation = em.find(Reservation.class, id);
+            RoomType type = reservation.getRoomType();
+
+            em.detach(type);
+
+            for (RoomRate rate : type.getRates()) {
+                em.detach(rate);
+                rate.setRoomType(null);
+            }
+
+            for (Room room : type.getRooms()) {
+                em.detach(room);
+                room.setRoomType(null);
+            }
+
+            return type;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
     @WebMethod(operationName = "getPartnerReservation")
     public Reservation getPartnerReservation(@WebParam(name = "checkIn") String checkIn,
             @WebParam(name = "checkOut") String checkOut,
