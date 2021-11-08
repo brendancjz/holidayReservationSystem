@@ -58,7 +58,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         query.setParameter("name", rateName);
         
         try {
-             RoomRate rate = (RoomRate) query.getResultList();
+             RoomRate rate = (RoomRate) query.getSingleResult();
              rate.getRoomType();
              return rate;
         } catch (NoResultException e) {

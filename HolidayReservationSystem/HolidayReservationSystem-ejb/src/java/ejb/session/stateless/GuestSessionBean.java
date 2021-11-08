@@ -25,29 +25,6 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
 
-    @Override
-    public boolean verifyLoginDetails(String email) {
-        Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email = :email");
-        query.setParameter("email", email);
-        try {
-            Guest g = (Guest) query.getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email) {
-        Query query = em.createQuery("SELECT g FROM Guest g WHERE g.email = :email");
-        query.setParameter("email", email);
-        try {
-            Guest g = (Guest) query.getSingleResult();
-            return false;
-        } catch (NoResultException e) {
-            return true;
-        }
-    }
 
     @Override
     public boolean checkGuestExists(String email) {
@@ -112,5 +89,20 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         Reservation reservation = em.find(Reservation.class, reservationId);
         Guest guest = em.find(Guest.class, guestId);
         guest.getReservations().add(reservation);
+    }
+
+    @Override
+    public Guest getGuestByContactNum(Long number) {
+        try {
+            Query query = em.createQuery("SELECT g FROM Guest g WHERE g.contactNumber = :number");
+            query.setParameter("number", number);
+
+            Guest guest = (Guest) query.getSingleResult();
+            guest.getReservations().size();
+            
+            return guest;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

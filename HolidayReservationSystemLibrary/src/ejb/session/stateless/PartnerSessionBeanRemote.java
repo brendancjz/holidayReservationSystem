@@ -31,6 +31,8 @@ public interface PartnerSessionBeanRemote {
 
     public Partner getPartnerByPartnerId(Long partnerId);
 
+    public Partner getPartnerByContactNum(Long number);
+
     
     
 }

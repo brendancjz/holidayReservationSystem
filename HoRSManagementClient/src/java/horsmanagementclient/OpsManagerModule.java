@@ -297,21 +297,21 @@ public class OpsManagerModule {
                 }
             }
             System.out.print("> ");
-            String tInput = sc.next();
+            String tInput = sc.next().trim();
             sc.nextLine();
             if (tInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             int typeInput = Integer.parseInt(tInput);
-            if (typeInput <= 0 || typeInput >= types.size()) {
+            if (typeInput <= 0 || typeInput > types.size()) {
                 throw new InvalidInputException("Sorry, invalid type input. Try again.\n");
             }
             System.out.println("** You have selected: " + types.get(typeInput - 1).getRoomTypeName() + "\n");
 
             System.out.println("Creating new Room:");
             System.out.print("> Room Level: ");
-            String roomInput = sc.next();
+            String roomInput = sc.next().trim();
             sc.nextLine();
             if (roomInput.equals("q")) {
                 doCancelledEntry(sc, emId);
@@ -319,7 +319,7 @@ public class OpsManagerModule {
             }
             int level = Integer.parseInt(roomInput);
             System.out.print("> Room Number: ");
-            String numInput = sc.next();
+            String numInput = sc.next().trim();
             sc.nextLine();
             if (numInput.equals("q")) {
                 doCancelledEntry(sc, emId);
@@ -327,6 +327,9 @@ public class OpsManagerModule {
             }
             int num = Integer.parseInt(numInput);
             System.out.println();
+            
+            Room r = roomManagementSessionBean.getRoom(level, num);
+            if (r != null) throw new RoomExistException("Room already exist. Try another room level and number.\n");
 
             Room newRoom = new Room(level, num);
             newRoom = roomManagementSessionBean.createNewRoom(newRoom, types.get(typeInput - 1).getRoomTypeId());
@@ -341,7 +344,7 @@ public class OpsManagerModule {
 
             doOpsManagerDashboardFeatures(sc, emId);
 
-        } catch (InvalidInputException | NumberFormatException | EmptyListException e) {
+        } catch (RoomExistException | InvalidInputException | NumberFormatException | EmptyListException e) {
             System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
         } catch (EJBTransactionRolledbackException e) {
@@ -357,7 +360,7 @@ public class OpsManagerModule {
             System.out.println("==== Update Room Interface ====");
             System.out.println("Updating room. To cancel entry at anytime, enter 'q'.");
             System.out.print("> Input existing Room Level: ");
-            String roomInput = sc.next();
+            String roomInput = sc.next().trim();
             sc.nextLine();
             if (roomInput.equals("q")) {
                 doCancelledEntry(sc, emId);
@@ -365,7 +368,7 @@ public class OpsManagerModule {
             }
             int level = Integer.parseInt(roomInput);
             System.out.print("> Input existing Room Number: ");
-            String numInput = sc.next();
+            String numInput = sc.next().trim();
             sc.nextLine();
             if (numInput.equals("q")) {
                 doCancelledEntry(sc, emId);
@@ -511,7 +514,7 @@ public class OpsManagerModule {
                 doOpsManagerDashboardFeatures(sc, emId);
                 return;
             } else if (!room.getIsAvailable()) {
-                System.out.println("Sorry, you selected an unavilable Room. Try again with another room.\n");
+                System.out.println("Sorry, you selected an unavailable Room. Try again with another room.\n");
                 doOpsManagerDashboardFeatures(sc, emId);
                 return;
             }
@@ -612,11 +615,11 @@ public class OpsManagerModule {
                 switch (input) {
                     case 1:
                         System.out.print("> Input new Name: ");
-                        name = sc.nextLine();
+                        name = sc.nextLine().trim();
                         break;
                     case 2:
                         System.out.print("> Input new Description: ");
-                        desc = sc.nextLine();
+                        desc = sc.nextLine().trim();
                         break;
                     case 3:
                         System.out.print("> Input new Room Size: ");

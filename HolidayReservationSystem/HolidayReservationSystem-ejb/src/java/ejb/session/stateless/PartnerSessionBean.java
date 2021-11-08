@@ -50,17 +50,19 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
     @Override
     public Partner getPartnerByEmail(String email) {
-        Partner p = null;
+        
         try {
             Query query = em.createQuery("SELECT p FROM Partner p WHERE p.email = :email");
             query.setParameter("email", email);
-
-            p = (Partner) query.getSingleResult();
-        } catch (Exception e) {
-            System.out.println("** getGuestByEmail throwing error " + e.getMessage());
+            
+            Partner p = (Partner) query.getSingleResult();
+            p.getReservations().size();
+            return p;
+        } catch (NoResultException e) {
+            return null;
         }
 
-        return p;
+        
     }
 
     @Override
@@ -104,5 +106,19 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             return true;
         }
         
+    }
+
+    @Override
+    public Partner getPartnerByContactNum(Long number) {
+        try {
+            Query query = em.createQuery("SELECT p FROM Partner p WHERE p.contactNumber = :number");
+            query.setParameter("number", number);
+            
+            Partner p = (Partner) query.getSingleResult();
+            p.getReservations().size();
+            return p;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

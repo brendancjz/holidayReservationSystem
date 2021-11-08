@@ -18,8 +18,7 @@ import util.exception.EmptyListException;
 public interface GuestSessionBeanLocal {
     
     public boolean checkGuestExists(String email);
-    public boolean verifyLoginDetails(String email);
-    public boolean verifyRegisterDetails(String firstName, String lastName, Long contactNum, String email);
+    
     public Long createNewGuest(Guest guest);
     public Guest getGuestByEmail(String email);
 

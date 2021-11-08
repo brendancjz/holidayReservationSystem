@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Scanner;
 import javax.ejb.EJBTransactionRolledbackException;
 import util.enumeration.EmployeeEnum;
+import util.exception.EmployeeExistException;
 import util.exception.EmptyListException;
+import util.exception.PartnerExistException;
 
 /**
  *
@@ -103,23 +105,29 @@ public class SystemAdminModule {
             System.out.println("==== Create New Employee Interface ====");
             System.out.println("Please input the following details. To cancel creation at anytime, enter 'q'.");
             System.out.print("> First Name: ");
-            String firstName = sc.nextLine();
+            String firstName = sc.nextLine().trim();
             if (firstName.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             System.out.print("> Last Name: ");
-            String lastName = sc.nextLine();
+            String lastName = sc.nextLine().trim();
             if (lastName.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             System.out.print("> Username: ");
-            String username = sc.nextLine();
+            String username = sc.nextLine().trim();
             if (username.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
+
+            Employee testExists = employeeSessionBean.getEmployeeByUsername(username);
+            if (testExists != null) {
+                throw new EmployeeExistException("Username already exist. Try another.\n");
+            }
+
             System.out.print("> Password: ");
             String password = sc.nextLine();
             if (password.equals("q")) {
@@ -174,8 +182,11 @@ public class SystemAdminModule {
             doSystemAdminDashboardFeatures(sc, emId);
 
         } catch (EJBTransactionRolledbackException e) {
-            System.out.println("Sorry. You have inputted invalid values. Try again.\n");
+            System.out.println("Sorry. You have inputted values that do not match the requirements. Try again.\n");
             doSystemAdminDashboardFeatures(sc, emId);
+        } catch (EmployeeExistException e) {
+            System.out.println(e.getMessage());
+            doCreateNewEmployee(sc, emId);
         } catch (Exception e) {
             System.out.println("Invalid input. Try again.");
             doCreateNewEmployee(sc, emId);
@@ -207,30 +218,40 @@ public class SystemAdminModule {
             System.out.println("==== Create New Partner Interface ====");
             System.out.println("Enter partner details. To cancel creation at anytime, enter 'q'.");
             System.out.print("> First Name: ");
-            String firstName = sc.nextLine();
+            String firstName = sc.nextLine().trim();
             if (firstName.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             System.out.print("> Last Name: ");
-            String lastName = sc.nextLine();
+            String lastName = sc.nextLine().trim();
             if (lastName.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             System.out.print("> Email: ");
-            String email = sc.nextLine();
+            String email = sc.nextLine().trim();
             if (email.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
+
+            Partner testExist = partnerSessionBean.getPartnerByEmail(email);
+            if (testExist != null) {
+                throw new PartnerExistException("Email already exists. Try another.\n");
+            }
+
             System.out.print("> Contact Number: ");
-            String numberInput = sc.nextLine();
+            String numberInput = sc.nextLine().trim();
             if (numberInput.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
             Long number = Long.parseLong(numberInput);
+            testExist = partnerSessionBean.getPartnerByContactNum(number);
+            if (testExist != null) {
+                throw new PartnerExistException("Contact number already exists. Try another.\n");
+            }
 
             if (partnerSessionBean.verifyRegisterDetails(firstName, lastName, number, email)) {
                 Partner newPartner = new Partner(firstName, lastName, number, email);
@@ -249,6 +270,9 @@ public class SystemAdminModule {
 
                 doCreateNewPartner(sc, emId);
             }
+        } catch (PartnerExistException e) {
+            System.out.println(e.getMessage());
+            doCreateNewPartner(sc, emId);
         } catch (Exception e) {
             System.out.println("Invalid input. Try again.");
             doCreateNewPartner(sc, emId);
@@ -329,13 +353,13 @@ public class SystemAdminModule {
 
                     //PERSIST
                     Long newAllocationId = allocationSessionBean.createNewAllocation(newAllocation, reservation.getReservationId());
-                    
+
                     List<Long> roomList = new ArrayList<>();
                     for (Room room : allocatedRooms) {
                         roomList.add(room.getRoomId());
                     }
                     allocationSessionBean.associateAllocationWithRooms(newAllocationId, roomList);
-                    
+
                     newAllocation = allocationSessionBean.getAllocationByAllocationId(newAllocationId);
                     System.out.println("Successfully created an Allocation.");
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -368,9 +392,7 @@ public class SystemAdminModule {
                     //Allocate all the rooms of the current RoomType into this allocation
                     //CREATE
                     Allocation newAllocation = new Allocation(curr);
-                    System.out.println("created the allocation object.");
-
-                    System.out.println("Unable to allocate all rooms to the room type. Check higher room types for rooms.");
+                    
 
                     //Get the remaining rooms from other RoomTypes, while loop
                     int numOfRoomsNeedToUpgrade = numOfRoomsToAllocate - vacantRooms.size();
@@ -403,7 +425,7 @@ public class SystemAdminModule {
                         }
 
                         if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
-                            System.out.println("done getting the rooms");
+                            
                             List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
 
                             for (Room room : higherRankedAllocatedRooms) {
@@ -413,7 +435,7 @@ public class SystemAdminModule {
 
                             numOfRoomsNeedToUpgrade = 0;
                         } else {
-                            System.out.println("not done getting the rooms");
+                            
                             if (!higherRankedVacantRooms.isEmpty()) {
                                 for (Room room : higherRankedVacantRooms) {
 
@@ -422,14 +444,12 @@ public class SystemAdminModule {
                             }
                             numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
                         }
-                        System.out.println("end of while loop.");
+                        
                     }
 
                     //PERSIST
-                    System.out.println("persisting the allocation.");
-
                     Long newAllocationId = allocationSessionBean.createNewAllocation(newAllocation, reservation.getReservationId());
-                    
+
                     //ASSOCIATING 
                     List<Long> roomList = new ArrayList<>();
                     for (Room room : allocatedRooms) {

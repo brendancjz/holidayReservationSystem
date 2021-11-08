@@ -30,6 +30,7 @@ import java.util.Scanner;
 import util.exception.AllocationExistException;
 import util.exception.EmptyListException;
 import util.exception.GuestExistException;
+import util.exception.InvalidInputException;
 
 /**
  *
@@ -88,7 +89,6 @@ public class GRelManagerModule {
         try {
             System.out.println("==== Walk In Allocating Rooms To Current Day Reservations ====");
 
-            
             Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
             List<Reservation> reservations = reservationSessionBean.getReservationsToAllocate(currDate);
             if (reservations.isEmpty()) {
@@ -127,13 +127,13 @@ public class GRelManagerModule {
 
                     //PERSIST
                     Long newAllocationId = allocationSessionBean.createNewAllocation(newAllocation, reservation.getReservationId());
-                    
+
                     List<Long> roomList = new ArrayList<>();
                     for (Room room : allocatedRooms) {
                         roomList.add(room.getRoomId());
                     }
                     allocationSessionBean.associateAllocationWithRooms(newAllocationId, roomList);
-                    
+
                     newAllocation = allocationSessionBean.getAllocationByAllocationId(newAllocationId);
                     System.out.println("Successfully created an Allocation.");
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -166,16 +166,13 @@ public class GRelManagerModule {
                     //Allocate all the rooms of the current RoomType into this allocation
                     //CREATE
                     Allocation newAllocation = new Allocation(curr);
-                    System.out.println("created the allocation object.");
-
-                    System.out.println("Unable to allocate all rooms to the room type. Check higher room types for rooms.");
 
                     //Get the remaining rooms from other RoomTypes, while loop
                     int numOfRoomsNeedToUpgrade = numOfRoomsToAllocate - vacantRooms.size();
                     while (numOfRoomsNeedToUpgrade > 0) {
                         //get a higher rank RoomType
                         rankOfRoomType = rankOfRoomType - 1;
-                        System.out.println("Next room type.");
+
                         if (rankOfRoomType <= 0) {
                             //CREATE
                             AllocationException exception = new AllocationException(curr, 2);
@@ -201,7 +198,7 @@ public class GRelManagerModule {
                         }
 
                         if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
-                            System.out.println("done getting the rooms");
+
                             List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
 
                             for (Room room : higherRankedAllocatedRooms) {
@@ -211,7 +208,7 @@ public class GRelManagerModule {
 
                             numOfRoomsNeedToUpgrade = 0;
                         } else {
-                            System.out.println("not done getting the rooms");
+
                             if (!higherRankedVacantRooms.isEmpty()) {
                                 for (Room room : higherRankedVacantRooms) {
 
@@ -220,14 +217,12 @@ public class GRelManagerModule {
                             }
                             numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
                         }
-                        System.out.println("end of while loop.");
+
                     }
 
                     //PERSIST
-                    System.out.println("persisting the allocation.");
-
                     Long newAllocationId = allocationSessionBean.createNewAllocation(newAllocation, reservation.getReservationId());
-                    
+
                     //ASSOCIATING 
                     List<Long> roomList = new ArrayList<>();
                     for (Room room : allocatedRooms) {
@@ -257,6 +252,8 @@ public class GRelManagerModule {
 
             }
 
+        
+            doGRelManagerDashboardFeatures(sc, emId);
         } catch (Exception e) {
             System.out.println("Invalid input. Try again. " + e.toString());
             doWalkInAllocation(currDate, reservationId, sc, emId);
@@ -269,9 +266,9 @@ public class GRelManagerModule {
             System.out.println("==== Check In Guest Interface ====");
             System.out.println("Please input your Guest details:");
             System.out.print("> Guest Email: ");
-            String email = sc.nextLine();
+            String email = sc.nextLine().trim();
             System.out.print("> Current Date [DD MM YYYY]: ");
-            String currDay = sc.nextLine();
+            String currDay = sc.nextLine().trim();
             System.out.println();
 
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
@@ -301,8 +298,7 @@ public class GRelManagerModule {
         } catch (Exception e) {
             System.out.println("Something went wrong.");
             e.printStackTrace();
-            doGRelManagerDashboardFeatures(sc, emId);
-            
+
         }
 
     }
@@ -312,9 +308,9 @@ public class GRelManagerModule {
             System.out.println("==== Check Out Guest Interface ====");
             System.out.println("Please input your Guest details:");
             System.out.print("> Guest Email: ");
-            String email = sc.nextLine();
+            String email = sc.nextLine().trim();
             System.out.print("> Current Date [DD MM YYYY]: ");
-            String currDay = sc.nextLine();
+            String currDay = sc.nextLine().trim();
             System.out.println();
 
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
@@ -349,8 +345,7 @@ public class GRelManagerModule {
         } catch (Exception e) {
             System.out.println("Something went wrong.");
             e.printStackTrace();
-            doGRelManagerDashboardFeatures(sc, emId);
-            
+
         }
 
     }
@@ -360,16 +355,23 @@ public class GRelManagerModule {
             System.out.println("==== Search Hotel Room Interface ====");
             System.out.println("Please input your check-in and check-out dates. Follow the format 'DD MM YYYY'.");
             System.out.print("> Check-In Date: ");
-            String checkIn = sc.nextLine();
+            String checkIn = sc.nextLine().trim();
             System.out.print("> Check-Out Date: ");
-            String checkOut = sc.nextLine();
+            String checkOut = sc.nextLine().trim();
+
+            DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
+            LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
+            LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
+            if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
+                throw new InvalidInputException("Check out date is before or same as check in date. Try again.\n");
+            }
+
             System.out.println();
             System.out.println("How many number rooms are you looking to reserve?");
             System.out.print("> Number of Rooms: ");
             int numOfRooms = sc.nextInt();
-            DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
-            LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
-            LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
+            sc.nextLine();
+
             long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
             //Output all the room types, give guest option to select the room he wants to search
@@ -393,7 +395,7 @@ public class GRelManagerModule {
                 } else {
                     types.remove(type);
                     i--;
-                    System.out.println("Room Type Not Avail: " + type.getRoomTypeName());
+                    System.out.println("Room Type Not Available: " + type.getRoomTypeName());
                 }
             }
             System.out.print("> ");
@@ -427,12 +429,17 @@ public class GRelManagerModule {
         } catch (EmptyListException e) {
             System.out.println("You have made a wrong input. Try again.\n");
             doWalkInSearchRoom(sc, emId);
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            doWalkInSearchRoom(sc, emId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void doWalkInReserveRoom(Scanner sc, Long emId, Long guestId, LocalDate checkInDate, LocalDate checkOutDate, int numOfRooms, RoomType selectedRoomType) {
         try {
-
             List<RoomRate> ratesUsed = getRoomRateUsed(checkInDate, checkOutDate, selectedRoomType);
 
             System.out.println("Confirm reservation?");
@@ -444,20 +451,21 @@ public class GRelManagerModule {
             System.out.println();
 
             if (confirmationInput == 1) {
+
                 Date startDate = Date.from(checkInDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
                 Date endDate = Date.from(checkOutDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-                //CREATE RESERVATION
+
+                //CREATE RESERVATION OBJECT
                 Reservation reservation = new Reservation(startDate, endDate, numOfRooms, getTotalReservationFee(checkInDate, checkOutDate, selectedRoomType) * numOfRooms);
 
-                //ASSOCIATE RESERVATION WITH ...
-                reservationSessionBean.associateReservationWithGuestAndRoomTypeAndRoomRates(reservation, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
+                DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-                //PERSIST
-                Long reservationId = reservationSessionBean.createNewReservation(reservation);
-                //ASSOCIATE GUEST WITH RESERVATION
+                //PERSIST RESERVATION
+                Long reservationId = reservationSessionBean.createNewReservation(reservation, guestId, selectedRoomType.getRoomTypeId(), ratesUsed);
+
+                //ASSOCIATE RESERVATION TO GUEST
                 guestSessionBean.associateGuestWithReservation(guestId, reservationId);
 
-                DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                 reservation = reservationSessionBean.getReservationByReservationId(reservationId);
 
                 System.out.println("You have made a reservation:");
@@ -467,15 +475,15 @@ public class GRelManagerModule {
                 System.out.println("> Start Date: " + outputFormat.format(reservation.getStartDate()));
                 System.out.println("> End Date: " + outputFormat.format(reservation.getEndDate()));
                 System.out.println();
-
                 doWalkInAllocation(checkInDate, reservation.getReservationId(), sc, emId);
             } else {
                 System.out.println("Going back to dashboard.\n");
                 doGRelManagerDashboardFeatures(sc, emId);
-            }
 
-        } catch (EmptyListException e) {
-            System.out.println("Something went wrong. " + e.toString());
+            }
+            
+        } catch (EmptyListException ex) {
+            System.out.println(ex.getMessage());
             doGRelManagerDashboardFeatures(sc, emId);
         }
     }
@@ -509,30 +517,41 @@ public class GRelManagerModule {
     }
 
     public Guest doRegistration(Scanner sc) {
-        System.out.println("==== Register Interface ====");
-        System.out.println("Enter guest details. To cancel registration at anytime, press 'q'.");
-        System.out.print("> First Name: ");
-        String firstName = sc.nextLine();
+        try {
+            System.out.println("==== Register Interface ====");
+            System.out.println("Enter guest details. To cancel registration at anytime, press 'q'.");
+            System.out.print("> First Name: ");
+            String firstName = sc.nextLine().trim();
 
-        System.out.print("> Last Name: ");
-        String lastName = sc.nextLine();
+            System.out.print("> Last Name: ");
+            String lastName = sc.nextLine().trim();
 
-        System.out.print("> Email: ");
-        String email = sc.nextLine();
+            System.out.print("> Email: ");
+            String email = sc.nextLine().trim();
 
-        System.out.print("> Contact Number: ");
-        String numberInput = sc.nextLine();
+            Guest testExist = guestSessionBean.getGuestByEmail(email);
+            if (testExist != null) {
+                throw new GuestExistException("Contact number already exists. Try another.\n");
+            }
 
-        Long number = Long.parseLong(numberInput);
+            System.out.print("> Contact Number: ");
+            String numberInput = sc.nextLine().trim();
 
-        Guest newGuest;
-        if (guestSessionBean.verifyRegisterDetails(firstName, lastName, number, email)) {
-            newGuest = new Guest(firstName, lastName, number, email);
+            Long number = Long.parseLong(numberInput);
+
+            testExist = guestSessionBean.getGuestByContactNum(number);
+            if (testExist != null) {
+                throw new GuestExistException("Contact number already exists. Try another.\n");
+            }
+
+            Guest newGuest = new Guest(firstName, lastName, number, email);
             return newGuest;
-        } else {
-            System.out.println("You have inputted wrong details. Please try again.\n");
+
+        } catch (GuestExistException e) {
+            System.out.println(e.getMessage());
             return null;
         }
+
     }
 
     public void doCancelledRegistration(Scanner sc) {
