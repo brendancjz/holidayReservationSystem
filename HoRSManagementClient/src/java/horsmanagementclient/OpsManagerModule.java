@@ -258,6 +258,9 @@ public class OpsManagerModule {
         } catch (RoomTypeExistException e) {
             System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
@@ -281,6 +284,8 @@ public class OpsManagerModule {
         } catch (EmptyListException e) {
             System.out.println("Main exception: " + e.toString() + "\n");
 
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
         }
         doOpsManagerDashboardFeatures(sc);
     }
@@ -485,6 +490,9 @@ public class OpsManagerModule {
         } catch (NumberFormatException e) {
             System.out.println("Sorry, you have inputted invalid values. Try again.\n");
             doOpsManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
@@ -554,6 +562,9 @@ public class OpsManagerModule {
             doOpsManagerDashboardFeatures(sc);
         } catch (NumberFormatException e) {
             System.out.println("Sorry, you have inputted invalid values. Try again.\n");
+            doOpsManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
             doOpsManagerDashboardFeatures(sc);
         }
     }
@@ -735,6 +746,9 @@ public class OpsManagerModule {
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
             doOpsManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
 
     }
@@ -762,6 +776,9 @@ public class OpsManagerModule {
             doOpsManagerDashboardFeatures(sc);
         } catch (EmptyListException e) {
             System.out.println(e.getMessage());
+            doOpsManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
             doOpsManagerDashboardFeatures(sc);
         }
 

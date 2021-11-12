@@ -209,6 +209,9 @@ public class SystemAdminModule {
         } catch (EmptyListException e) {
             System.out.println("Error: " + e.getMessage());
 
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            
         }
         doSystemAdminDashboardFeatures(sc);
     }
@@ -274,7 +277,7 @@ public class SystemAdminModule {
             System.out.println(e.getMessage());
             doCreateNewPartner(sc);
         } catch (Exception e) {
-            System.out.println("Invalid input. Try again.");
+            System.out.println("Uh oh.. Something went wrong.\n");
             doCreateNewPartner(sc);
         }
 
@@ -301,6 +304,9 @@ public class SystemAdminModule {
             doSystemAdminDashboardFeatures(sc);
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
+            doSystemAdminDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
             doSystemAdminDashboardFeatures(sc);
         }
     }
@@ -482,7 +488,7 @@ public class SystemAdminModule {
             doSystemAdminDashboardFeatures(sc);
 
         } catch (Exception e) {
-            System.out.println("Invalid input. Try again. " + e.toString());
+            System.out.println("Uh oh.. Something went wrong.\n");
             doRoomAllocation(sc);
 
         }

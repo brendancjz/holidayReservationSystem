@@ -32,13 +32,13 @@ public class Customer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long customerId;
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 30)
     @NotNull
-    @Size(min=3, max=15)
+    @Size(min=1, max=30)
     protected String firstName;
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 30)
     @NotNull
-    @Size(min=3, max=15)
+    @Size(min=1, max=30)
     protected String lastName;
     @Column(nullable = false, length = 8, unique = true)
     @NotNull

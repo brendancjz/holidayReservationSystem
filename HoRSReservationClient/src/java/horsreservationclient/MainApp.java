@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import javax.ejb.EJBTransactionRolledbackException;
 import util.exception.EmptyListException;
 import util.exception.InvalidInputException;
 import util.exception.ReservationExistException;
@@ -114,7 +115,8 @@ public class MainApp {
                 doLogin(sc);
             }
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println("Uh oh.. Something went wrong.\n");
+            run();
         }
 
     }
@@ -154,22 +156,28 @@ public class MainApp {
     }
 
     public void doViewAllMyReservations(Scanner sc, Long guestId) {
-        System.out.println("==== View All My Reservations Interface ====");
-        Guest guest = guestSessionBean.getGuestByGuestId(guestId);
-        List<Reservation> reservations = guest.getReservations();
+        try {
+            System.out.println("==== View All My Reservations Interface ====");
+            Guest guest = guestSessionBean.getGuestByGuestId(guestId);
+            List<Reservation> reservations = guest.getReservations();
 
-        DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.printf("\n%3s%30s%15s%15s%30s", "ID", "Room Type", "No. of Rooms", "Total Fees", "Duration");
-        for (Reservation reservation : reservations) {
-            System.out.printf("\n%3s%30s%15s%15s%30s", reservation.getReservationId(),
-                    reservation.getRoomType().getRoomTypeName(), reservation.getReservationFee(),
-                    reservation.getNumOfRooms(), outputFormat.format(reservation.getStartDate())
-                    + " -> " + outputFormat.format(reservation.getEndDate()));
+            DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            System.out.printf("\n%3s%30s%15s%15s%30s", "ID", "Room Type", "No. of Rooms", "Total Fees", "Duration");
+            for (Reservation reservation : reservations) {
+                System.out.printf("\n%3s%30s%15s%15s%30s", reservation.getReservationId(),
+                        reservation.getRoomType().getRoomTypeName(), reservation.getReservationFee(),
+                        reservation.getNumOfRooms(), outputFormat.format(reservation.getStartDate())
+                        + " -> " + outputFormat.format(reservation.getEndDate()));
 
+            }
+            System.out.println();
+            System.out.println();
+            doDashboardFeatures(sc, guestId);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doDashboardFeatures(sc, guestId);
         }
-        System.out.println();
-        System.out.println();
-        doDashboardFeatures(sc, guestId);
+        
     }
 
     public void doViewMyReservationDetails(Scanner sc, Long guestId) {
@@ -218,7 +226,7 @@ public class MainApp {
             System.out.println(e.getMessage());
             doDashboardFeatures(sc, guestId);
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println("Uh oh.. Something went wrong.\n");
             doViewMyReservationDetails(sc, guestId);
         }
     }
@@ -315,7 +323,7 @@ public class MainApp {
             System.out.println("You have made a wrong input. Try again.\n");
             doDashboardFeatures(sc, guestId);
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println("Uh oh.. Something went wrong.\n");
             doSearchHotelRoom(sc, guestId);
         }
 
@@ -377,45 +385,58 @@ public class MainApp {
             doDashboardFeatures(sc, guestId);
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
-
+            doDashboardFeatures(sc, guestId);
+        } catch (Exception e ) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doDashboardFeatures(sc, guestId);
         }
 
     }
 
     public void doRegistration(Scanner sc) {
-        System.out.println("==== Register Interface ====");
-        System.out.println("Enter guest details. To cancel registration at anytime, press 'q'.");
-        System.out.print("> First Name: ");
-        String firstName = sc.nextLine();
-        if (firstName.equals("q")) {
-            doCancelledRegistration(sc);
-            return;
-        }
-        System.out.print("> Last Name: ");
-        String lastName = sc.nextLine();
-        if (lastName.equals("q")) {
-            doCancelledRegistration(sc);
-            return;
-        }
-        System.out.print("> Email: ");
-        String email = sc.nextLine();
-        if (email.equals("q")) {
-            doCancelledRegistration(sc);
-            return;
-        }
-        System.out.print("> Contact Number: ");
-        String numberInput = sc.nextLine();
-        if (numberInput.equals("q")) {
-            doCancelledRegistration(sc);
-            return;
-        }
-        Long number = Long.parseLong(numberInput);
+        try {
+            System.out.println("==== Register Interface ====");
+            System.out.println("Enter guest details. To cancel registration at anytime, press 'q'.");
+            System.out.print("> First Name: ");
+            String firstName = sc.nextLine();
+            if (firstName.equals("q")) {
+                doCancelledRegistration(sc);
+                return;
+            }
+            System.out.print("> Last Name: ");
+            String lastName = sc.nextLine();
+            if (lastName.equals("q")) {
+                doCancelledRegistration(sc);
+                return;
+            }
+            System.out.print("> Email: ");
+            String email = sc.nextLine();
+            if (email.equals("q")) {
+                doCancelledRegistration(sc);
+                return;
+            }
+            System.out.print("> Contact Number: ");
+            String numberInput = sc.nextLine();
+            if (numberInput.equals("q")) {
+                doCancelledRegistration(sc);
+                return;
+            }
+            Long number = Long.parseLong(numberInput);
 
-        Guest newGuest = new Guest(firstName, lastName, number, email);
-        Long guestId = guestSessionBean.createNewGuest(newGuest);
-        System.out.println("Welcome, you're in!\n");
+            Guest newGuest = new Guest(firstName, lastName, number, email);
+            Long guestId = guestSessionBean.createNewGuest(newGuest);
+            System.out.println("Welcome, you're in!\n");
 
-        doDashboardFeatures(sc, guestId);
+            doDashboardFeatures(sc, guestId);
+            
+        } catch (NumberFormatException | EJBTransactionRolledbackException e) {
+            System.out.println("Sorry. You have inputted invalid values. Try again.\n");
+            run();
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            run();
+        }
+        
 
     }
 
@@ -557,7 +578,7 @@ public class MainApp {
                     //PERSIST
                     allocationExceptionSessionBean.createNewAllocationException(exception, reservation.getReservationId());
                     System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
-                    
+                    doDashboardFeatures(sc, guestId);
                     return;
                 }
 
@@ -651,11 +672,9 @@ public class MainApp {
 
             doDashboardFeatures(sc, guestId);
         } catch (Exception e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doDashboardFeatures(sc, guestId);
         }
-
     }
 
 }

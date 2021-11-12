@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import util.exception.AllocationExistException;
 import util.exception.EmptyListException;
 import util.exception.GuestExistException;
 import util.exception.InvalidInputException;
@@ -242,7 +241,7 @@ public class GRelManagerModule {
 
             doGRelManagerDashboardFeatures(sc);
         } catch (Exception e) {
-            System.out.println("Invalid input. Try again. " + e.toString());
+            System.out.println("Uh oh.. Something went wrong.\n");
             doWalkInAllocation(currDate, reservationId, sc);
 
         }
@@ -283,8 +282,8 @@ public class GRelManagerModule {
             System.out.println(e.getMessage());
             doGRelManagerDashboardFeatures(sc);
         } catch (Exception e) {
-            System.out.println("Something went wrong.");
-            e.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doGRelManagerDashboardFeatures(sc);
 
         }
 
@@ -331,8 +330,8 @@ public class GRelManagerModule {
             System.out.println(e.getMessage());
             doCheckOutGuest(sc);
         } catch (Exception e) {
-            System.out.println("Something went wrong.");
-            e.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doGRelManagerDashboardFeatures(sc);
 
         }
 
@@ -445,7 +444,8 @@ public class GRelManagerModule {
             doWalkInSearchRoom(sc);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doGRelManagerDashboardFeatures(sc);
         }
     }
 
@@ -504,6 +504,9 @@ public class GRelManagerModule {
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
             doGRelManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doGRelManagerDashboardFeatures(sc);
         }
     }
 
@@ -553,6 +556,9 @@ public class GRelManagerModule {
 
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            
         }
 
         return totalReservation;

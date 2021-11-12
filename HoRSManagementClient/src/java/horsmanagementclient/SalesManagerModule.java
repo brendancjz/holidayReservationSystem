@@ -180,7 +180,8 @@ public class SalesManagerModule {
             System.out.println(e.getMessage());
             doSalesManagerDashboardFeatures(sc);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doSalesManagerDashboardFeatures(sc);
         }
     }
 
@@ -240,6 +241,9 @@ public class SalesManagerModule {
         } catch (RoomRateExistException ex) {
             System.out.println("Error: " + ex.getMessage() + "\n");
             doViewRoomRateDetails(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doSalesManagerDashboardFeatures(sc);
         }
 
     }
@@ -348,6 +352,8 @@ public class SalesManagerModule {
         } catch (InvalidInputException | NumberFormatException | RoomRateExistException ex) {
             System.out.println("Error: " + ex.getMessage());
             doSalesManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            doSalesManagerDashboardFeatures(sc);
         }
     }
 
@@ -377,7 +383,8 @@ public class SalesManagerModule {
             }
             doSalesManagerDashboardFeatures(sc);
         } catch (Exception ex) {
-            System.out.println("Error: " + ex.getMessage());
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doSalesManagerDashboardFeatures(sc);
         }
     }
 
@@ -409,6 +416,10 @@ public class SalesManagerModule {
             doSalesManagerDashboardFeatures(sc);
         } catch (EmptyListException e) {
             System.out.println("Error: " + e.getMessage());
+            doSalesManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doSalesManagerDashboardFeatures(sc);
         }
     }
 }
