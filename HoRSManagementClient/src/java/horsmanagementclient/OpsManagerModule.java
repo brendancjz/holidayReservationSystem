@@ -265,12 +265,12 @@ public class OpsManagerModule {
     private void doViewAllRoomTypes(Scanner sc, Long emId) {
         try {
             System.out.println("==== View All Room Types Interface");
-            System.out.printf("\n%3s%25s%25s%15s%15s%15s%15s%15s%12s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Rank", "Amenities");
+            System.out.printf("\n%3s%30s%25s%15s%15s%15s%15s%15s%12s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Rank", "Amenities");
 
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             for (RoomType type : types) {
 
-                System.out.printf("\n%3s%25s%25s%15s%15s%15s%15s%15s%12s%50s", type.getRoomTypeId(), type.getRoomTypeName(), type.getRoomTypeDesc(),
+                System.out.printf("\n%3s%30s%25s%15s%15s%15s%15s%15s%12s%50s", type.getRoomTypeId(), type.getRoomTypeName(), type.getRoomTypeDesc(),
                         type.getRoomSize(), type.getNumOfBeds(), type.getCapacity(), type.getRooms().size(),
                         type.getIsDisabled(), type.getTypeRank(), type.getAmenities());
 
@@ -555,11 +555,11 @@ public class OpsManagerModule {
         try {
             System.out.println("==== View All Rooms Interface ====");
             List<Room> rooms = roomManagementSessionBean.retrieveAllRooms();
-            System.out.printf("\n%3s%10s%10s%15s%15s", "ID", "Level", "Number", "Room Type", "Is Available");
+            System.out.printf("\n%3s%10s%10s%30s%15s", "ID", "Level", "Number", "Room Type", "Is Available");
 
             for (Room room : rooms) {
                 if (!room.getIsDisabled()) {
-                    System.out.printf("\n%3s%10s%10s%15s%15s", room.getRoomId(), room.getRoomLevel(),
+                    System.out.printf("\n%3s%10s%10s%30s%15s", room.getRoomId(), room.getRoomLevel(),
                             room.getRoomNum(), room.getRoomType().getRoomTypeName(), room.getIsAvailable());
 
                 }

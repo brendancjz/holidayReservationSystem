@@ -5,6 +5,8 @@
  */
 package horsreservationclient;
 
+import ejb.session.stateless.AllocationExceptionSessionBeanRemote;
+import ejb.session.stateless.AllocationSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
@@ -19,6 +21,12 @@ import javax.ejb.EJB;
 public class Main {
 
     @EJB
+    private static AllocationExceptionSessionBeanRemote allocationExceptionSessionBean;
+
+    @EJB
+    private static AllocationSessionBeanRemote allocationSessionBean;
+
+    @EJB
     private static PartnerSessionBeanRemote partnerSessionBean;
 
     @EJB
@@ -29,6 +37,8 @@ public class Main {
 
     @EJB
     private static GuestSessionBeanRemote guestSessionBean;
+    
+    
 
     /**
      * @param args the command line arguments
@@ -36,7 +46,7 @@ public class Main {
     public static void main(String[] args) {
         // TODO code application logic here
         Scanner sc = new Scanner(System.in);
-        MainApp app = new MainApp(roomManagementSessionBean, guestSessionBean, partnerSessionBean, reservationSessionBean);
+        MainApp app = new MainApp(roomManagementSessionBean, guestSessionBean, partnerSessionBean, reservationSessionBean, allocationSessionBean, allocationExceptionSessionBean);
         app.run();
         
     }

@@ -74,7 +74,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     }
 
     @Override
-    public Allocation getAllocationForGuestForCurrentDay(Long guestId, LocalDate currDate) {
+    public List<Allocation> getAllocationsForGuestForCurrentDay(Long guestId, LocalDate currDate) throws EmptyListException {
 
         Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 
@@ -82,14 +82,15 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
         query.setParameter("guestId", guestId);
         query.setParameter("currDate", curr);
 
-        try {
-            Allocation allocation = (Allocation) query.getSingleResult();
+        List<Allocation> list = query.getResultList();
+        
+        if (list.isEmpty()) throw new EmptyListException("Allocation list is empty.\n");
+        for (Allocation allocation : list) {
             allocation.getRooms().size();
             allocation.getReservation();
-            return allocation;
-        } catch (NoResultException e) {
-            return null;
         }
+
+        return list;
 
     }
 
@@ -110,21 +111,22 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     }
 
     @Override
-    public Allocation getAllocationForGuestForCheckOutDay(Long customerId, LocalDate currDate) {
+    public List<Allocation> getAllocationsForGuestForCheckOutDay(Long customerId, LocalDate currDate) throws EmptyListException {
         Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         System.out.println("curr Day " + curr.toString());
         Query query = em.createQuery("SELECT a FROM Allocation a WHERE a.reservation.customer.customerId = :customerId AND a.reservation.endDate = :endDate");
         query.setParameter("customerId", customerId);
         query.setParameter("endDate", curr);
 
-        try {
-            Allocation allocation = (Allocation) query.getSingleResult();
+        List<Allocation> list = query.getResultList();
+        
+        if (list.isEmpty()) throw new EmptyListException("Allocation list is empty.\n");
+        for (Allocation allocation : list) {
             allocation.getRooms().size();
             allocation.getReservation();
-            return allocation;
-        } catch (NoResultException e) {
-            return null;
         }
+
+        return list;
     }
 
     @Override
@@ -151,12 +153,11 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
         try {
             System.out.println("==== Allocating Rooms To Current Day Reservations ====");
 
-            
             Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
             List<Reservation> reservations = reservationSessionBean.getReservationsToAllocate(currDate);
             if (reservations.isEmpty()) {
                 System.out.println("No room to allocate today.\n");
-                
+
                 return;
             }
 
@@ -190,13 +191,13 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
                     //PERSIST
                     Long newAllocationId = this.createNewAllocation(newAllocation, reservation.getReservationId());
-                    
+
                     List<Long> roomList = new ArrayList<>();
                     for (Room room : allocatedRooms) {
                         roomList.add(room.getRoomId());
                     }
                     this.associateAllocationWithRooms(newAllocationId, roomList);
-                    
+
                     newAllocation = this.getAllocationByAllocationId(newAllocationId);
                     System.out.println("Successfully created an Allocation.");
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -222,21 +223,20 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
                         continue;
                     }
- 
+
                     List<Room> allocatedRooms = vacantRooms;
 
                     //Type 1 Exception
                     //Allocate all the rooms of the current RoomType into this allocation
                     //CREATE
                     Allocation newAllocation = new Allocation(curr);
-                    
 
                     //Get the remaining rooms from other RoomTypes, while loop
                     int numOfRoomsNeedToUpgrade = numOfRoomsToAllocate - vacantRooms.size();
                     while (numOfRoomsNeedToUpgrade > 0) {
                         //get a higher rank RoomType
                         rankOfRoomType = rankOfRoomType - 1;
-                        
+
                         if (rankOfRoomType <= 0) {
                             //CREATE
                             AllocationException exception = new AllocationException(curr, 2);
@@ -262,7 +262,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
                         }
 
                         if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
-                            
+
                             List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
 
                             for (Room room : higherRankedAllocatedRooms) {
@@ -272,7 +272,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
                             numOfRoomsNeedToUpgrade = 0;
                         } else {
-                            
+
                             if (!higherRankedVacantRooms.isEmpty()) {
                                 for (Room room : higherRankedVacantRooms) {
 
@@ -281,14 +281,12 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
                             }
                             numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
                         }
-                        
+
                     }
 
                     //PERSIST
-                    
-
                     Long newAllocationId = this.createNewAllocation(newAllocation, reservation.getReservationId());
-                    
+
                     //ASSOCIATING 
                     List<Long> roomList = new ArrayList<>();
                     for (Room room : allocatedRooms) {

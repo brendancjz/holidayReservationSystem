@@ -136,7 +136,7 @@ public class SalesManagerModule {
                 }
                 endDate = LocalDate.parse(end, dtFormat).atStartOfDay();
 
-                if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+                if (endDate.isBefore(startDate)) {
                     throw new InvalidInputException("Invalid dates input.\n");
                 }
                 
@@ -387,7 +387,7 @@ public class SalesManagerModule {
             List<RoomRate> list = roomManagementSessionBean.getAllRoomRates();
 
             DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
-            System.out.printf("\n%3s%35s%15s%15s%10s%15s%30s", "ID", "Rate Name", "Rate Type", "Room Type", "Amount", "Is Disabled", "Validty Period");
+            System.out.printf("\n%3s%40s%15s%30s%10s%15s%30s", "ID", "Rate Name", "Rate Type", "Room Type", "Amount", "Is Disabled", "Validty Period");
 
             for (RoomRate rate : list) {
                 String validityPeriod;
@@ -398,7 +398,7 @@ public class SalesManagerModule {
                     validityPeriod = "NULL";
                 }
 
-                System.out.printf("\n%3s%35s%15s%15s%10s%15s%30s", rate.getRoomRateId(),
+                System.out.printf("\n%3s%40s%15s%30s%10s%15s%30s", rate.getRoomRateId(),
                         rate.getRoomRateName(), rate.getRoomRateType(), rate.getRoomType().getRoomTypeName(),
                         rate.getRatePerNight(), rate.getIsDisabled(), validityPeriod);
 

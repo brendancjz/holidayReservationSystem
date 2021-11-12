@@ -12,6 +12,7 @@ import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -118,10 +119,14 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         RoomType type = em.find(RoomType.class, typeId);
         type.getRooms().size();
 
+        LocalDate currDate = LocalDate.now();
+        Integer timeCheck = LocalDateTime.now().getHour();
+        
         int count = 0;
         for (Room room : type.getRooms()) {
-            if (room.getIsAvailable()) {
-
+            if (room.getIsAvailable() && 
+                    ((currDate.isEqual(startDate) && timeCheck >= 2 && room.getIsVacant()) || currDate.isBefore(startDate))) {
+                
                 count++;
             }
         }

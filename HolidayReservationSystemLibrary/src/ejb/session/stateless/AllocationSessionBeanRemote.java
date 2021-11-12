@@ -6,7 +6,6 @@
 package ejb.session.stateless;
 
 import entity.Allocation;
-import entity.Room;
 import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Remote;
@@ -21,11 +20,11 @@ public interface AllocationSessionBeanRemote {
     public Long createNewAllocation(Allocation allocation);
     public Allocation getAllocationByAllocationId(Long allocationId);
     public List<Allocation> retrieveAllAllocations() throws EmptyListException;
-    public Allocation getAllocationForGuestForCurrentDay(Long guestId, LocalDate currDate);
+    public List<Allocation> getAllocationsForGuestForCurrentDay(Long guestId, LocalDate currDate) throws EmptyListException;
     public void associateAllocationWithRoom(Allocation allocation, Long roomId);
     public void associateAllocationWithReservation(Allocation allocation, Long reservationId);
 
-    public Allocation getAllocationForGuestForCheckOutDay(Long customerId, LocalDate currDate);
+    public List<Allocation> getAllocationsForGuestForCheckOutDay(Long customerId, LocalDate currDate) throws EmptyListException;
 
     public void removeAllocation(Allocation newAllocation);
 
