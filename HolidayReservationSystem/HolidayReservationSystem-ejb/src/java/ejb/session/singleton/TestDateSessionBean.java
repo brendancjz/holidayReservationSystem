@@ -86,20 +86,20 @@ public class TestDateSessionBean {
                 System.out.println("created all employees");
             }
 
-            if (em.find(Guest.class, 1L) == null) {
-                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826723L, "theo@gmail.com"));
-                guestSessionBean.createNewGuest(new Guest("Iggy", "Goh", 12345678L, "iggy@gmail.com"));
-                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 12321234L, "xy@gmail.com"));
-                guestSessionBean.createNewGuest(new Guest("Guoo", "Junn", 84821245L, "junjun@gmail.com"));
-                System.out.println("created all guests");
-            }
-
-            if (em.find(Partner.class, 5L) == null) { //hardcoded the 5L cause four guests are created first.
-                partnerSessionBean.createNewPartner(new Partner("Teoh", "Doic", 84812329L, "mbs@gmail.com"));
-                partnerSessionBean.createNewPartner(new Partner("Hames", "Godfish", 11236738L, "hotels@gmail.com"));
-                partnerSessionBean.createNewPartner(new Partner("XiaXia", "Bong", 84123234L, "fourseasons@gmail.com"));
-                System.out.println("created all partners");
-            }
+//            if (em.find(Guest.class, 1L) == null) {
+//                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826723L, "theo@gmail.com"));
+//                guestSessionBean.createNewGuest(new Guest("Iggy", "Goh", 12345678L, "iggy@gmail.com"));
+//                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 12321234L, "xy@gmail.com"));
+//                guestSessionBean.createNewGuest(new Guest("Guoo", "Junn", 84821245L, "junjun@gmail.com"));
+//                System.out.println("created all guests");
+//            }
+//
+//            if (em.find(Partner.class, 5L) == null) { //hardcoded the 5L cause four guests are created first.
+//                partnerSessionBean.createNewPartner(new Partner("Teoh", "Doic", 84812329L, "mbs@gmail.com"));
+//                partnerSessionBean.createNewPartner(new Partner("Hames", "Godfish", 11236738L, "hotels@gmail.com"));
+//                partnerSessionBean.createNewPartner(new Partner("XiaXia", "Bong", 84123234L, "fourseasons@gmail.com"));
+//                System.out.println("created all partners");
+//            }
 
             if (em.find(Room.class, 1L) == null && em.find(RoomType.class, 1L) == null && em.find(RoomRate.class, 1L) == null) {
                 //Create some Room Types

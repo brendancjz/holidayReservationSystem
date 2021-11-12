@@ -221,13 +221,14 @@ public class OpsManagerModule {
             System.out.println("> Number of Rooms: " + type.getRooms().size());
             System.out.println("> Is Disabled: " + type.getIsDisabled());
             System.out.println("> Room Rates:");
-            List<RoomRate> rates = roomManagementSessionBean.getRoomRates(type.getRoomTypeId());
-            if (!rates.isEmpty()) {
+            
+            try {
+                List<RoomRate> rates = roomManagementSessionBean.getRoomRates(type.getRoomTypeId());
                 for (RoomRate rate : rates) {
                     System.out.println("  > " + rate.getRoomRateName());
                 }
                 System.out.println();
-            } else {
+            } catch (EmptyListException e) {
                 System.out.println("     NULL");
             }
 
@@ -255,7 +256,7 @@ public class OpsManagerModule {
                     doOpsManagerDashboardFeatures(sc, emId);
                     break;
             }
-        } catch (EmptyListException | RoomTypeExistException e) {
+        } catch (RoomTypeExistException e) {
             System.out.println(e.getMessage());
             doOpsManagerDashboardFeatures(sc, emId);
         }
@@ -685,6 +686,9 @@ public class OpsManagerModule {
         } catch (InvalidInputException e) {
             System.out.println(e.getMessage());
             doUpdateRoomType(sc, emId, roomTypeId);
+        } catch (Exception e) {
+            System.out.println("Invalid Input. Going back to dashboard.\n");
+            doOpsManagerDashboardFeatures(sc, emId);
         }
     }
 

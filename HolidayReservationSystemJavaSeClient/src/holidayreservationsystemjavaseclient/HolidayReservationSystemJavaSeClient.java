@@ -211,17 +211,20 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.print("> Check-Out Date: ");
             String checkOut = sc.nextLine();
             System.out.println();
-            System.out.println("How many number rooms are you looking to reserve?");
-            System.out.print("> Number of Rooms: ");
-            int numOfRooms = sc.nextInt();
-            sc.nextLine();
+            
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
             if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
                 System.out.println("Invalid dates input.\n");
                 doDashboardFeatures(sc, customerId);
+                return;
             }
+            System.out.println("How many number rooms are you looking to reserve?");
+            System.out.print("> Number of Rooms: ");
+            int numOfRooms = sc.nextInt();
+            sc.nextLine();
+            
 
             long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
@@ -284,7 +287,8 @@ public class HolidayReservationSystemJavaSeClient {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Something went wrong.\n");
+            doPartnerSearchRoom(sc, customerId);
 
         }
     }
