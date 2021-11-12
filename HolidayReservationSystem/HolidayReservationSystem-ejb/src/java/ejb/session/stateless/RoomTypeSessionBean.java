@@ -62,7 +62,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         
         return rates;
     }
-
+ 
     @Override
     public RoomType getRoomTypeByRoomTypeId(Long newRoomTypeId){
         RoomType type;

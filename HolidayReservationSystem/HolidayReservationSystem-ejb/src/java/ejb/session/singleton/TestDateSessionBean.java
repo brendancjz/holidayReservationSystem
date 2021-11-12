@@ -43,7 +43,7 @@ import util.exception.EmptyListException;
 @LocalBean
 @Startup
 public class TestDateSessionBean {
-
+ 
     @EJB
     private AllocationExceptionSessionBeanLocal allocationExceptionSessionBean;
 

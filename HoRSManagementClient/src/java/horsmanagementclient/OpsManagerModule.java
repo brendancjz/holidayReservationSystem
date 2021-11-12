@@ -100,13 +100,13 @@ public class OpsManagerModule {
             System.out.println("==== Create New Room Type Interface ====");
             //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
             System.out.println("Creating new room type. To cancel anytime, enter 'q'.");
-            System.out.print("> Room Type Name [MIN 5 CHAR]: ");
+            System.out.print("> Room Type Name [5 - 50 Characters]: ");
             String typeName = sc.nextLine();
             if (typeName.equals("q")) {
                 doCancelledEntry(sc, emId);
                 return;
             }
-
+ 
             //Check if exists
             RoomType checkTypeExist = roomManagementSessionBean.getRoomType(typeName);
             if (checkTypeExist != null) {
@@ -163,11 +163,11 @@ public class OpsManagerModule {
             }
             System.out.println();
 
-            
+            roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
             RoomType newRoomType = new RoomType(typeName, typeDesc, roomSize, numOfBeds, cap, rank, amenities);
 
             Long newRoomTypeId = roomManagementSessionBean.createNewRoomType(newRoomType);
-            roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
+            
             RoomType type = roomManagementSessionBean.getRoomType(newRoomTypeId);
 
             System.out.println("You have successfully created a new Room Type.");
@@ -265,12 +265,12 @@ public class OpsManagerModule {
     private void doViewAllRoomTypes(Scanner sc, Long emId) {
         try {
             System.out.println("==== View All Room Types Interface");
-            System.out.printf("\n%3s%15s%25s%15s%15s%15s%15s%15s%12s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Rank", "Amenities");
+            System.out.printf("\n%3s%25s%25s%15s%15s%15s%15s%15s%12s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Rank", "Amenities");
 
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
             for (RoomType type : types) {
 
-                System.out.printf("\n%3s%15s%25s%15s%15s%15s%15s%15s%12s%50s", type.getRoomTypeId(), type.getRoomTypeName(), type.getRoomTypeDesc(),
+                System.out.printf("\n%3s%25s%25s%15s%15s%15s%15s%15s%12s%50s", type.getRoomTypeId(), type.getRoomTypeName(), type.getRoomTypeDesc(),
                         type.getRoomSize(), type.getNumOfBeds(), type.getCapacity(), type.getRooms().size(),
                         type.getIsDisabled(), type.getTypeRank(), type.getAmenities());
 
