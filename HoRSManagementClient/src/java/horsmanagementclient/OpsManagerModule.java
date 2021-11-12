@@ -163,11 +163,11 @@ public class OpsManagerModule {
             }
             System.out.println();
 
-            roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
+            
             RoomType newRoomType = new RoomType(typeName, typeDesc, roomSize, numOfBeds, cap, rank, amenities);
 
             Long newRoomTypeId = roomManagementSessionBean.createNewRoomType(newRoomType);
-
+            roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
             RoomType type = roomManagementSessionBean.getRoomType(newRoomTypeId);
 
             System.out.println("You have successfully created a new Room Type.");
