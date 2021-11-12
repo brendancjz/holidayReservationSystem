@@ -57,7 +57,7 @@ public class SystemAdminModule {
         this.roomManagementSessionBean = roomManagementSessionBean;
     }
 
-    public void doSystemAdminDashboardFeatures(Scanner sc, Long emId) {
+    public void doSystemAdminDashboardFeatures(Scanner sc) {
 
         System.out.println("==== System Admin Dashboard Interface ====");
         System.out.println("> 1. Create New Employee");
@@ -73,53 +73,53 @@ public class SystemAdminModule {
         switch (input) {
             case 1:
                 System.out.println("You have selected 'Create New Employee'\n");
-                doCreateNewEmployee(sc, emId);
+                doCreateNewEmployee(sc);
                 break;
             case 2:
                 System.out.println("You have selected 'View All Employees'\n");
-                doViewAllEmployees(sc, emId);
+                doViewAllEmployees(sc);
                 break;
             case 3:
                 System.out.println("You have selected 'Create New Partner'\n");
-                doCreateNewPartner(sc, emId);
+                doCreateNewPartner(sc);
                 break;
             case 4:
                 System.out.println("You have selected 'View All Partners'\n");
-                doViewAllPartners(sc, emId);
+                doViewAllPartners(sc);
                 break;
             case 5:
-                doRoomAllocation(sc, emId);
+                doRoomAllocation(sc);
                 break;
             case 6:
                 System.out.println("You have logged out.\n");
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
-                doSystemAdminDashboardFeatures(sc, emId);
+                doSystemAdminDashboardFeatures(sc);
                 break;
         }
     }
 
-    private void doCreateNewEmployee(Scanner sc, Long emId) {
+    private void doCreateNewEmployee(Scanner sc) {
         try {
             System.out.println("==== Create New Employee Interface ====");
             System.out.println("Please input the following details. To cancel creation at anytime, enter 'q'.");
             System.out.print("> First Name: ");
             String firstName = sc.nextLine().trim();
             if (firstName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.print("> Last Name: ");
             String lastName = sc.nextLine().trim();
             if (lastName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.print("> Username: ");
             String username = sc.nextLine().trim();
             if (username.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
 
@@ -131,7 +131,7 @@ public class SystemAdminModule {
             System.out.print("> Password: ");
             String password = sc.nextLine();
             if (password.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.println("> Employee Role:\n   > 1. System Administrator"
@@ -141,7 +141,7 @@ public class SystemAdminModule {
             String inputR = sc.next();
             sc.nextLine();
             if (inputR.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int inputRole = Integer.parseInt(inputR);
@@ -164,7 +164,7 @@ public class SystemAdminModule {
                     break;
                 default:
                     System.out.println("Invalid role input. Try again.");
-                    doCreateNewEmployee(sc, emId);
+                    doCreateNewEmployee(sc);
                     return; //code ends
             }
 
@@ -179,21 +179,21 @@ public class SystemAdminModule {
             System.out.println("   > Employee Role: " + newEmployee.getEmployeeRole());
             System.out.println("   > Password: " + newEmployee.getPassword() + "\n");
 
-            doSystemAdminDashboardFeatures(sc, emId);
+            doSystemAdminDashboardFeatures(sc);
 
         } catch (EJBTransactionRolledbackException e) {
             System.out.println("Sorry. You have inputted values that do not match the requirements. Try again.\n");
-            doSystemAdminDashboardFeatures(sc, emId);
+            doSystemAdminDashboardFeatures(sc);
         } catch (EmployeeExistException e) {
             System.out.println(e.getMessage());
-            doCreateNewEmployee(sc, emId);
+            doCreateNewEmployee(sc);
         } catch (Exception e) {
             System.out.println("Invalid input. Try again.");
-            doCreateNewEmployee(sc, emId);
+            doCreateNewEmployee(sc);
         }
     }
 
-    private void doViewAllEmployees(Scanner sc, Long emId) {
+    private void doViewAllEmployees(Scanner sc) {
         System.out.println("==== View Al Employees Interface ====");
         try {
             List<Employee> list = employeeSessionBean.retrieveAllEmployees();
@@ -210,29 +210,29 @@ public class SystemAdminModule {
             System.out.println("Error: " + e.getMessage());
 
         }
-        doSystemAdminDashboardFeatures(sc, emId);
+        doSystemAdminDashboardFeatures(sc);
     }
 
-    private void doCreateNewPartner(Scanner sc, Long emId) {
+    private void doCreateNewPartner(Scanner sc) {
         try {
             System.out.println("==== Create New Partner Interface ====");
             System.out.println("Enter partner details. To cancel creation at anytime, enter 'q'.");
             System.out.print("> First Name: ");
             String firstName = sc.nextLine().trim();
             if (firstName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.print("> Last Name: ");
             String lastName = sc.nextLine().trim();
             if (lastName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.print("> Email: ");
             String email = sc.nextLine().trim();
             if (email.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
 
@@ -244,7 +244,7 @@ public class SystemAdminModule {
             System.out.print("> Contact Number: ");
             String numberInput = sc.nextLine().trim();
             if (numberInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             Long number = Long.parseLong(numberInput);
@@ -264,29 +264,29 @@ public class SystemAdminModule {
                 System.out.println("   > Email: " + newPartner.getEmail());
                 System.out.println("   > Contact Number: " + newPartner.getContactNumber());
                 System.out.println();
-                doSystemAdminDashboardFeatures(sc, emId);
+                doSystemAdminDashboardFeatures(sc);
             } else {
                 System.out.println("You have inputted wrong details. Please try again.\n");
 
-                doCreateNewPartner(sc, emId);
+                doCreateNewPartner(sc);
             }
         } catch (PartnerExistException e) {
             System.out.println(e.getMessage());
-            doCreateNewPartner(sc, emId);
+            doCreateNewPartner(sc);
         } catch (Exception e) {
             System.out.println("Invalid input. Try again.");
-            doCreateNewPartner(sc, emId);
+            doCreateNewPartner(sc);
         }
 
     }
 
-    private void doCancelledEntry(Scanner sc, Long emId) {
+    private void doCancelledEntry(Scanner sc) {
         System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
 
-        doSystemAdminDashboardFeatures(sc, emId);
+        doSystemAdminDashboardFeatures(sc);
     }
 
-    private void doViewAllPartners(Scanner sc, Long emId) {
+    private void doViewAllPartners(Scanner sc) {
         try {
             System.out.println("==== View All Partners Interface ====");
             List<Partner> partners = partnerSessionBean.retrieveAllPartners();
@@ -298,14 +298,14 @@ public class SystemAdminModule {
             }
             System.out.println();
             System.out.println();
-            doSystemAdminDashboardFeatures(sc, emId);
+            doSystemAdminDashboardFeatures(sc);
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
-            doSystemAdminDashboardFeatures(sc, emId);
+            doSystemAdminDashboardFeatures(sc);
         }
     }
 
-    private void doRoomAllocation(Scanner sc, Long emId) {
+    private void doRoomAllocation(Scanner sc) {
         try {
             System.out.println("==== Allocating Rooms To Current Day Reservations ====");
 
@@ -319,7 +319,7 @@ public class SystemAdminModule {
             List<Reservation> reservations = reservationSessionBean.getReservationsToAllocate(currDate);
             if (reservations.isEmpty()) {
                 System.out.println("No room to allocate today.\n");
-                doSystemAdminDashboardFeatures(sc, emId);
+                doSystemAdminDashboardFeatures(sc);
                 return;
             }
 
@@ -365,7 +365,7 @@ public class SystemAdminModule {
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                     System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
                     System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
-                    System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
+                    System.out.println("   > Current Date: " + outputFormat.format(newAllocation.getCurrentDate()));
                     for (Room room : newAllocation.getRooms()) {
                         System.out.println("   > Room ID: " + room.getRoomId());
                     }
@@ -399,7 +399,7 @@ public class SystemAdminModule {
                     while (numOfRoomsNeedToUpgrade > 0) {
                         //get a higher rank RoomType
                         rankOfRoomType = rankOfRoomType - 1;
-                        System.out.println("Next room type.");
+                        
                         if (rankOfRoomType <= 0) {
                             //CREATE
                             AllocationException exception = new AllocationException(curr, 2);
@@ -479,11 +479,11 @@ public class SystemAdminModule {
 
             }
 
-            doSystemAdminDashboardFeatures(sc, emId);
+            doSystemAdminDashboardFeatures(sc);
 
         } catch (Exception e) {
             System.out.println("Invalid input. Try again. " + e.toString());
-            doRoomAllocation(sc, emId);
+            doRoomAllocation(sc);
 
         }
 

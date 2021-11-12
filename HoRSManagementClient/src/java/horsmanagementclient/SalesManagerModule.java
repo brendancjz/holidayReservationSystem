@@ -35,7 +35,7 @@ public class SalesManagerModule {
         this.roomManagementSessionBean = roomManagementSessionBean;
     }
 
-    public void doSalesManagerDashboardFeatures(Scanner sc, Long emId) {
+    public void doSalesManagerDashboardFeatures(Scanner sc) {
         System.out.println("==== Sales Manager Dashboard Interface ====");
         System.out.println("> 1. Create New Room Rate");
         System.out.println("> 2. View Room Rate Details");
@@ -48,15 +48,15 @@ public class SalesManagerModule {
         switch (input) {
             case 1:
                 System.out.println("You have selected 'Create New Room Rate'\n");
-                doCreateNewRoomRate(sc, emId);
+                doCreateNewRoomRate(sc);
                 break;
             case 2:
                 System.out.println("You have selected 'View Room Rate Details'\n");
-                doViewRoomRateDetails(sc, emId);
+                doViewRoomRateDetails(sc);
                 break;
             case 3:
                 System.out.println("You have selected 'View All Room Rates'\n");
-                doViewAllRoomRates(sc, emId);
+                doViewAllRoomRates(sc);
                 break;
             case 4:
                 System.out.println("You have logged out.\n");
@@ -64,18 +64,18 @@ public class SalesManagerModule {
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
-                doSalesManagerDashboardFeatures(sc, emId);
+                doSalesManagerDashboardFeatures(sc);
                 break;
         }
     }
 
-    private void doCancelledEntry(Scanner sc, Long emId) {
+    private void doCancelledEntry(Scanner sc) {
         System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
 
-        doSalesManagerDashboardFeatures(sc, emId);
+        doSalesManagerDashboardFeatures(sc);
     }
 
-    private void doCreateNewRoomRate(Scanner sc, Long emId) {
+    private void doCreateNewRoomRate(Scanner sc) {
         try {
             System.out.println("==== Create New Room Rate Interface ====");
             System.out.println("Enter details to create new room rate. To cancel at anything, enter 'q'.");
@@ -91,7 +91,7 @@ public class SalesManagerModule {
             String tInput = sc.next();
             sc.nextLine();
             if (tInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int typeInput = Integer.parseInt(tInput);
@@ -109,7 +109,7 @@ public class SalesManagerModule {
             String rInput = sc.next();
             sc.nextLine();
             if (rInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int rateInput = Integer.parseInt(rInput);
@@ -124,14 +124,14 @@ public class SalesManagerModule {
                 System.out.print("> Start Date [DD MM YYYY]: ");
                 String start = sc.nextLine();
                 if (start.equals("q")) {
-                    doCancelledEntry(sc, emId);
+                    doCancelledEntry(sc);
                     return;
                 }
                 startDate = LocalDate.parse(start, dtFormat).atStartOfDay();
                 System.out.print("> End Date [DD MM YYYY]: ");
                 String end = sc.nextLine();
                 if (end.equals("q")) {
-                    doCancelledEntry(sc, emId);
+                    doCancelledEntry(sc);
                     return;
                 }
                 endDate = LocalDate.parse(end, dtFormat).atStartOfDay();
@@ -148,7 +148,7 @@ public class SalesManagerModule {
             String inputRate = sc.next();
             sc.nextLine();
             if (inputRate.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             double rateAmount = Double.parseDouble(inputRate);
@@ -171,27 +171,27 @@ public class SalesManagerModule {
             }
             System.out.println();
 
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc);
         } catch (NumberFormatException | EmptyListException | RoomRateExistException e) {
             System.out.println("\nInvalid input. Try again.\n");
             System.out.println(e.toString() + "\n");
-            doCreateNewRoomRate(sc, emId);
+            doCreateNewRoomRate(sc);
         } catch (InvalidInputException e) {
             System.out.println(e.getMessage());
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void doViewRoomRateDetails(Scanner sc, Long emId) {
+    private void doViewRoomRateDetails(Scanner sc) {
         try {
             System.out.println("==== View Room Rate Details Interface ====");
             System.out.println("Viewing room rate. To cancel entry, enter 'q'.");
             System.out.print("> Room Rate Name: ");
             String rateName = sc.nextLine();
             if (rateName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             RoomRate rate = roomManagementSessionBean.getRoomRate(rateName);
@@ -224,27 +224,27 @@ public class SalesManagerModule {
 
             switch (input) {
                 case 1:
-                    doUpdateRoomRate(sc, emId, rate.getRoomRateId());
+                    doUpdateRoomRate(sc, rate.getRoomRateId());
                     break;
                 case 2:
-                    doDeleteRoomRate(sc, emId, rate.getRoomRateId());
+                    doDeleteRoomRate(sc, rate.getRoomRateId());
                     break;
                 case 3:
-                    doSalesManagerDashboardFeatures(sc, emId);
+                    doSalesManagerDashboardFeatures(sc);
                     break;
                 default:
                     System.out.println("Invalid input.");
-                    doSalesManagerDashboardFeatures(sc, emId);
+                    doSalesManagerDashboardFeatures(sc);
                     break;
             }
         } catch (RoomRateExistException ex) {
             System.out.println("Error: " + ex.getMessage() + "\n");
-            doViewRoomRateDetails(sc, emId);
+            doViewRoomRateDetails(sc);
         }
 
     }
 
-    private void doUpdateRoomRate(Scanner sc, Long emId, Long rateId) {
+    private void doUpdateRoomRate(Scanner sc, Long rateId) {
         System.out.println("==== Update Room Rate Interface ====");
         System.out.println("Updating a room rate. To cancel entry, enter 'q'");
         try {
@@ -267,7 +267,7 @@ public class SalesManagerModule {
                 String inputStr = sc.next();
                 sc.nextLine();
                 if (inputStr.equals("q")) {
-                    doCancelledEntry(sc, emId);
+                    doCancelledEntry(sc);
                     return;
                 }
                 int input = Integer.parseInt(inputStr);
@@ -312,7 +312,7 @@ public class SalesManagerModule {
                         break;
                     default:
                         System.out.println("Invalid input.");
-                        doUpdateRoomRate(sc, emId, rateId);
+                        doUpdateRoomRate(sc, rateId);
                         break;
                 }
 
@@ -344,14 +344,14 @@ public class SalesManagerModule {
             }
             System.out.println();
 
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc);
         } catch (InvalidInputException | NumberFormatException | RoomRateExistException ex) {
             System.out.println("Error: " + ex.getMessage());
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc);
         }
     }
 
-    private void doDeleteRoomRate(Scanner sc, Long emId, Long roomRateId) {
+    private void doDeleteRoomRate(Scanner sc, Long roomRateId) {
         System.out.println("=== Delete Room Rate Interface ====");
         System.out.println("Confirm Deletion?");
         System.out.println("> 1. Yes");
@@ -368,20 +368,20 @@ public class SalesManagerModule {
                     break;
 
                 case 2:
-                    doSalesManagerDashboardFeatures(sc, emId);
+                    doSalesManagerDashboardFeatures(sc);
                     break;
                 default:
                     System.out.println("Invalid input. Try again.\n");
-                    doDeleteRoomRate(sc, emId, roomRateId);
+                    doDeleteRoomRate(sc, roomRateId);
                     break;
             }
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc);
         } catch (Exception ex) {
             System.out.println("Error: " + ex.getMessage());
         }
     }
 
-    private void doViewAllRoomRates(Scanner sc, Long emId) {
+    private void doViewAllRoomRates(Scanner sc) {
         System.out.println("==== View All Room Rates Interface ====");
         try {
             List<RoomRate> list = roomManagementSessionBean.getAllRoomRates();
@@ -406,7 +406,7 @@ public class SalesManagerModule {
 
             System.out.println();
             System.out.println();
-            doSalesManagerDashboardFeatures(sc, emId);
+            doSalesManagerDashboardFeatures(sc);
         } catch (EmptyListException e) {
             System.out.println("Error: " + e.getMessage());
         }

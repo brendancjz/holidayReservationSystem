@@ -37,7 +37,7 @@ public interface RoomManagementSessionBeanRemote {
 
     public List<RoomRate> getAllRoomRates() throws EmptyListException;
 
-    public Long createNewRoomType(RoomType newRoomType);
+    public Long createNewRoomType(RoomType newRoomType) throws EmptyListException;
 
     public RoomType getRoomType(Long newRoomTypeId);
 

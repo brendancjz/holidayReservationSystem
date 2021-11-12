@@ -14,16 +14,10 @@ import ejb.session.stateless.ReservationSessionBeanLocal;
 import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
-import entity.Allocation;
-import entity.AllocationException;
 import entity.Employee;
-import entity.Guest;
-import entity.Partner;
-import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -33,7 +27,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeEnum;
 import util.enumeration.RoomRateEnum;
-import util.exception.EmptyListException;
 
 /**
  *
@@ -43,15 +36,9 @@ import util.exception.EmptyListException;
 @LocalBean
 @Startup
 public class TestDateSessionBean {
- 
-    @EJB
-    private AllocationExceptionSessionBeanLocal allocationExceptionSessionBean;
 
     @PersistenceContext(unitName = "HolidayReservationSystem-ejbPU")
     private EntityManager em;
-
-    @EJB
-    private AllocationSessionBeanLocal allocationSessionBean;
 
     @EJB
     private EmployeeSessionBeanLocal employeeSessionBean;
@@ -64,16 +51,7 @@ public class TestDateSessionBean {
 
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBean;
-
-    @EJB
-    private GuestSessionBeanLocal guestSessionBean;
-
-    @EJB
-    private PartnerSessionBeanLocal partnerSessionBean;
-
-    @EJB
-    private ReservationSessionBeanLocal reservationSessionBean;
-
+ 
     @PostConstruct
     public void postConstruct() {
         System.out.println("==== Inside Post Construct Method ====");
@@ -85,21 +63,6 @@ public class TestDateSessionBean {
                 employeeSessionBean.createNewEmployee(new Employee("Jun", "Zhe", "guestrelo", EmployeeEnum.GRELMANAGER.toString(), "password"));
                 System.out.println("created all employees");
             }
-
-//            if (em.find(Guest.class, 1L) == null) {
-//                guestSessionBean.createNewGuest(new Guest("Theo", "Doric", 84826723L, "theo@gmail.com"));
-//                guestSessionBean.createNewGuest(new Guest("Iggy", "Goh", 12345678L, "iggy@gmail.com"));
-//                guestSessionBean.createNewGuest(new Guest("Xiang", "Yong", 12321234L, "xy@gmail.com"));
-//                guestSessionBean.createNewGuest(new Guest("Guoo", "Junn", 84821245L, "junjun@gmail.com"));
-//                System.out.println("created all guests");
-//            }
-//
-//            if (em.find(Partner.class, 5L) == null) { //hardcoded the 5L cause four guests are created first.
-//                partnerSessionBean.createNewPartner(new Partner("Teoh", "Doic", 84812329L, "mbs@gmail.com"));
-//                partnerSessionBean.createNewPartner(new Partner("Hames", "Godfish", 11236738L, "hotels@gmail.com"));
-//                partnerSessionBean.createNewPartner(new Partner("XiaXia", "Bong", 84123234L, "fourseasons@gmail.com"));
-//                System.out.println("created all partners");
-//            }
 
             if (em.find(Room.class, 1L) == null && em.find(RoomType.class, 1L) == null && em.find(RoomRate.class, 1L) == null) {
                 //Create some Room Types
@@ -116,200 +79,6 @@ public class TestDateSessionBean {
 
             }
 
-            System.out.println("== Printing out Guests");
-
-            try {
-                List<Guest> guests = guestSessionBean.retrieveAllGuests();
-
-                for (Guest guest : guests) {
-                    System.out.println("Guest ID: " + guest.getCustomerId());
-                    System.out.println("  > Email: " + guest.getEmail());
-                    System.out.println("  > Reservations:");
-                    List<Reservation> reservations = guest.getReservations();
-                    for (Reservation reservation : reservations) {
-                        System.out.println("  Reservation ID: " + reservation.getReservationId());
-                        System.out.println("    > Start Date: " + reservation.getStartDate().toString());
-                        System.out.println("    > End Date: " + reservation.getEndDate().toString());
-                        System.out.println("    > Room Type: " + reservation.getRoomType().getRoomTypeName());
-                    }
-                }
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing out Partners");
-
-            try {
-                List<Partner> partners = partnerSessionBean.retrieveAllPartners();
-
-                for (Partner partner : partners) {
-                    System.out.println("Partner ID: " + partner.getCustomerId());
-                    System.out.println("  > Email: " + partner.getEmail());
-                    System.out.println("  > Reservations:");
-                    List<Reservation> reservations = partner.getReservations();
-                    for (Reservation reservation : reservations) {
-                        System.out.println("  Reservation ID: " + reservation.getReservationId());
-                        System.out.println("    > Start Date: " + reservation.getStartDate().toString());
-                        System.out.println("    > End Date: " + reservation.getEndDate().toString());
-                        System.out.println("    > Room Type: " + reservation.getRoomType().getRoomTypeName());
-                    }
-                }
-
-                System.out.println();
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing out Employees");
-
-            try {
-                List<Employee> employees = employeeSessionBean.retrieveAllEmployees();
-
-                for (Employee employee : employees) {
-                    System.out.println("Employee ID: " + employee.getEmployeeId());
-                    System.out.println("  > Name: " + employee.getFirstName());
-                    System.out.println("  > Role: " + employee.getEmployeeRole());
-                }
-
-                System.out.println();
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing out Reservations");
- 
-            try {
-                List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
-
-                for (Reservation reservation : reservations) {
-                    System.out.println("Reservation ID: " + reservation.getReservationId());
-                    System.out.println("  > Reserved By: " + reservation.getCustomer().getFirstName());
-                    for (RoomRate rate : reservation.getRoomRates()) {
-                        System.out.println("   > Room Rate: " + rate.getRoomRateName());
-                    }
-                    System.out.println("  > Room Type used: " + reservation.getRoomType().getRoomTypeName());
-                    System.out.println("  > Start Date: " + reservation.getStartDate().toString());
-                    System.out.println("  > End Date: " + reservation.getEndDate().toString());
-                    System.out.println();
-                }
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing out Rooms");
-            try {
-                List<Room> rooms = roomSessionBean.retrieveAllRooms();
-
-                for (Room room : rooms) {
-                    System.out.println("Room ID: " + room.getRoomId());
-                    System.out.println("  > Level: " + room.getRoomLevel());
-                    System.out.println("  > Number: " + room.getRoomNum());
-                    System.out.println("  > Room Type: " + room.getRoomType().getRoomTypeName());
-                    System.out.println("  > Is Available: " + room.getIsAvailable());
-                    System.out.println("  > Is Disabled: " + room.getIsDisabled());
-                    System.out.println("  > Is Vacant: " + room.getIsVacant());
-                }
-
-                System.out.println();
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing Room Rates");
-            try {
-                List<RoomRate> rates = roomRateSessionBean.retrieveAllRoomRates();
-
-                for (RoomRate rate : rates) {
-                    System.out.println("Room Rate ID: " + rate.getRoomRateId());
-                    System.out.println("  > Rate Name: " + rate.getRoomRateName());
-                    System.out.println("  > Room Type: " + rate.getRoomType().getRoomTypeName());
-                    System.out.println("  > Rate Per Night: " + rate.getRatePerNight());
-                    System.out.println("  > Is Disabled: " + rate.getIsDisabled());
-                    if (rate.getStartDate() != null) {
-                        System.out.println("  > Validity Period: " + rate.getStartDate().toString()
-                                + " -> " + rate.getEndDate().toString());
-                    } else {
-                        System.out.println("  > Validity Period: NULL");
-                    }
-
-                }
-                System.out.println();
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing Room Types");
-            try {
-                List<RoomType> types = roomTypeSessionBean.retrieveAllRoomTypes();
-                for (RoomType type : types) {
-                    System.out.println("Room Type ID: " + type.getRoomTypeId());
-                    System.out.println("  > Name: " + type.getRoomTypeName());
-                    System.out.println("  > Number of Rooms: " + type.getRooms().size());
-                    System.out.println("  > Number of Rates: " + type.getRates().size());
-                    System.out.println("  > Is Disabled: " + type.getIsDisabled());
-                    System.out.println("  > Room Rates:");
-                    List<RoomRate> rates1 = type.getRates();
-                    for (RoomRate rate : rates1) {
-                        System.out.println("    Room Rate ID: " + rate.getRoomRateId());
-                        System.out.println("    > Name: " + rate.getRoomRateName());
-                        System.out.println("    > Room Type: " + rate.getRoomType().getRoomTypeName());
-                        System.out.println("    > Is Disabled: " + rate.getIsDisabled());
-                    }
-                    System.out.println("  > Rooms:");
-                    List<Room> rooms1 = type.getRooms();
-                    for (Room room : rooms1) {
-                        System.out.println("    Room ID: " + room.getRoomId());
-                        System.out.println("    > Room Type: " + room.getRoomType().getRoomTypeName());
-                        System.out.println("    > Is Disabled: " + room.getIsDisabled());
-                    }
-                    System.out.println();
-                }
-
-                System.out.println();
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing Allocations");
-            try {
-                List<Allocation> allocations = allocationSessionBean.retrieveAllAllocations();
-                for (Allocation allocation : allocations) {
-                    System.out.println("Allocation ID: " + allocation.getAllocationId());
-                    if (allocation.getReservation() != null) {
-                        System.out.println(" > Reservation ID: " + allocation.getReservation().getReservationId());
-                    }
-
-                    System.out.println(" > Date: " + allocation.getCurrentDate());
-                    List<Room> rooms1 = allocation.getRooms();
-                    System.out.println("> Rooms:");
-                    for (Room room : rooms1) {
-                        System.out.println("    Room ID: " + room.getRoomId());
-                        System.out.println("    > Room Type: " + room.getRoomType().getRoomTypeName());
-                        System.out.println("    > Is Disabled: " + room.getIsDisabled());
-                    }
-                    System.out.println();
-                }
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println("== Printing Allocations Exceptions");
-            try {
-                List<AllocationException> exceptions = allocationExceptionSessionBean.retrieveAllExceptions();
-                for (AllocationException ex : exceptions) {
-                    System.out.println("Allocation Exception ID: " + ex.getExceptionId());
-
-                    if (ex.getReservation() != null) {
-                        System.out.println(" > Reservation ID: " + ex.getReservation().getReservationId());
-                    }
-
-                    System.out.println(" > Date: " + ex.getCurrentDate());
-
-                    System.out.println();
-                }
-            } catch (EmptyListException e) {
-                System.out.println(e.getMessage());
-            }
 
         } catch (Exception ex) {
             ex.printStackTrace();

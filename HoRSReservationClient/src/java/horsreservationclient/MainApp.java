@@ -429,13 +429,34 @@ public class MainApp {
         double totalReservation = 0;
         long numOfDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         List<RoomRate> rates = roomManagementSessionBean.getRoomRates(selectedRoomType.getRoomTypeId());
+        
+        //Sort the rates
+        RoomRate[] orderedRates = new RoomRate[4];
+        for (RoomRate rate : rates) {
+            if (null != rate.getRoomRateType()) switch (rate.getRoomRateType()) {
+                case PublishedRate:
+                    orderedRates[3] = rate;
+                    break;
+                case NormalRate:
+                    orderedRates[2] = rate;
+                    break;
+                case PeakRate:
+                    orderedRates[1] = rate;
+                    break;
+                case PromotionRate:
+                    orderedRates[0] = rate;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         for (int i = 0; i < numOfDays; i++) {
             //get the rate Per night for each night
             boolean foundRate = false;
-            for (int j = rates.size() - 1; j >= 0; j--) {
-                RoomRate rate = rates.get(j);
-                if (((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && !foundRate) {
+            for (int j = 0; j < orderedRates.length; j++) {
+                RoomRate rate = orderedRates[j];
+                if (rate != null && ((rate.getStartDate() == null) || isCurrentDateWithinRange(checkInDate, rate.getStartDate(), rate.getEndDate())) && !foundRate) {
                     totalReservation += rate.getRatePerNight();
                     checkInDate = checkInDate.plusDays(1);
                     foundRate = true;
@@ -536,7 +557,7 @@ public class MainApp {
                     //PERSIST
                     allocationExceptionSessionBean.createNewAllocationException(exception, reservation.getReservationId());
                     System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
-                    doDashboardFeatures(sc, guestId);
+                    
                     return;
                 }
 

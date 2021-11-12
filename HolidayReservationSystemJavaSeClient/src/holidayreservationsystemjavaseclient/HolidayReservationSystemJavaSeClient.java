@@ -152,7 +152,7 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.println();
             doDashboardFeatures(sc, customerId);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
         }
 
     }
@@ -198,7 +198,7 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.println();
             doDashboardFeatures(sc, customerId);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
         }
     }
 
@@ -211,7 +211,7 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.print("> Check-Out Date: ");
             String checkOut = sc.nextLine();
             System.out.println();
-            
+
             DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern("dd MM yyyy");
             LocalDate checkInDate = LocalDate.parse(checkIn, dtFormat);
             LocalDate checkOutDate = LocalDate.parse(checkOut, dtFormat);
@@ -224,13 +224,11 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.print("> Number of Rooms: ");
             int numOfRooms = sc.nextInt();
             sc.nextLine();
-            
 
             long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
             //Output all the room types, give guest option to select the room he wants to search
-            System.out.println("Here are all available Room Types for your " + daysBetween + " night(s) stay"
-                    + ". Which Hotel Room would you like to reserve?");
+            System.out.println("Here are all available Room Types for your " + daysBetween + " night(s) stay.\n");
 
             HoRSWebService_Service service = new HoRSWebService_Service();
 
@@ -265,14 +263,8 @@ public class HolidayReservationSystemJavaSeClient {
 
                 }
             }
-            System.out.print("> ");
-            int input = sc.nextInt();
-            sc.nextLine();
             System.out.println();
-
-            RoomType selectedRoomType = types.get(input - 1);
-            System.out.println("** You have selected " + selectedRoomType.getRoomTypeName() + "\n");
-            System.out.println("Do you want to reserve the room?");
+            System.out.println("Do you want to reserve a room?");
             System.out.println("> 1. Yes");
             System.out.println("> 2. No");
             System.out.print("> ");
@@ -280,6 +272,39 @@ public class HolidayReservationSystemJavaSeClient {
             sc.nextLine();
             System.out.println();
             if (reserveInput == 1) {
+
+                count = 1;
+                System.out.println("Which Hotel Room would you like to reserve?\n");
+                for (int i = 0; i < types.size(); i++) {
+                    RoomType type = types.get(i);
+                    //Check if room type is available first. If available then display
+                    boolean isRoomTypeAvail = service.getHoRSWebServicePort().isRoomTypeAvailableForReservation(type.getRoomTypeId(), checkIn, checkOut, numOfRooms);
+
+                    if (isRoomTypeAvail) {
+                        //Derive the total reservation fee
+                        double totalReservation = getTotalReservationFee(checkInDate, checkOutDate, type);
+                        if (totalReservation == -1) {
+                            System.out.println("No Room Rates available.\n");
+                            doDashboardFeatures(sc, customerId);
+                            return;
+                        }
+                        System.out.println("> " + count++ + ". " + type.getRoomTypeDesc()
+                                + "\n     ** Amenities: " + type.getAmenities()
+                                + "\n     ** Total reservation fee is " + totalReservation * numOfRooms);
+                    } else {
+                        types.remove(type);
+                        i--;
+
+                    }
+                }
+                System.out.print("> ");
+                int input = sc.nextInt();
+                sc.nextLine();
+                System.out.println();
+
+                RoomType selectedRoomType = types.get(input - 1);
+                System.out.println("** You have selected " + selectedRoomType.getRoomTypeName() + "\n");
+
                 doPartnerReserveRoom(sc, customerId, checkInDate, checkOutDate, numOfRooms, selectedRoomType);
             } else {
                 System.out.println("Going back to dashboard.\n");
@@ -287,7 +312,8 @@ public class HolidayReservationSystemJavaSeClient {
             }
 
         } catch (Exception e) {
-            System.out.println("Something went wrong.\n");
+            
+            System.out.println("Uh oh.. Something went wrong.\n");
             doPartnerSearchRoom(sc, customerId);
 
         }
@@ -354,7 +380,7 @@ public class HolidayReservationSystemJavaSeClient {
             }
             doDashboardFeatures(sc, customerId);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("Uh oh.. Something went wrong.\n");
         }
     }
 
@@ -368,13 +394,37 @@ public class HolidayReservationSystemJavaSeClient {
 
             return -1;
         }
+
+        //Sort the rates
+        RoomRate[] orderedRates = new RoomRate[4];
+        for (RoomRate rate : rates) {
+
+            switch (rate.getRoomRateType().toString()) {
+                case "PUBLISHED_RATE":
+                    orderedRates[3] = rate;
+                    break;
+                case "NORMAL_RATE":
+                    orderedRates[2] = rate;
+                    break;
+                case "PEAK_RATE":
+                    orderedRates[1] = rate;
+                    break;
+                case "PROMOTION_RATE":
+                    orderedRates[0] = rate;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         for (int i = 0; i < numOfDays; i++) {
             //get the rate Per night for each night
             boolean foundRate = false;
-            for (int j = rates.size() - 1; j >= 0; j--) {
-                RoomRate rate = rates.get(j);
+            for (int j = 0; j < orderedRates.length; j++) {
+                RoomRate rate = orderedRates[j];
+
                 boolean isCurrentDateWithinRange = true;
-                if (rate.getStartDate() != null || rate.getEndDate() != null) {
+                if (rate != null && (rate.getStartDate() != null || rate.getEndDate() != null)) {
                     LocalDate start = rate.getStartDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     LocalDate end = rate.getEndDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     boolean lowerBound = checkInDate.isAfter(start) || checkInDate.isEqual(start);
@@ -382,7 +432,7 @@ public class HolidayReservationSystemJavaSeClient {
                     isCurrentDateWithinRange = lowerBound && upperBound;
                 }
 
-                if ((isCurrentDateWithinRange) && !foundRate) {
+                if (rate != null && (isCurrentDateWithinRange) && !foundRate) {
                     totalReservation += rate.getRatePerNight();
                     checkInDate = checkInDate.plusDays(1);
                     foundRate = true;
@@ -402,15 +452,38 @@ public class HolidayReservationSystemJavaSeClient {
             System.out.println("No room rates available.\n");
             doDashboardFeatures(sc, customerId);
         }
+
+        //Sort the rates
+        RoomRate[] orderedRates = new RoomRate[4];
+        for (RoomRate rate : rates) {
+
+            switch (rate.getRoomRateType().toString()) {
+                case "PUBLISHED_RATE":
+                    orderedRates[3] = rate;
+                    break;
+                case "NORMAL_RATE":
+                    orderedRates[2] = rate;
+                    break;
+                case "PEAK_RATE":
+                    orderedRates[1] = rate;
+                    break;
+                case "PROMOTION_RATE":
+                    orderedRates[0] = rate;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         List<RoomRate> ratesUsed = new ArrayList<>();
         for (int i = 0; i < numOfDays; i++) {
             //get the rate Per night for each night
             boolean foundRate = false;
-            for (int j = rates.size() - 1; j >= 0; j--) {
-                RoomRate rate = rates.get(j);
+            for (int j = 0; j < orderedRates.length; j++) {
+                RoomRate rate = orderedRates[j];
 
                 boolean isCurrentDateWithinRange = true;
-                if (rate.getStartDate() != null || rate.getEndDate() != null) {
+                if (rate != null && (rate.getStartDate() != null || rate.getEndDate() != null)) {
                     LocalDate start = rate.getStartDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     LocalDate end = rate.getEndDate().toGregorianCalendar().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     boolean lowerBound = checkInDate.isAfter(start) || checkInDate.isEqual(start);
@@ -418,7 +491,7 @@ public class HolidayReservationSystemJavaSeClient {
                     isCurrentDateWithinRange = lowerBound && upperBound;
                 }
 
-                if ((isCurrentDateWithinRange) && !foundRate) {
+                if (rate != null && (isCurrentDateWithinRange) && !foundRate) {
                     if (!ratesUsed.contains(rate)) {
                         ratesUsed.add(rate); //Adding unique room rates
                     }

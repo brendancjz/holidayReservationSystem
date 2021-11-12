@@ -110,19 +110,19 @@ public class MainApp {
         if (emRole.equals(EmployeeEnum.SYSTEMADMIN.toString())) {
             SystemAdminModule module = new SystemAdminModule(partnerSessionBean, employeeSessionBean, 
                     allocationSessionBean, allocationExceptionSessionBean, reservationSessionBean, roomManagementSessionBean);
-            module.doSystemAdminDashboardFeatures(sc, emId);
+            module.doSystemAdminDashboardFeatures(sc);
             run();
         } else if (emRole.equals(EmployeeEnum.OPSMANAGER.toString())) {
             OpsManagerModule module = new OpsManagerModule(roomManagementSessionBean, allocationExceptionSessionBean);
-            module.doOpsManagerDashboardFeatures(sc, emId);
+            module.doOpsManagerDashboardFeatures(sc);
             run();
         } else if (emRole.equals(EmployeeEnum.SALESMANAGER.toString())) {
             SalesManagerModule module = new SalesManagerModule(roomManagementSessionBean);
-            module.doSalesManagerDashboardFeatures(sc, emId);
+            module.doSalesManagerDashboardFeatures(sc);
             run();
         } else if (emRole.equals(EmployeeEnum.GRELMANAGER.toString())) {
             GRelManagerModule module = new GRelManagerModule(allocationSessionBean, allocationExceptionSessionBean, guestSessionBean, reservationSessionBean, roomManagementSessionBean);
-            module.doGRelManagerDashboardFeatures(sc, emId);
+            module.doGRelManagerDashboardFeatures(sc);
             run();
         }
 

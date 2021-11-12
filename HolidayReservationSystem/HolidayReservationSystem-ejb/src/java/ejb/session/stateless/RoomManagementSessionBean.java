@@ -151,7 +151,8 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
     }
 
     @Override
-    public Long createNewRoomType(RoomType newRoomType) {
+    public Long createNewRoomType(RoomType newRoomType) throws EmptyListException {
+        this.updateRoomTypeRankingsCreation(newRoomType.getTypeRank());
         return roomTypeSessionBean.createNewRoomType(newRoomType);
     }
 

@@ -119,17 +119,17 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         RoomType type = em.find(RoomType.class, typeId);
         type.getRooms().size();
 
-        LocalDate currDate = LocalDate.now();
-        Integer timeCheck = LocalDateTime.now().getHour();
-        
+//        LocalDate currDate = LocalDate.now();
+//        Integer timeCheck = LocalDateTime.now().getHour();
+//        ((currDate.isEqual(startDate) && timeCheck >= 2 && room.getIsVacant()) || currDate.isBefore(startDate))
         int count = 0;
         for (Room room : type.getRooms()) {
-            if (room.getIsAvailable() && 
-                    ((currDate.isEqual(startDate) && timeCheck >= 2 && room.getIsVacant()) || currDate.isBefore(startDate))) {
+            if (room.getIsAvailable()) {
                 
                 count++;
             }
         }
+        System.out.println("COUNT: " + count);
         int countOfRoomsRequired = 0;
  
         try {
@@ -148,6 +148,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             //no reservations, no problems;
             countOfRoomsRequired = 0;
         }
+        
+        System.out.println("COUNTOFROOMREQUIRED: " + countOfRoomsRequired);
 
         return (count - countOfRoomsRequired - numOfRooms) >= 0;
     }

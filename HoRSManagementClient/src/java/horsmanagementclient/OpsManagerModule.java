@@ -36,7 +36,7 @@ public class OpsManagerModule {
         this.allocationExceptionSessionBean = allocationExceptionSessionBean;
     }
 
-    public void doOpsManagerDashboardFeatures(Scanner sc, Long emId) {
+    public void doOpsManagerDashboardFeatures(Scanner sc) {
         System.out.println("==== Ops Manager Dashboard Interface ====");
         System.out.println("> 1. Create New Room Type");
         System.out.println("> 2. View Room Type Details");
@@ -54,35 +54,35 @@ public class OpsManagerModule {
         switch (input) {
             case 1:
                 System.out.println("You have selected 'Create New Room Type'\n");
-                doCreateNewRoomType(sc, emId);
+                doCreateNewRoomType(sc);
                 break;
             case 2:
                 System.out.println("You have selected 'View Room Type Details'\n");
-                doViewRoomTypeDetails(sc, emId);
+                doViewRoomTypeDetails(sc);
                 break;
             case 3:
                 System.out.println("You have selected 'View All Room Types'\n");
-                doViewAllRoomTypes(sc, emId);
+                doViewAllRoomTypes(sc);
                 break;
             case 4:
                 System.out.println("You have selected 'Create New Room'\n");
-                doCreateNewRoom(sc, emId);
+                doCreateNewRoom(sc);
                 break;
             case 5:
                 System.out.println("You have selected 'Update Room'\n");
-                doUpdateRoom(sc, emId);
+                doUpdateRoom(sc);
                 break;
             case 6:
                 System.out.println("You have selected 'Delete Room'\n");
-                doDeleteRoom(sc, emId);
+                doDeleteRoom(sc);
                 break;
             case 7:
                 System.out.println("You have selected 'View All Rooms'\n");
-                doViewAllRooms(sc, emId);
+                doViewAllRooms(sc);
                 break;
             case 8:
                 System.out.println("You have selected 'View Room Allocation Exception Report'\n");
-                doViewRoomAllocationExceptionReport(sc, emId);
+                doViewRoomAllocationExceptionReport(sc);
                 break;
             case 9:
                 System.out.println("You have logged out.\n");
@@ -90,12 +90,12 @@ public class OpsManagerModule {
                 break;
             default:
                 System.out.println("Wrong input. Try again.\n");
-                doOpsManagerDashboardFeatures(sc, emId);
+                doOpsManagerDashboardFeatures(sc);
                 break;
         }
     }
 
-    private void doCreateNewRoomType(Scanner sc, Long emId) {
+    private void doCreateNewRoomType(Scanner sc) {
         try {
             System.out.println("==== Create New Room Type Interface ====");
             //String roomTypeName, String roomTypeDesc, Integer roomSize, Integer numOfBeds, Integer capacity, String amenities
@@ -103,7 +103,7 @@ public class OpsManagerModule {
             System.out.print("> Room Type Name [5 - 50 Characters]: ");
             String typeName = sc.nextLine();
             if (typeName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
  
@@ -113,17 +113,17 @@ public class OpsManagerModule {
                 throw new RoomTypeExistException("Room Type Name already exist. Try again.\n");
             }
 
-            System.out.print("> Room Type Description [MIN 5 CHAR]: ");
+            System.out.print("> Room Type Description [Min 5 Characters]: ");
             String typeDesc = sc.nextLine();
             if (typeDesc.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.print("> Room Size: ");
             String roomInput = sc.next();
             sc.nextLine();
             if (roomInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             Integer roomSize = Integer.parseInt(roomInput);
@@ -131,7 +131,7 @@ public class OpsManagerModule {
             String bedInput = sc.next();
             sc.nextLine();
             if (bedInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             Integer numOfBeds = Integer.parseInt(bedInput);
@@ -139,7 +139,7 @@ public class OpsManagerModule {
             String capInput = sc.next();
             sc.nextLine();
             if (capInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             Integer cap = Integer.parseInt(capInput);
@@ -149,7 +149,7 @@ public class OpsManagerModule {
             String rankInput = sc.next();
             sc.nextLine();
             if (rankInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             } else if ((Integer.parseInt(rankInput) <= 0 || Integer.parseInt(rankInput) > numOfRoomTypes)) {
                 throw new RoomTypeRankException("Rank is out of range.");
@@ -158,12 +158,12 @@ public class OpsManagerModule {
             System.out.print("> Room Amenities [MIN 5 CHAR]: ");
             String amenities = sc.nextLine();
             if (amenities.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             System.out.println();
 
-            roomManagementSessionBean.updateRoomTypeRankingsCreation(rank);
+            
             RoomType newRoomType = new RoomType(typeName, typeDesc, roomSize, numOfBeds, cap, rank, amenities);
 
             Long newRoomTypeId = roomManagementSessionBean.createNewRoomType(newRoomType);
@@ -180,21 +180,20 @@ public class OpsManagerModule {
             System.out.println("> Amenities: " + type.getAmenities());
             System.out.println();
 
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (RoomTypeRankException | RoomTypeExistException | EmptyListException ex) {
             System.out.println(ex.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (EJBTransactionRolledbackException e) {
             System.out.println("Sorry. You have inputted invalid values. Try again.\n");
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (Exception e) {
             System.out.println("Something went wrong.");
-            System.out.println(e.toString());
-            doCreateNewRoomType(sc, emId);
+            doCreateNewRoomType(sc);
         }
     }
 
-    private void doViewRoomTypeDetails(Scanner sc, Long emId) {
+    private void doViewRoomTypeDetails(Scanner sc) {
         System.out.println("==== View Room Type Details Interface ====");
         System.out.println("Viewing room type. To cancel entry anytime, enter 'q'.");
         try {
@@ -203,7 +202,7 @@ public class OpsManagerModule {
             String typeName = sc.nextLine();
             System.out.println();
             if (typeName.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             RoomType type = roomManagementSessionBean.getRoomType(typeName);
@@ -229,7 +228,7 @@ public class OpsManagerModule {
                 }
                 System.out.println();
             } catch (EmptyListException e) {
-                System.out.println("     NULL");
+                System.out.println("  > Zero Room Rates applied.");
             }
 
             System.out.println("\n   Select an action:");
@@ -243,28 +242,28 @@ public class OpsManagerModule {
 
             switch (input) {
                 case 1:
-                    doUpdateRoomType(sc, emId, type.getRoomTypeId());
+                    doUpdateRoomType(sc, type.getRoomTypeId());
                     break;
                 case 2:
-                    doDeleteRoomType(sc, emId, type.getRoomTypeId());
+                    doDeleteRoomType(sc, type.getRoomTypeId());
                     break;
                 case 3:
-                    doOpsManagerDashboardFeatures(sc, emId);
+                    doOpsManagerDashboardFeatures(sc);
                     break;
                 default:
                     System.out.println("Invalid input.");
-                    doOpsManagerDashboardFeatures(sc, emId);
+                    doOpsManagerDashboardFeatures(sc);
                     break;
             }
         } catch (RoomTypeExistException e) {
             System.out.println(e.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
-    private void doViewAllRoomTypes(Scanner sc, Long emId) {
+    private void doViewAllRoomTypes(Scanner sc) {
         try {
-            System.out.println("==== View All Room Types Interface");
+            System.out.println("==== View All Room Types Interface ====");
             System.out.printf("\n%3s%30s%25s%15s%15s%15s%15s%15s%12s%50s", "ID", "Type Name", "Description", "Room Size", "No. of Beds", "Capacity", "No. of Rooms", "Is Disabled", "Rank", "Amenities");
 
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
@@ -283,13 +282,14 @@ public class OpsManagerModule {
             System.out.println("Main exception: " + e.toString() + "\n");
 
         }
-        doOpsManagerDashboardFeatures(sc, emId);
+        doOpsManagerDashboardFeatures(sc);
     }
 
-    private void doCreateNewRoom(Scanner sc, Long emId) {
+    private void doCreateNewRoom(Scanner sc) {
         try {
-            System.out.println("==== Create New Room Interface");
+            System.out.println("==== Create New Room Interface ====");
             List<RoomType> types = roomManagementSessionBean.getAllRoomTypes();
+            System.out.println("To cancel entry, enter 'q' anytime.");;
             System.out.println("Select Room Type to have the new Room Rate:");
             int idx = 1;
             for (RoomType type : types) {
@@ -301,7 +301,7 @@ public class OpsManagerModule {
             String tInput = sc.next().trim();
             sc.nextLine();
             if (tInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int typeInput = Integer.parseInt(tInput);
@@ -315,7 +315,7 @@ public class OpsManagerModule {
             String roomInput = sc.next().trim();
             sc.nextLine();
             if (roomInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int level = Integer.parseInt(roomInput);
@@ -323,7 +323,7 @@ public class OpsManagerModule {
             String numInput = sc.next().trim();
             sc.nextLine();
             if (numInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int num = Integer.parseInt(numInput);
@@ -343,20 +343,21 @@ public class OpsManagerModule {
             System.out.println("> Is Disabled: " + newRoom.getIsDisabled());
             System.out.println();
 
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
 
-        } catch (RoomExistException | InvalidInputException | NumberFormatException | EmptyListException e) {
+        } catch (RoomExistException | InvalidInputException | EmptyListException e) {
             System.out.println(e.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
-        } catch (EJBTransactionRolledbackException e) {
+            doOpsManagerDashboardFeatures(sc);
+        } catch (NumberFormatException | EJBTransactionRolledbackException e) {
             System.out.println("Sorry. You have inputted invalid values. Try again.\n");
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Uh oh.. SOmething went wrong.");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
-    private void doUpdateRoom(Scanner sc, Long emId) {
+    private void doUpdateRoom(Scanner sc) {
         try {
             System.out.println("==== Update Room Interface ====");
             System.out.println("Updating room. To cancel entry at anytime, enter 'q'.");
@@ -364,7 +365,7 @@ public class OpsManagerModule {
             String roomInput = sc.next().trim();
             sc.nextLine();
             if (roomInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int level = Integer.parseInt(roomInput);
@@ -372,7 +373,7 @@ public class OpsManagerModule {
             String numInput = sc.next().trim();
             sc.nextLine();
             if (numInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int number = Integer.parseInt(numInput);
@@ -390,7 +391,7 @@ public class OpsManagerModule {
 
             if (room.getIsDisabled()) {
                 System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
-                doUpdateRoom(sc, emId);
+                doUpdateRoom(sc);
                 return;
             }
 
@@ -477,21 +478,24 @@ public class OpsManagerModule {
             System.out.println("> Room Type: " + room.getRoomType().getRoomTypeName());
             System.out.println();
 
-            doOpsManagerDashboardFeatures(sc, emId);
-        } catch (InvalidInputException | NumberFormatException | EmptyListException | RoomExistException e) {
+            doOpsManagerDashboardFeatures(sc);
+        } catch (InvalidInputException | EmptyListException | RoomExistException e) {
             System.out.println(e.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
+        } catch (NumberFormatException e) {
+            System.out.println("Sorry, you have inputted invalid values. Try again.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
-    private void doDeleteRoom(Scanner sc, Long emId) {
+    private void doDeleteRoom(Scanner sc) {
         try {
             System.out.println("==== Delete Room Interface ====");
             System.out.print("> Input existing Room Level: ");
             String roomInput = sc.next();
             sc.nextLine();
             if (roomInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int level = Integer.parseInt(roomInput);
@@ -499,7 +503,7 @@ public class OpsManagerModule {
             String numInput = sc.next();
             sc.nextLine();
             if (numInput.equals("q")) {
-                doCancelledEntry(sc, emId);
+                doCancelledEntry(sc);
                 return;
             }
             int number = Integer.parseInt(numInput);
@@ -512,11 +516,11 @@ public class OpsManagerModule {
 
             if (room.getIsDisabled()) {
                 System.out.println("Sorry, you selected a disabled Room. Try again with another room.\n");
-                doOpsManagerDashboardFeatures(sc, emId);
+                doOpsManagerDashboardFeatures(sc);
                 return;
             } else if (!room.getIsAvailable()) {
                 System.out.println("Sorry, you selected an unavailable Room. Try again with another room.\n");
-                doOpsManagerDashboardFeatures(sc, emId);
+                doOpsManagerDashboardFeatures(sc);
                 return;
             }
 
@@ -536,22 +540,25 @@ public class OpsManagerModule {
                     break;
 
                 case 2:
-                    doOpsManagerDashboardFeatures(sc, emId);
+                    
                     break;
                 default:
                     System.out.println("Invalid input. Try again.\n");
-                    doDeleteRoom(sc, emId);
+                    doDeleteRoom(sc);
                     break;
             }
 
-            doOpsManagerDashboardFeatures(sc, emId);
-        } catch (NumberFormatException | RoomExistException e) {
+            doOpsManagerDashboardFeatures(sc);
+        } catch ( RoomExistException e) {
             System.out.println(e.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
+        } catch (NumberFormatException e) {
+            System.out.println("Sorry, you have inputted invalid values. Try again.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
-    private void doViewAllRooms(Scanner sc, Long emId) {
+    private void doViewAllRooms(Scanner sc) {
         try {
             System.out.println("==== View All Rooms Interface ====");
             List<Room> rooms = roomManagementSessionBean.retrieveAllRooms();
@@ -567,14 +574,17 @@ public class OpsManagerModule {
             }
             System.out.println();
             System.out.println();
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
+        } catch (Exception e) {
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
-    private void doUpdateRoomType(Scanner sc, Long emId, Long roomTypeId) {
+    private void doUpdateRoomType(Scanner sc, Long roomTypeId) {
         System.out.println("==== Update Room Type Interface ====");
         System.out.println("Updating room type. To cancel entry at anytime, enter 'q'.");
         try {
@@ -607,7 +617,7 @@ public class OpsManagerModule {
                 String inputStr = sc.next();
                 sc.nextLine();
                 if (inputStr.equals("q")) {
-                    doCancelledEntry(sc, emId);
+                    doCancelledEntry(sc);
                     return;
                 }
                 int input = Integer.parseInt(inputStr);
@@ -679,20 +689,23 @@ public class OpsManagerModule {
             System.out.println("> Amenities: " + type.getAmenities());
             System.out.println();
 
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (RoomTypeExistException | EmptyListException ex) {
             System.out.println(ex.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (InvalidInputException e) {
             System.out.println(e.getMessage());
-            doUpdateRoomType(sc, emId, roomTypeId);
+            doUpdateRoomType(sc, roomTypeId);
+        } catch (NumberFormatException e) {
+            System.out.println("Sorry, you have inputted invalid values. Try again.\n");
+            doOpsManagerDashboardFeatures(sc);
         } catch (Exception e) {
-            System.out.println("Invalid Input. Going back to dashboard.\n");
-            doOpsManagerDashboardFeatures(sc, emId);
+            System.out.println("Uh oh.. Something went wrong.\n");
+            doOpsManagerDashboardFeatures(sc);
         }
     }
 
-    private void doDeleteRoomType(Scanner sc, Long emId, Long roomTypeId) {
+    private void doDeleteRoomType(Scanner sc, Long roomTypeId) {
         try {
             System.out.println("=== Delete Room Type Interface ====");
             System.out.println("Confirm Deletion?");
@@ -710,29 +723,29 @@ public class OpsManagerModule {
                     break;
 
                 case 2:
-                    doOpsManagerDashboardFeatures(sc, emId);
+                    
                     break;
                 default:
                     System.out.println("Invalid input. Try again.\n");
-                    doDeleteRoomType(sc, emId, roomTypeId);
+                    doDeleteRoomType(sc, roomTypeId);
                     break;
             }
 
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (EmptyListException ex) {
             System.out.println(ex.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         }
 
     }
 
-    private void doCancelledEntry(Scanner sc, Long emId) {
+    private void doCancelledEntry(Scanner sc) {
         System.out.println("\n You have cancelled entry. Taking you back to dashboard.\n");
 
-        doOpsManagerDashboardFeatures(sc, emId);
+        doOpsManagerDashboardFeatures(sc);
     }
 
-    private void doViewRoomAllocationExceptionReport(Scanner sc, Long emId) {
+    private void doViewRoomAllocationExceptionReport(Scanner sc) {
         try {
             System.out.println("==== View Room Allocation Exception Report ====");
             List<AllocationException> list = allocationExceptionSessionBean.retrieveAllExceptions();
@@ -746,10 +759,10 @@ public class OpsManagerModule {
             }
 
             System.out.println();
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         } catch (EmptyListException e) {
             System.out.println(e.getMessage());
-            doOpsManagerDashboardFeatures(sc, emId);
+            doOpsManagerDashboardFeatures(sc);
         }
 
     }
