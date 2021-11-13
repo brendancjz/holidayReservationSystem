@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.AllocationException;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.EmptyListException;
@@ -26,5 +27,7 @@ public interface AllocationExceptionSessionBeanRemote {
     public void associateAllocationExceptionWithReservation(AllocationException exception, Long reservationId);
 
     public void createNewAllocationException(AllocationException exception, Long reservationId);
+
+    public List<AllocationException> retrieveAllExceptionsFromCustomer(Long customerId, Date currDate) throws EmptyListException;
     
 }

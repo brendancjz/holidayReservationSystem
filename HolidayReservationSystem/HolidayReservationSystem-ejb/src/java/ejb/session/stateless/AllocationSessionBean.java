@@ -113,7 +113,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
     @Override
     public List<Allocation> getAllocationsForGuestForCheckOutDay(Long customerId, LocalDate currDate) throws EmptyListException {
         Date curr = Date.from(currDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        System.out.println("curr Day " + curr.toString());
+       
         Query query = em.createQuery("SELECT a FROM Allocation a WHERE a.reservation.customer.customerId = :customerId AND a.reservation.endDate = :endDate");
         query.setParameter("customerId", customerId);
         query.setParameter("endDate", curr);
@@ -174,7 +174,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
                 List<Room> vacantRooms = new ArrayList<>();
                 for (Room room : rooms) {
-                    if (room.getIsVacant()) {
+                    if (room.getIsVacant() && !room.getIsDisabled() && room.getIsAvailable()) {
                         vacantRooms.add(room);
                     }
 
@@ -203,7 +203,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
                     DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
                     System.out.println(":: Allocation ID: " + newAllocation.getAllocationId());
                     System.out.println("   > Reservation ID: " + newAllocation.getAllocationId());
-                    System.out.println("   > Current Date:" + outputFormat.format(newAllocation.getCurrentDate()));
+                    System.out.println("   > Current Date: " + outputFormat.format(newAllocation.getCurrentDate()));
                     for (Room room : newAllocation.getRooms()) {
                         System.out.println("   > Room ID: " + room.getRoomId());
                     }
@@ -230,23 +230,22 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
                     //Allocate all the rooms of the current RoomType into this allocation
                     //CREATE
                     Allocation newAllocation = new Allocation(curr);
+                    
 
                     //Get the remaining rooms from other RoomTypes, while loop
                     int numOfRoomsNeedToUpgrade = numOfRoomsToAllocate - vacantRooms.size();
                     while (numOfRoomsNeedToUpgrade > 0) {
                         //get a higher rank RoomType
                         rankOfRoomType = rankOfRoomType - 1;
-
+                        
                         if (rankOfRoomType <= 0) {
                             //CREATE
                             AllocationException exception = new AllocationException(curr, 2);
-                            //ASSOCIATE
-                            allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception, reservation.getReservationId());
+                            
                             //PERSIST
-                            allocationExceptionSessionBean.createNewAllocationException(exception);
+                            allocationExceptionSessionBean.createNewAllocationException(exception, reservation.getReservationId());
                             System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
-
-                            break;
+                            continue;
                         }
 
                         RoomType higherRankedType = roomManagementSessionBean.getRoomTypeByRank(rankOfRoomType);
@@ -254,15 +253,16 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
                         List<Room> higherRankedRooms = higherRankedType.getRooms();
                         List<Room> higherRankedVacantRooms = new ArrayList<>();
                         for (Room room : higherRankedRooms) {
-                            if (room.getIsVacant()) {
+                            if (room.getIsVacant() && !room.getIsDisabled() && room.getIsAvailable()) {
                                 higherRankedVacantRooms.add(room);
 
                             }
+                            
 
                         }
 
                         if (higherRankedVacantRooms.size() >= numOfRoomsNeedToUpgrade) {
-
+                            
                             List<Room> higherRankedAllocatedRooms = higherRankedVacantRooms.subList(0, numOfRoomsNeedToUpgrade);
 
                             for (Room room : higherRankedAllocatedRooms) {
@@ -272,7 +272,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
 
                             numOfRoomsNeedToUpgrade = 0;
                         } else {
-
+                            
                             if (!higherRankedVacantRooms.isEmpty()) {
                                 for (Room room : higherRankedVacantRooms) {
 
@@ -281,7 +281,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
                             }
                             numOfRoomsNeedToUpgrade -= higherRankedVacantRooms.size();
                         }
-
+                        
                     }
 
                     //PERSIST
@@ -317,7 +317,7 @@ public class AllocationSessionBean implements AllocationSessionBeanRemote, Alloc
             }
 
         } catch (Exception e) {
-            System.out.println("Invalid input. Try again. " + e.toString());
+            System.out.println("Something went wrong.");
 
         }
     }

@@ -87,7 +87,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
     @Override
     public void associateReservationWithGuestAndRoomTypeAndRoomRate(Reservation reservation, Long guestId, Long typeId, Long rateId) {
-        System.out.println("Inside associateReservationWithGuestAndRoomTypeAndRoomRate() method");
+        
         Customer customer = em.find(Customer.class, guestId);
         RoomType roomType = em.find(RoomType.class, typeId);
         RoomRate roomRate = em.find(RoomRate.class, rateId);
@@ -124,12 +124,12 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 //        ((currDate.isEqual(startDate) && timeCheck >= 2 && room.getIsVacant()) || currDate.isBefore(startDate))
         int count = 0;
         for (Room room : type.getRooms()) {
-            if (room.getIsAvailable()) {
+            if (room.getIsAvailable() && !room.getIsDisabled()) {
                 
                 count++;
             }
         }
-        System.out.println("COUNT: " + count);
+        
         int countOfRoomsRequired = 0;
  
         try {
@@ -139,7 +139,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 Date start = reservation.getStartDate();
                 Date end = reservation.getEndDate();
                 if (isCollided(start, end, startDate, endDate)) {
-                    System.out.println("Reservation ID: " + reservation.getReservationId() + " collides with this new reservation.");
+                    
                     countOfRoomsRequired += reservation.getNumOfRooms();
                     //countOfRoomsRequired++;
                 }
@@ -149,7 +149,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             countOfRoomsRequired = 0;
         }
         
-        System.out.println("COUNTOFROOMREQUIRED: " + countOfRoomsRequired);
+        
 
         return (count - countOfRoomsRequired - numOfRooms) >= 0;
     }
@@ -245,20 +245,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             reservation.getRoomType().getRooms().size();
         }
         return query.getResultList();
-    }
-
-    @Override
-    public boolean isRoomTypeAvailableForWalkInReservation(Long roomTypeId, int numOfRooms) {
-        RoomType type = em.find(RoomType.class, roomTypeId);
-        List<Room> rooms = type.getRooms();
-        int numOfVacantRooms = 0;
-        for (Room room : rooms) {
-            if (room.getIsVacant()) {
-                numOfVacantRooms++;
-            }
-        }
-
-        return numOfRooms <= numOfVacantRooms;
     }
 
     @Override

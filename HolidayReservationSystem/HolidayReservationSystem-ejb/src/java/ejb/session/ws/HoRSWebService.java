@@ -218,7 +218,7 @@ public class HoRSWebService {
 
         int count = 0;
         for (Room room : type.getRooms()) {
-            if (room.getIsAvailable()) {
+            if (room.getIsAvailable() && !room.getIsDisabled()) {
 
                 count++;
             }
@@ -232,7 +232,7 @@ public class HoRSWebService {
                 Date start = reservation.getStartDate();
                 Date end = reservation.getEndDate();
                 if (isCollided(start, end, checkInDate, checkOutDate)) {
-                    System.out.println("Reservation ID: " + reservation.getReservationId() + " collides with this new reservation.");
+                    
                     countOfRoomsRequired += reservation.getNumOfRooms();
                     //countOfRoomsRequired++;
                 }

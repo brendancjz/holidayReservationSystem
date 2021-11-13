@@ -160,14 +160,16 @@ public class SalesManagerModule {
                 throw new RoomRateExistException("Room Rate already exists.\n");
             }
 
+            DateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
             RoomRate rate = roomManagementSessionBean.createNewRoomRate(types.get(typeInput - 1).getRoomTypeId(), rateEnums[rateInput - 1], startDate, endDate, rateAmount);
             System.out.println("You have successfully created a new Room Rate.");
             System.out.println("> Name: " + rate.getRoomRateName());
             System.out.println("> Type: " + rate.getRoomRateType());
             System.out.println("> Amount: " + rate.getRatePerNight());
             if (rate.getStartDate() != null) {
-                System.out.println("> Validity Period: " + rate.getStartDate().toString()
-                        + " -> " + rate.getEndDate().toString());
+                String validityPeriod = outputFormat.format(rate.getStartDate())
+                            + " -> " + outputFormat.format(rate.getEndDate());
+                System.out.println("> Validity Period: " + validityPeriod);
             }
             System.out.println();
 

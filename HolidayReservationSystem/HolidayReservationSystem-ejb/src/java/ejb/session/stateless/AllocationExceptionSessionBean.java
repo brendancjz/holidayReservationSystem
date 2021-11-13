@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.AllocationException;
 import entity.Reservation;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -42,6 +43,22 @@ public class AllocationExceptionSessionBean implements AllocationExceptionSessio
     @Override
     public List<AllocationException> retrieveAllExceptions() throws EmptyListException {
         Query query = em.createQuery("SELECT a FROM AllocationException a");
+        List<AllocationException> list = query.getResultList();
+        if (list.isEmpty()) {
+            throw new EmptyListException("List of Allocation Exceptions is empty.\n");
+        }
+        for (AllocationException ex : list) {
+            ex.getReservation();
+        }
+        return list;
+    }
+    
+    @Override
+    public List<AllocationException> retrieveAllExceptionsFromCustomer(Long customerId, Date date) throws EmptyListException {
+        Query query = em.createQuery("SELECT a FROM AllocationException a WHERE a.reservation.customer.customerId = :customerId AND a.reservation.startDate = :date");
+        query.setParameter("date", date);
+        query.setParameter("customerId", customerId);
+        
         List<AllocationException> list = query.getResultList();
         if (list.isEmpty()) {
             throw new EmptyListException("List of Allocation Exceptions is empty.\n");

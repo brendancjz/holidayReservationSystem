@@ -118,7 +118,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             for (int i = 0; i < reservations.size(); i++) {
                 if (reservations.get(i).getRoomRates().contains(rate)) {
                     rate.setIsDisabled(Boolean.TRUE);
-                    System.out.println("Room Rate " + rate.getRoomRateName() + " is now disabled.");
+                    
                     return;
                 }
             }
@@ -126,12 +126,12 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             //Delete cause no one using
             rate.getRoomType().getRates().remove(rate);
             em.remove(rate);
-            System.out.println("Deleted Room Room: " + rate.getRoomRateName());
+            
         } catch (EmptyListException ex) {
             //Delete cause no one using
             rate.getRoomType().getRates().remove(rate);
             em.remove(rate);
-            System.out.println("Deleted Room Room: " + rate.getRoomRateName());
+            
         }
 
     }
@@ -192,9 +192,9 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
         try {
             List<Reservation> reservations = reservationSessionBean.retrieveAllReservations();
             for (int i = 0; i < reservations.size(); i++) {
-                System.out.println("Inside loop");
+                
                 if (reservations.get(i).getRoomType().getRoomTypeId().equals(type.getRoomTypeId())) {
-                    System.out.println("Found a room type");
+                    
                     type.setIsDisabled(Boolean.TRUE);
                     type.setTypeRank(-1);
                     return;
@@ -272,16 +272,16 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
             currType.getRooms().remove(room);
             room.setRoomType(type);
             type.getRooms().add(room);
-            System.out.println("linked new room type to room");
+            
         }
-        System.out.println("successfully updated room");
+        
     }
 
     @Override
     public void updateRoomVacancy(Long roomId, boolean vacancy) {
         Room room = this.getRoom(roomId);
         room.setIsVacant(vacancy);
-        System.out.println("Room ID: " + roomId + " isVacant: " + vacancy);
+        
     }
 
     @Override
@@ -321,7 +321,7 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
 
     @Override
     public void updateRoomTypeRankingsCreation(Integer rank) throws EmptyListException {
-        System.out.println(":: Updating Room Type Rankings Creation");
+       
         int lowestRank = roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder().size() + 1; //current num of room types
         List<RoomType> types = new ArrayList<>();
         while (rank < lowestRank) {
@@ -337,23 +337,23 @@ public class RoomManagementSessionBean implements RoomManagementSessionBeanRemot
 
     @Override
     public void updateRoomTypeRankingsDeletion(Integer rank) throws EmptyListException {
-        System.out.println(":: Updating Room Type Rankings Deletion");
+        
         int lowestRank = roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder().size();
         List<RoomType> types = new ArrayList<>();
         while (rank < lowestRank) {
-            System.out.println("=========== RANK " + rank);
+            
             RoomType type = roomTypeSessionBean.getNonDisabledRoomTypeByRank(++rank);
             types.add(type);
         }
         for (RoomType type : types) {
-            System.out.println(type.getRoomTypeName() + " is lower rank.");
+            
             type.setTypeRank(type.getTypeRank() - 1);
         }
     }
 
     @Override
     public void updateRoomTypeRankingsUpdate(Integer currRank, Integer newRank) throws EmptyListException {
-        System.out.println(":: Updating Room Type Rankings Update");
+        
         //get all room types ordered by rank
         List<RoomType> rTypes = roomTypeSessionBean.retrieveAllNotDisabledRoomTypesByRankOrder();
         RoomType type = rTypes.get(currRank - 1);

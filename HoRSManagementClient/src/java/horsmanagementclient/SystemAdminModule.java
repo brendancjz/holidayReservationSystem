@@ -342,7 +342,7 @@ public class SystemAdminModule {
 
                 List<Room> vacantRooms = new ArrayList<>();
                 for (Room room : rooms) {
-                    if (room.getIsVacant()) {
+                    if (room.getIsVacant() && !room.getIsDisabled() && room.getIsAvailable()) {
                         vacantRooms.add(room);
                     }
 
@@ -409,13 +409,11 @@ public class SystemAdminModule {
                         if (rankOfRoomType <= 0) {
                             //CREATE
                             AllocationException exception = new AllocationException(curr, 2);
-                            //ASSOCIATE
-                            allocationExceptionSessionBean.associateAllocationExceptionWithReservation(exception, reservation.getReservationId());
+                            
                             //PERSIST
-                            allocationExceptionSessionBean.createNewAllocationException(exception);
+                            allocationExceptionSessionBean.createNewAllocationException(exception, reservation.getReservationId());
                             System.out.println("Sorry. Type 2 Allocation Exception occurred.\n");
-
-                            break;
+                            continue;
                         }
 
                         RoomType higherRankedType = roomManagementSessionBean.getRoomTypeByRank(rankOfRoomType);
@@ -423,10 +421,11 @@ public class SystemAdminModule {
                         List<Room> higherRankedRooms = higherRankedType.getRooms();
                         List<Room> higherRankedVacantRooms = new ArrayList<>();
                         for (Room room : higherRankedRooms) {
-                            if (room.getIsVacant()) {
+                            if (room.getIsVacant() && !room.getIsDisabled() && room.getIsAvailable()) {
                                 higherRankedVacantRooms.add(room);
 
                             }
+                            
 
                         }
 

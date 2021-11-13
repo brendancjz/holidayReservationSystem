@@ -38,8 +38,6 @@ public interface ReservationSessionBeanLocal {
 
     public List<Reservation> getReservationsToAllocate(LocalDate currDate);
 
-    public boolean isRoomTypeAvailableForWalkInReservation(Long roomTypeId, int numOfRooms);
-
     public Long createNewReservation(Reservation reservation, Long guestId, Long typeId, Long rateId);
     
     public Long createNewReservation(Reservation reservation, Long guestId, Long roomTypeId, List<RoomRate> ratesUsed);
@@ -47,4 +45,6 @@ public interface ReservationSessionBeanLocal {
     public List<Reservation> getReservationsByPartnerId(Long partnerId) throws EmptyListException;
 
     public Reservation getReservationsByDuration(LocalDate checkInDate, LocalDate checkOutDate, Long partnerId);
+
+    
 }

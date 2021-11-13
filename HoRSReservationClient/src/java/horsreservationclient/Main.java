@@ -11,7 +11,6 @@ import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomManagementSessionBeanRemote;
-import java.util.Scanner;
 import javax.ejb.EJB;
 
 /**
@@ -45,7 +44,7 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        Scanner sc = new Scanner(System.in);
+        
         MainApp app = new MainApp(roomManagementSessionBean, guestSessionBean, partnerSessionBean, reservationSessionBean, allocationSessionBean, allocationExceptionSessionBean);
         app.run();
         

@@ -573,15 +573,16 @@ public class OpsManagerModule {
         try {
             System.out.println("==== View All Rooms Interface ====");
             List<Room> rooms = roomManagementSessionBean.retrieveAllRooms();
-            System.out.printf("\n%3s%10s%10s%30s%15s", "ID", "Level", "Number", "Room Type", "Is Available");
+            System.out.printf("\n%3s%10s%10s%30s", "ID", "Level", "Number", "Room Type");
 
             for (Room room : rooms) {
                 if (!room.getIsDisabled()) {
-                    System.out.printf("\n%3s%10s%10s%30s%15s", room.getRoomId(), room.getRoomLevel(),
-                            room.getRoomNum(), room.getRoomType().getRoomTypeName(), room.getIsAvailable());
+                    System.out.printf("\n%3s%10s%10s%30s", room.getRoomId(), room.getRoomLevel(),
+                            room.getRoomNum(), room.getRoomType().getRoomTypeName());
 
                 }
-
+                
+                
             }
             System.out.println();
             System.out.println();
